@@ -90,7 +90,7 @@ function Hero() {
                     {/* Baixar Currículo — border glow no hover */}
                     <a
                         href="/batista-curriculo.pdf"
-                        download
+                        download="Joao-Batista-Curriculo.pdf"
                         className="hero-btn-secondary flex items-center justify-center gap-2 px-7 py-3 rounded-full font-semibold text-sm text-white"
                         style={{
                             position: "relative",
