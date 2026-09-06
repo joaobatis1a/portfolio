@@ -106,7 +106,7 @@ const UNLOCKED = [
     fullDesc: "Um lugar só pra tudo que a equipe precisa saber: documentos versionados, procedimentos com checklist e responsável, avisos internos e notificações. Fiz sozinho, do banco à tela. Modelei o Postgres no Supabase com acesso por cargo e montei o front em React, com design system próprio e tema claro e escuro.",
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
-    github: null,
+    github: "https://github.com/joaobatis1a/praxis",
     demo: "https://demo-praxis.vercel.app/",
     trailer: null,
     award: null,
