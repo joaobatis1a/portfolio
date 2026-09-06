@@ -107,7 +107,7 @@ const UNLOCKED = [
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
     github: null,
-    demo: "https://praxis-oficial.vercel.app/",
+    demo: "https://demo-praxis.vercel.app/",
     trailer: null,
     award: null,
     mx: 300, my: 415,
