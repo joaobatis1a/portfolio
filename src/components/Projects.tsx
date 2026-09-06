@@ -74,6 +74,54 @@ const UNLOCKED = [
       solid: "rgba(249,115,22,0.08)",
     },
   },
+  {
+    id: "kairos",
+    name: "Kairos",
+    period: "Jun 2026 – Set 2026",
+    shortDesc: "Plataforma multi-tenant de agendamento para barbearias: o cliente marca sozinho pelo link, o barbeiro acompanha tudo em um painel só.",
+    fullDesc: "Plataforma multi-tenant de agendamento para barbearias — cada barbearia tem seu link público, o cliente agenda sozinho a qualquer hora e o dono acompanha agenda, equipe, serviços, avaliações e faturamento em um painel único. Projeto autoral construído sozinho de ponta a ponta em Next.js 16 (App Router) + Supabase, com isolamento total entre barbearias via Row Level Security no Postgres, e-mails transacionais (confirmação, lembrete na véspera e agradecimento) pela Resend, cron de lembretes na Vercel, chat de suporte in-app e páginas de LGPD. Identidade visual própria, com tema claro/escuro.",
+    role: "Desenvolvedor Full-stack (solo)",
+    stack: ["Next.js", "React", "TypeScript", "Supabase", "Resend"],
+    github: "https://github.com/joaobatis1a/kairos",
+    demo: "https://kairos-opal-two.vercel.app/",
+    trailer: null,
+    award: null,
+    mx: 415, my: 150,
+    color: {
+      base: "rgba(212,163,74,0.95)",
+      glow: "rgba(212,163,74,0.6)",
+      bg: "rgba(212,163,74,0.12)",
+      border: "rgba(224,183,120,0.4)",
+      text: "rgba(240,212,164,0.95)",
+      ping: "rgba(212,163,74,0.3)",
+      hex: "#d4a34a",
+      solid: "rgba(212,163,74,0.08)",
+    },
+  },
+  {
+    id: "praxis",
+    name: "Praxis",
+    period: "Jul 2026 – Ago 2026",
+    shortDesc: "Gestão do conhecimento corporativo: biblioteca de documentos, procedimentos operacionais e comunicação interna em um só sistema.",
+    fullDesc: "Plataforma de gestão do conhecimento corporativo — reúne biblioteca de documentos versionados, procedimentos operacionais com checklist e responsável, avisos entre a equipe, central de notificações e um canal de suporte interno. Projeto autoral, feito sozinho do banco à interface: modelei o Supabase (Postgres + Auth + RLS multi-tenant), construí todo o front em React 19 + TypeScript com um design system próprio (tema claro/escuro), controle de acesso por cargo (admin, gestor, colaborador) e log de auditoria. A ideia: o que a equipe sabe não some quando alguém sai da sala.",
+    role: "Desenvolvedor Full-stack (solo)",
+    stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
+    github: "https://github.com/joaobatis1a/praxis",
+    demo: "https://praxis-oficial.vercel.app/",
+    trailer: null,
+    award: null,
+    mx: 300, my: 415,
+    color: {
+      base: "rgba(79,125,249,0.95)",
+      glow: "rgba(79,125,249,0.6)",
+      bg: "rgba(79,125,249,0.12)",
+      border: "rgba(109,148,250,0.38)",
+      text: "rgba(163,187,255,0.95)",
+      ping: "rgba(79,125,249,0.3)",
+      hex: "#4f7df9",
+      solid: "rgba(79,125,249,0.08)",
+    },
+  },
 ];
 
 const LOCKED = [
@@ -81,31 +129,11 @@ const LOCKED = [
     id: "guts",
     name: "Guts",
     date: "??/11/2026",
-    mx: 310, my: 400,
+    mx: 540, my: 430,
     hint: "Compartilhe suas experiências nos restaurantes favoritos do grupo",
     fullHint: "Registre quando você visitou um restaurante, compartilhe a experiência com seus amigos e acompanhe o histórico das visitas e avaliações do grupo.",
     classLevel: "ALPHA",
     stack: ["?", "?", "?"],
-  },
-  {
-    id: "praxis",
-    name: "Praxis",
-    date: "??/??/2026",
-    mx: 530, my: 435,
-    hint: "Centralize as funções e responsabilidades de cada cargo.",
-    fullHint: "Sistema que organiza as atribuições, processos e responsabilidades de cada cargo, facilitando o onboarding, treinamentos e consultas da equipe.",
-    classLevel: "BETA",
-    stack: ["?", "?"],
-  },
-  {
-    id: "kairos",
-    name: "Kairos",
-    date: "30/08/2026",
-    mx: 415, my: 165,
-    hint: "Gerencie clientes, agendamentos e serviços em um só lugar.",
-    fullHint: "Sistema para controle de clientes, agenda, profissionais, serviços e pagamentos, tornando a gestão da barbearia mais simples e organizada.",
-    classLevel: "OMEGA",
-    stack: ["?", "?", "?", "?"],
   },
 ];
 
@@ -480,10 +508,158 @@ function PonteEffect() {
   );
 }
 
+// Praxis: pixel knowledge graph — scattered doc-nodes wire up, a pulse runs the edges
+function PraxisEffect() {
+  const [t, setT] = useState(0);
+  const rafRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    let start: number;
+    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
+  }, []);
+
+  const nodes = [
+    { x: 34, y: 44 }, { x: 92, y: 30 }, { x: 150, y: 46 }, { x: 190, y: 78 },
+    { x: 58, y: 82 }, { x: 116, y: 74 }, { x: 30, y: 112 }, { x: 150, y: 108 },
+  ];
+  const edges = [[0, 1], [1, 2], [2, 3], [0, 4], [4, 5], [1, 5], [5, 3], [4, 6], [5, 7], [6, 7]];
+
+  const edgeDur = 0.42;
+  const activeEdge = Math.floor(t / edgeDur) % edges.length;
+  const prog = (t % edgeDur) / edgeDur;
+  const [ea, eb] = edges[activeEdge];
+  const na = nodes[ea], nb = nodes[eb];
+
+  return (
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140" shapeRendering="crispEdges">
+      {Array.from({ length: 24 }, (_, i) => (
+        <rect key={i} x={(i % 8) * 28 + 6} y={Math.floor(i / 8) * 42 + 12} width="1" height="1" fill="rgba(79,125,249,0.12)" />
+      ))}
+
+      {edges.map(([a, b], i) => {
+        const p = nodes[a], q = nodes[b];
+        const on = i === activeEdge;
+        return (
+          <line key={i} x1={p.x} y1={p.y} x2={q.x} y2={q.y}
+            stroke={on ? "rgba(150,180,255,0.7)" : "rgba(79,125,249,0.16)"} strokeWidth={on ? 1.5 : 1} />
+        );
+      })}
+
+      <rect x={na.x + (nb.x - na.x) * prog - 1.5} y={na.y + (nb.y - na.y) * prog - 1.5} width="3" height="3" fill="rgba(190,210,255,0.95)" />
+
+      {nodes.map((n, i) => {
+        const hot = i === ea || i === eb;
+        const pulse = 0.4 + 0.35 * Math.abs(Math.sin(t * 2 + i * 1.3));
+        const c = hot ? "rgba(185,208,255,0.95)" : `rgba(109,148,250,${pulse.toFixed(2)})`;
+        return (
+          <g key={i}>
+            <rect x={n.x - 4} y={n.y - 5} width="8" height="10" fill="rgba(4,9,20,0.92)" stroke={c} strokeWidth="1" />
+            <rect x={n.x - 2} y={n.y - 3} width="4" height="1" fill={c} />
+            <rect x={n.x - 2} y={n.y - 1} width="4" height="1" fill={c} />
+            <rect x={n.x - 2} y={n.y + 1} width="3" height="1" fill={c} />
+            {hot && <rect x={n.x - 7} y={n.y - 8} width="14" height="16" fill="none" stroke="rgba(109,148,250,0.3)" strokeWidth="1" />}
+          </g>
+        );
+      })}
+
+      <rect x="62" y="4" width="96" height="12" rx="2" fill="rgba(79,125,249,0.08)" stroke="rgba(79,125,249,0.2)" strokeWidth="0.5" />
+      <text x="110" y="13" textAnchor="middle" fill="rgba(160,185,255,0.6)" fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
+        CONECTANDO O CONHECIMENTO
+      </text>
+    </svg>
+  );
+}
+
+// Kairos: pixel barbershop — the pole spins, the scissors snip, the chair frees up
+function KairosEffect() {
+  const [t, setT] = useState(0);
+  const rafRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    let start: number;
+    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
+  }, []);
+
+  const gap = 1.5 + Math.max(0, Math.sin(t * 6)) * 3.5;
+  const poleOffset = (t * 12) % 10;
+  const done = Math.sin(t * 0.8) > 0.55;
+  const G = "rgba(212,163,74,";
+  const GL = "rgba(240,210,160,";
+
+  return (
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140" shapeRendering="crispEdges">
+      {[[24, 16], [188, 14], [150, 24], [40, 32], [198, 46], [14, 54]].map(([sx, sy], i) => (
+        <rect key={i} x={sx} y={sy} width="2" height="2" fill={`${G}0.4)`} opacity={0.25 + 0.5 * Math.abs(Math.sin(t * 1.1 + i))} />
+      ))}
+
+      {Array.from({ length: 12 }, (_, i) => (
+        <rect key={i} x={i * 18} y={112} width="17" height="5" fill={i % 2 === 0 ? `${G}0.10)` : `${G}0.05)`} />
+      ))}
+      <line x1="0" y1="112" x2="220" y2="112" stroke={`${G}0.25)`} strokeWidth="1" />
+
+      {/* barber pole */}
+      <rect x="18" y="44" width="11" height="5" fill={`${GL}0.9)`} />
+      <rect x="18" y="88" width="11" height="5" fill={`${GL}0.9)`} />
+      <rect x="19" y="49" width="9" height="39" fill="rgba(10,14,20,0.8)" />
+      {Array.from({ length: 5 }, (_, i) => {
+        const y = 49 + ((i * 10 + poleOffset) % 39);
+        return <rect key={i} x="19" y={y} width="9" height="4" fill={`${G}0.85)`} />;
+      })}
+      <rect x="19" y="49" width="3" height="39" fill={`${GL}0.15)`} />
+
+      {/* chair + client */}
+      <g transform="translate(118,0)">
+        <rect x="-14" y="98" width="28" height="6" fill={`${G}0.5)`} />
+        <rect x="-4" y="88" width="8" height="12" fill={`${G}0.4)`} />
+        <rect x="-16" y="80" width="32" height="9" fill={`${G}0.6)`} />
+        <rect x="-16" y="48" width="7" height="33" fill={`${G}0.55)`} />
+        <rect x="-7" y="60" width="19" height="20" fill={`${GL}0.8)`} />
+        <rect x="-3" y="43" width="12" height="13" fill="rgba(232,202,172,0.92)" />
+        <rect x="-4" y="39" width="14" height="5" fill="rgba(58,42,26,0.9)" />
+      </g>
+
+      {/* barber + scissors */}
+      <g transform="translate(150,0)">
+        <rect x="-4" y="62" width="12" height="20" fill={`${G}0.7)`} />
+        <rect x="-2" y="48" width="10" height="12" fill="rgba(232,202,172,0.92)" />
+        <rect x="-3" y="44" width="12" height="5" fill="rgba(30,22,14,0.9)" />
+        <rect x="-16" y="60" width="13" height="3" fill="rgba(232,202,172,0.85)" />
+        <g transform="translate(-22,60)">
+          <rect x="0" y={-gap} width="11" height="1.5" fill={`${GL}0.95)`} />
+          <rect x="0" y={gap} width="11" height="1.5" fill={`${GL}0.95)`} />
+          <rect x="10" y={-gap - 1.5} width="2.5" height="3" fill={`${G}0.9)`} />
+          <rect x="10" y={gap - 1.5} width="2.5" height="3" fill={`${G}0.9)`} />
+        </g>
+      </g>
+
+      {[0, 1, 2, 3].map(i => {
+        const fall = (t * 28 + i * 34) % 58;
+        return <rect key={i} x={112 + i * 5} y={46 + fall} width="1.5" height="1.5" fill="rgba(58,42,26,0.7)" opacity={1 - fall / 58} />;
+      })}
+
+      {done && [[116, 40], [124, 33], [108, 36]].map(([sx, sy], i) => (
+        <g key={i} opacity={0.5 + 0.4 * Math.sin(t * 8 + i)}>
+          <rect x={sx} y={sy - 2} width="1.5" height="5" fill={`${GL}0.95)`} />
+          <rect x={sx - 2} y={sy} width="5" height="1.5" fill={`${GL}0.95)`} />
+        </g>
+      ))}
+
+      <rect x="64" y="4" width="92" height="12" rx="2" fill={`${G}0.08)`} stroke={`${G}0.2)`} strokeWidth="0.5" />
+      <text x="110" y="13" textAnchor="middle" fill={`${GL}0.65)`} fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
+        {done ? "CADEIRA LIVRE" : "CORTE EM ANDAMENTO"}
+      </text>
+    </svg>
+  );
+}
+
 const CARD_EFFECTS: Record<string, React.FC> = {
   limpattack: LimpattackEffect,
   benevo: BenevoEffect,
   ponte: PonteEffect,
+  praxis: PraxisEffect,
+  kairos: KairosEffect,
 };
 
 /* ── Hover preview card for UNLOCKED ── */

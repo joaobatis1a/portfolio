@@ -6,7 +6,7 @@ const ITEMS = [
     { key: "local    ", value: "Paulista, PE 📍" },
     { key: "curso    ", value: "ADS — Frassinetti do Recife" },
     { key: "foco     ", value: "Front-End Development 💻" },
-    { key: "projetos ", value: "3 entregues · 2 premiados 🏆" },
+    { key: "projetos ", value: "5 entregues · 2 premiados 🏆" },
 ];
 
 const STEP_MS = 520;
