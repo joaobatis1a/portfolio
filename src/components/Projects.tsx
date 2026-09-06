@@ -83,7 +83,7 @@ const UNLOCKED = [
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["Next.js", "React", "TypeScript", "Supabase", "Resend"],
     github: "https://github.com/joaobatis1a/kairos",
-    demo: "https://kairos-opal-two.vercel.app/",
+    demo: "https://kairos-demo-rouge.vercel.app/",
     trailer: null,
     award: null,
     mx: 415, my: 150,
