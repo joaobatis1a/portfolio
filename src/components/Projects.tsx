@@ -78,8 +78,8 @@ const UNLOCKED = [
     id: "kairos",
     name: "Kairos",
     period: "Jun 2026 – Set 2026",
-    shortDesc: "Plataforma multi-tenant de agendamento para barbearias: o cliente marca sozinho pelo link, o barbeiro acompanha tudo em um painel só.",
-    fullDesc: "Plataforma multi-tenant de agendamento para barbearias — cada barbearia tem seu link público, o cliente agenda sozinho a qualquer hora e o dono acompanha agenda, equipe, serviços, avaliações e faturamento em um painel único. Projeto autoral construído sozinho de ponta a ponta em Next.js 16 (App Router) + Supabase, com isolamento total entre barbearias via Row Level Security no Postgres, e-mails transacionais (confirmação, lembrete na véspera e agradecimento) pela Resend, cron de lembretes na Vercel, chat de suporte in-app e páginas de LGPD. Identidade visual própria, com tema claro/escuro.",
+    shortDesc: "Agendamento pra barbearias: o cliente marca sozinho pelo link e o barbeiro vê tudo no painel.",
+    fullDesc: "Cada barbearia ganha um link próprio pra botar na bio. O cliente escolhe serviço, barbeiro e horário sozinho, e o dono acompanha agenda, equipe e faturamento num painel só. Fiz sozinho em Next.js e Supabase, com cada barbearia isolada no banco e os e-mails de confirmação e lembrete saindo automático pela Resend.",
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["Next.js", "React", "TypeScript", "Supabase", "Resend"],
     github: "https://github.com/joaobatis1a/kairos",
@@ -88,38 +88,38 @@ const UNLOCKED = [
     award: null,
     mx: 415, my: 150,
     color: {
-      base: "rgba(212,163,74,0.95)",
-      glow: "rgba(212,163,74,0.6)",
-      bg: "rgba(212,163,74,0.12)",
-      border: "rgba(224,183,120,0.4)",
-      text: "rgba(240,212,164,0.95)",
-      ping: "rgba(212,163,74,0.3)",
-      hex: "#d4a34a",
-      solid: "rgba(212,163,74,0.08)",
+      base: "rgba(244,63,94,0.95)",
+      glow: "rgba(244,63,94,0.6)",
+      bg: "rgba(244,63,94,0.12)",
+      border: "rgba(251,113,133,0.4)",
+      text: "rgba(253,164,175,0.95)",
+      ping: "rgba(244,63,94,0.3)",
+      hex: "#f43f5e",
+      solid: "rgba(244,63,94,0.08)",
     },
   },
   {
     id: "praxis",
     name: "Praxis",
     period: "Jul 2026 – Ago 2026",
-    shortDesc: "Gestão do conhecimento corporativo: biblioteca de documentos, procedimentos operacionais e comunicação interna em um só sistema.",
-    fullDesc: "Plataforma de gestão do conhecimento corporativo — reúne biblioteca de documentos versionados, procedimentos operacionais com checklist e responsável, avisos entre a equipe, central de notificações e um canal de suporte interno. Projeto autoral, feito sozinho do banco à interface: modelei o Supabase (Postgres + Auth + RLS multi-tenant), construí todo o front em React 19 + TypeScript com um design system próprio (tema claro/escuro), controle de acesso por cargo (admin, gestor, colaborador) e log de auditoria. A ideia: o que a equipe sabe não some quando alguém sai da sala.",
+    shortDesc: "Gestão do conhecimento pra empresas: documentos, procedimentos e avisos da equipe num lugar só.",
+    fullDesc: "Um lugar só pra tudo que a equipe precisa saber: documentos versionados, procedimentos com checklist e responsável, avisos internos e notificações. Fiz sozinho, do banco à tela. Modelei o Postgres no Supabase com acesso por cargo e montei o front em React, com design system próprio e tema claro e escuro.",
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
-    github: "https://github.com/joaobatis1a/praxis",
+    github: null,
     demo: "https://praxis-oficial.vercel.app/",
     trailer: null,
     award: null,
     mx: 300, my: 415,
     color: {
-      base: "rgba(79,125,249,0.95)",
-      glow: "rgba(79,125,249,0.6)",
-      bg: "rgba(79,125,249,0.12)",
-      border: "rgba(109,148,250,0.38)",
-      text: "rgba(163,187,255,0.95)",
-      ping: "rgba(79,125,249,0.3)",
-      hex: "#4f7df9",
-      solid: "rgba(79,125,249,0.08)",
+      base: "rgba(20,184,166,0.95)",
+      glow: "rgba(20,184,166,0.6)",
+      bg: "rgba(20,184,166,0.12)",
+      border: "rgba(45,212,191,0.4)",
+      text: "rgba(153,246,228,0.95)",
+      ping: "rgba(20,184,166,0.3)",
+      hex: "#14b8a6",
+      solid: "rgba(20,184,166,0.08)",
     },
   },
 ];
@@ -534,7 +534,7 @@ function PraxisEffect() {
   return (
     <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140" shapeRendering="crispEdges">
       {Array.from({ length: 24 }, (_, i) => (
-        <rect key={i} x={(i % 8) * 28 + 6} y={Math.floor(i / 8) * 42 + 12} width="1" height="1" fill="rgba(79,125,249,0.12)" />
+        <rect key={i} x={(i % 8) * 28 + 6} y={Math.floor(i / 8) * 42 + 12} width="1" height="1" fill="rgba(20,184,166,0.14)" />
       ))}
 
       {edges.map(([a, b], i) => {
@@ -542,29 +542,29 @@ function PraxisEffect() {
         const on = i === activeEdge;
         return (
           <line key={i} x1={p.x} y1={p.y} x2={q.x} y2={q.y}
-            stroke={on ? "rgba(150,180,255,0.7)" : "rgba(79,125,249,0.16)"} strokeWidth={on ? 1.5 : 1} />
+            stroke={on ? "rgba(94,234,212,0.75)" : "rgba(20,184,166,0.16)"} strokeWidth={on ? 1.5 : 1} />
         );
       })}
 
-      <rect x={na.x + (nb.x - na.x) * prog - 1.5} y={na.y + (nb.y - na.y) * prog - 1.5} width="3" height="3" fill="rgba(190,210,255,0.95)" />
+      <rect x={na.x + (nb.x - na.x) * prog - 1.5} y={na.y + (nb.y - na.y) * prog - 1.5} width="3" height="3" fill="rgba(204,251,241,0.95)" />
 
       {nodes.map((n, i) => {
         const hot = i === ea || i === eb;
         const pulse = 0.4 + 0.35 * Math.abs(Math.sin(t * 2 + i * 1.3));
-        const c = hot ? "rgba(185,208,255,0.95)" : `rgba(109,148,250,${pulse.toFixed(2)})`;
+        const c = hot ? "rgba(153,246,228,0.95)" : `rgba(45,212,191,${pulse.toFixed(2)})`;
         return (
           <g key={i}>
-            <rect x={n.x - 4} y={n.y - 5} width="8" height="10" fill="rgba(4,9,20,0.92)" stroke={c} strokeWidth="1" />
+            <rect x={n.x - 4} y={n.y - 5} width="8" height="10" fill="rgba(3,16,14,0.92)" stroke={c} strokeWidth="1" />
             <rect x={n.x - 2} y={n.y - 3} width="4" height="1" fill={c} />
             <rect x={n.x - 2} y={n.y - 1} width="4" height="1" fill={c} />
             <rect x={n.x - 2} y={n.y + 1} width="3" height="1" fill={c} />
-            {hot && <rect x={n.x - 7} y={n.y - 8} width="14" height="16" fill="none" stroke="rgba(109,148,250,0.3)" strokeWidth="1" />}
+            {hot && <rect x={n.x - 7} y={n.y - 8} width="14" height="16" fill="none" stroke="rgba(45,212,191,0.3)" strokeWidth="1" />}
           </g>
         );
       })}
 
-      <rect x="62" y="4" width="96" height="12" rx="2" fill="rgba(79,125,249,0.08)" stroke="rgba(79,125,249,0.2)" strokeWidth="0.5" />
-      <text x="110" y="13" textAnchor="middle" fill="rgba(160,185,255,0.6)" fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
+      <rect x="62" y="4" width="96" height="12" rx="2" fill="rgba(20,184,166,0.08)" stroke="rgba(20,184,166,0.2)" strokeWidth="0.5" />
+      <text x="110" y="13" textAnchor="middle" fill="rgba(153,246,228,0.6)" fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
         CONECTANDO O CONHECIMENTO
       </text>
     </svg>
@@ -585,8 +585,8 @@ function KairosEffect() {
   const gap = 1.5 + Math.max(0, Math.sin(t * 6)) * 3.5;
   const poleOffset = (t * 12) % 10;
   const done = Math.sin(t * 0.8) > 0.55;
-  const G = "rgba(212,163,74,";
-  const GL = "rgba(240,210,160,";
+  const G = "rgba(244,63,94,";
+  const GL = "rgba(253,164,175,";
 
   return (
     <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140" shapeRendering="crispEdges">
@@ -836,8 +836,9 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                 {project.fullDesc}
               </p>
 
-              {/* Action buttons row — GitHub, Demo, and Trailer (if exists) all together */}
+              {/* Action buttons row — GitHub (if public), Demo, and Trailer (if exists) all together */}
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {project.github && (
                 <a href={project.github} target="_blank" rel="noopener noreferrer"
                   style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#e4e4e7" }}>
                   <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 24 24">
@@ -845,6 +846,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                   </svg>
                   GitHub
                 </a>
+                )}
                 <a href={project.demo} target="_blank" rel="noopener noreferrer"
                   style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                   <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
