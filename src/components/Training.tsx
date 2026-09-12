@@ -47,7 +47,7 @@ const TIMELINE_NODES = [
     color: "#f59e0b",
     glow: "rgba(245,158,11,0.6)",
     events: [
-      { icon: "🎓", text: "Ingresso na FAFIRE — ADS (Análise e Desenvolvimento de Sistemas)" },
+      { icon: "🎓", text: "Ingresso no Centro Universitário UNIFAFIRE — ADS (Análise e Desenvolvimento de Sistemas)" },
       { icon: "🏆", text: "LimpAttack — 1º lugar no 1º período" },
       { icon: "🥈", text: "Benevo — 2º lugar no 2º período" },
       { icon: "📜", text: "Certificado: Formação em Lógica de Programação com JavaScript (Dio)" },
@@ -462,14 +462,17 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
    CARD DE CERTIFICADO com flip 3D
 ══════════════════════════════════════════════════════════ */
 function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
-  const [flipped, setFlipped] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [tapped, setTapped] = useState(false);
+  const flipped = hovering || tapped;
   const c = cert.color;
 
   return (
     <div
       style={{ perspective: 900, height: 140, cursor: "pointer" }}
-      onMouseEnter={() => setFlipped(true)}
-      onMouseLeave={() => setFlipped(false)}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onClick={() => setTapped(t => !t)}
     >
       <div style={{
         width: "100%", height: "100%",

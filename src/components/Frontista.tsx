@@ -173,7 +173,7 @@ function RadarCanvas({
             s.interferencePoints.push({ x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2, life: Math.random() * 80 });
         }
 
-        const ROTATIONS_BEFORE_DETECT = 0.8;
+        const ROTATIONS_BEFORE_DETECT = 0.45;
         const TARGET_TOTAL = Math.PI * 2 * ROTATIONS_BEFORE_DETECT;
         const BASE_SPEED = 0.032;
         const TRAIL_ANGLE = Math.PI * 0.78;
@@ -653,7 +653,7 @@ function RadarCanvas({
 
             /* ── 14. FASE ZOOM ── */
             if (ph === "zoom") {
-                s.zoomProgress = Math.min(s.zoomProgress + 0.02, 1);
+                s.zoomProgress = Math.min(s.zoomProgress + 0.035, 1);
                 const tex = Math.cos(s.targetAngle) * R * s.targetDist;
                 const tey = Math.sin(s.targetAngle) * R * s.targetDist;
                 // easeOutQuad para as ondas
@@ -1182,7 +1182,7 @@ export default function Frontista() {
 
     useEffect(() => {
         if (phase !== "detected") return;
-        const t = setTimeout(() => setPhase("zoom"), 1200);
+        const t = setTimeout(() => setPhase("zoom"), 700);
         return () => clearTimeout(t);
     }, [phase]);
 
