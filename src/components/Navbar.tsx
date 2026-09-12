@@ -58,17 +58,17 @@ function Navbar() {
             {/* ── Navbar pill — shrinks on scroll ── */}
             <div className="fixed top-4 left-0 w-full z-50 flex justify-center transition-all duration-500">
                 <nav
-                    className="w-[95%] max-w-6xl rounded-full border border-white/10 backdrop-blur-md bg-zinc-900/70 shadow-lg shadow-cyan-500/10 transition-all duration-500"
-                    style={{ padding: scrolled ? "8px 0" : "16px 0" }}
+                    className="w-[95%] max-w-6xl rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10 transition-all duration-500"
+                    style={{ padding: scrolled ? "11px 0" : "16px 0", background: scrolled ? "rgba(24,24,27,0.88)" : "rgba(24,24,27,0.7)" }}
                 >
                     <div
                         className="flex items-center justify-between transition-all duration-500"
-                        style={{ padding: scrolled ? "0 20px" : "0 48px" }}
+                        style={{ padding: scrolled ? "0 30px" : "0 48px" }}
                     >
                         {/* Logo */}
                         <div
                             className="font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent transition-all duration-500"
-                            style={{ fontSize: scrolled ? "15px" : "22px" }}
+                            style={{ fontSize: scrolled ? "18px" : "22px" }}
                         >
                             JOÃO BATISTA
                         </div>
@@ -76,7 +76,7 @@ function Navbar() {
                         {/* Desktop links */}
                         <ul
                             className="hidden md:flex gap-6 transition-all duration-500"
-                            style={{ fontSize: scrolled ? "11px" : "14px" }}
+                            style={{ fontSize: scrolled ? "13px" : "14px" }}
                         >
                             {NAV_LINKS.map(({ to, label }) => (
                                 <li key={to}>
@@ -94,7 +94,7 @@ function Navbar() {
                         {/* Hamburger — 3 linhas → X */}
                         <button
                             className="md:hidden flex flex-col justify-center items-center gap-[5px] focus:outline-none"
-                            style={{ width: scrolled ? 26 : 30, height: scrolled ? 26 : 30 }}
+                            style={{ width: scrolled ? 28 : 30, height: scrolled ? 28 : 30 }}
                             onClick={() => setOpen(o => !o)}
                             aria-label="Menu"
                         >

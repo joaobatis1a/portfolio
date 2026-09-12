@@ -4,9 +4,9 @@ const ITEMS = [
     { key: "nome     ", value: "João Batista da Silva Neto" },
     { key: "idade    ", value: "19 anos" },
     { key: "local    ", value: "Paulista, PE 📍" },
-    { key: "curso    ", value: "ADS — Centro Universitário UNIFAFIRE" },
-    { key: "foco     ", value: "Front-End Development 💻" },
-    { key: "projetos ", value: "5 entregues · 2 premiados 🏆" },
+    { key: "curso    ", value: "ADS na UNIFAFIRE" },
+    { key: "foco     ", value: "Front-End Júnior 💻" },
+    { key: "projetos ", value: "5 entregues · 3 premiados 🏆" },
 ];
 
 const STEP_MS = 520;
@@ -56,7 +56,7 @@ function Terminal() {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
                 <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
                 <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-                <span className="ml-2 text-[10px] text-zinc-500 tracking-wider">about.sh — bash</span>
+                <span className="ml-2 text-[10px] text-zinc-500 tracking-wider">about.sh · bash</span>
             </div>
 
             {/* Body */}
@@ -201,8 +201,8 @@ function About() {
 
                     <p className="text-zinc-400 text-sm leading-relaxed max-w-xl text-justify">
                         Comecei cedo, aprendo rápido e já entreguei projetos reconhecidos por bancas técnicas.
-                        Acredito que bom front-end não é só visual — é código limpo, experiência fluida e atenção
-                        ao detalhe que faz a diferença.
+                        Gosto de fazer a aplicação inteira, do layout no Figma até rodando em produção, sempre
+                        com atenção ao código limpo e à experiência de quem usa.
                     </p>
 
                     <Terminal />

@@ -272,7 +272,7 @@ export default function Experience() {
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
           <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            — primeira missão profissional —
+            // primeira missão profissional
           </p>
         </div>
 
@@ -355,7 +355,7 @@ export default function Experience() {
             {/* Corpo */}
             <div style={{ padding: "18px 20px 20px", position: "relative", zIndex: 1 }}>
               <MissionField label="Cargo"       value="Auxiliar Administrativo · Aprendiz" delay={0}   revealed={revealed} />
-              <MissionField label="Organização" value="ACLF — Pernambuco, Brasil"          delay={100} revealed={revealed} />
+              <MissionField label="Organização" value="ACLF, Pernambuco"                   delay={100} revealed={revealed} />
               <MissionField label="Início"      value="Novembro de 2025"                   delay={200} revealed={revealed} mono />
               <MissionField label="Status"      value="EM ANDAMENTO"                       delay={300} revealed={revealed} mono />
               <MissionField label="Duração"     value={dur}                                delay={400} revealed={revealed} mono />
@@ -372,7 +372,7 @@ export default function Experience() {
                   SUMÁRIO OPERACIONAL
                 </div>
                 <p style={{ fontSize: 12, lineHeight: 1.75, color: "rgba(210,228,210,0.78)", margin: 0 }}>
-                  Primeiro contato real com rotina profissional — gestão documental, controle de receitas,
+                  Primeiro contato real com rotina profissional: gestão documental, controle de receitas,
                   comunicação institucional e padronização de processos. A mesma disciplina que hoje
                   sustenta como estruturo sistemas e escrevo código.
                 </p>

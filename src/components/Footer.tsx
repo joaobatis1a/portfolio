@@ -109,7 +109,7 @@ function Footer() {
                                 <p className="text-zinc-500">
                                     <span className="text-emerald-400">$</span> whoami
                                 </p>
-                                <p className="text-zinc-300 mb-1.5">joão_batista — frontend dev</p>
+                                <p className="text-zinc-300 mb-1.5">joão_batista, frontend dev</p>
                                 <p className="text-zinc-500">
                                     <span className="text-emerald-400">$</span> status
                                 </p>
