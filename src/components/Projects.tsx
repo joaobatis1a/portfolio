@@ -101,7 +101,7 @@ const UNLOCKED = [
   {
     id: "praxis",
     name: "Praxis",
-    period: "Jul 2026 – Ago 2026",
+    period: "Mai 2026 – Jul 2026",
     shortDesc: "Gestão do conhecimento pra empresas: documentos, procedimentos e avisos da equipe num lugar só.",
     fullDesc: "Um lugar só pra tudo que a equipe precisa saber: documentos versionados, procedimentos com checklist e responsável, avisos internos e notificações. Fiz sozinho, do banco à tela. Modelei o Postgres no Supabase com acesso por cargo e montei o front em React, com design system próprio e tema claro e escuro.",
     role: "Desenvolvedor Full-stack (solo)",
@@ -124,21 +124,7 @@ const UNLOCKED = [
   },
 ];
 
-const LOCKED = [
-  {
-    id: "guts",
-    name: "Guts",
-    date: "??/11/2026",
-    mx: 540, my: 430,
-    hint: "Compartilhe suas experiências nos restaurantes favoritos do grupo",
-    fullHint: "Registre quando você visitou um restaurante, compartilhe a experiência com seus amigos e acompanhe o histórico das visitas e avaliações do grupo.",
-    classLevel: "ALPHA",
-    stack: ["?", "?", "?"],
-  },
-];
-
 type UnlockedProject = typeof UNLOCKED[number];
-type LockedProject = typeof LOCKED[number];
 
 const ISLAND_PATH = `
   M 110 330
@@ -733,7 +719,7 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
             ))}
           </div>
           <div style={{ fontSize: "9px", color: c.text, opacity: 0.45, textAlign: "center", borderTop: `1px solid ${c.solid}`, paddingTop: "7px", fontFamily: "monospace", letterSpacing: "1px" }}>
-            CLIQUE PARA VER DETALHES
+            CLIQUE PARA VER CÓDIGO E DEMO
           </div>
         </div>
       </div>
@@ -942,266 +928,10 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
   );
 }
 
-/* ── Hover preview card for LOCKED ── */
-function LockedHoverCard({ locked, svgX, svgY, svgW, svgH, visible }: {
-  locked: LockedProject; svgX: number; svgY: number; svgW: number; svgH: number; visible: boolean;
-}) {
-  const [glitch, setGlitch] = useState(false);
-  const [scanPos, setScanPos] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    if (!visible) { setGlitch(false); return; }
-    const t1 = setTimeout(() => setGlitch(true), 80);
-    const t2 = setTimeout(() => setGlitch(false), 200);
-    const t3 = setTimeout(() => setGlitch(true), 320);
-    const t4 = setTimeout(() => setGlitch(false), 420);
-    let start: number;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      setScanPos(((ts - start) % 1800) / 1800);
-      rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [visible]);
-
-  const leftPct = (svgX / svgW) * 100;
-  const topPct = (svgY / svgH) * 100;
-  const flipLeft = leftPct > 55;
-  const flipUp = topPct > 60;
-  const gx = glitch ? (Math.random() * 5 - 2.5) : 0;
-  const gy = glitch ? (Math.random() * 3 - 1.5) : 0;
-
-  return (
-    <div style={{
-      position: "absolute",
-      left: `${leftPct}%`, top: `${topPct}%`,
-      transform: `translate(${flipLeft ? "calc(-100% - 14px)" : "22px"}, ${flipUp ? "calc(-100% + 14px)" : "-14px"})`,
-      zIndex: 60, pointerEvents: "none",
-      opacity: visible ? 1 : 0,
-      scale: visible ? "1" : "0.85",
-      transition: "opacity 0.3s ease, scale 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-      width: "200px",
-    }}>
-      <div style={{
-        background: "rgba(3,3,18,0.98)", border: "1px solid rgba(100,80,200,0.5)",
-        borderRadius: "12px", overflow: "hidden",
-        boxShadow: "0 0 40px rgba(80,60,180,0.35), 0 0 80px rgba(60,40,150,0.15), 0 8px 32px rgba(0,0,0,0.8)",
-        transform: `translate(${gx}px,${gy}px)`, transition: glitch ? "none" : "transform 0.1s ease", position: "relative",
-      }}>
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", borderRadius: "12px", zIndex: 10 }}>
-          <div style={{ position: "absolute", left: 0, right: 0, height: "2px", top: `${scanPos * 100}%`, background: "linear-gradient(90deg,transparent,rgba(120,100,255,0.6),rgba(180,160,255,0.8),rgba(120,100,255,0.6),transparent)", boxShadow: "0 0 12px rgba(140,120,255,0.6)" }} />
-          <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(100,80,200,0.04) 2px,rgba(100,80,200,0.04) 3px)" }} />
-        </div>
-        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(80,60,180,0.25)", display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ fontSize: "13px" }}>🔒</span>
-          <div>
-            <div style={{ color: "rgba(160,140,255,0.9)", fontSize: "11px", fontWeight: 800, letterSpacing: "1px", fontFamily: "monospace" }}>{locked.name}</div>
-            <div style={{ color: "rgba(100,80,200,0.6)", fontSize: "8px", fontFamily: "monospace" }}>PROJETO CLASSIFICADO</div>
-          </div>
-          <div style={{ marginLeft: "auto" }}>
-            <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(239,68,68,0.9)", boxShadow: "0 0 6px rgba(239,68,68,0.8)", animation: "redPulse 1s ease-in-out infinite" }} />
-          </div>
-        </div>
-        <div style={{ padding: "12px" }}>
-          <div style={{ background: "rgba(80,60,180,0.08)", border: "1px solid rgba(100,80,200,0.2)", borderRadius: "6px", padding: "8px 10px", marginBottom: "10px" }}>
-            <div style={{ fontSize: "8px", color: "rgba(120,100,200,0.6)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "4px" }}>// PISTA DECODIFICADA</div>
-            <p style={{ color: "rgba(180,160,255,0.85)", fontSize: "10px", fontStyle: "italic", lineHeight: "1.5", fontFamily: "serif" }}>"{locked.hint}"</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(80,60,180,0.2)", paddingTop: "9px" }}>
-            <span style={{ fontSize: "8px", color: "rgba(100,80,200,0.5)", fontFamily: "monospace" }}>LIBERAÇÃO PREVISTA</span>
-            <span style={{ fontSize: "10px", fontWeight: 700, fontFamily: "monospace", color: "rgba(160,140,255,0.9)", textShadow: "0 0 8px rgba(140,120,255,0.5)" }}>{locked.date}</span>
-          </div>
-          <div style={{ marginTop: "8px", textAlign: "center", fontSize: "9px", color: "rgba(140,120,255,0.45)", fontFamily: "monospace", letterSpacing: "0.5px" }}>CLIQUE PARA REVELAR MAIS</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Full panel for LOCKED ── */
-function LockedPanel({ locked, onClose }: { locked: LockedProject; onClose: () => void }) {
-  const [show, setShow] = useState(false);
-  const [scanPos, setScanPos] = useState(0);
-  const [glitch, setGlitch] = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const rafRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setShow(true));
-    // Entry glitch burst
-    const t1 = setTimeout(() => setGlitch(true), 100);
-    const t2 = setTimeout(() => setGlitch(false), 220);
-    const t3 = setTimeout(() => setGlitch(true), 380);
-    const t4 = setTimeout(() => setGlitch(false), 480);
-    // Scan line
-    let start: number;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      setScanPos(((ts - start) % 2400) / 2400);
-      rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
-  const gx = glitch ? (Math.random() * 8 - 4) : 0;
-  const gy = glitch ? (Math.random() * 4 - 2) : 0;
-
-  const classColors: Record<string, string> = {
-    ALPHA: "rgba(251,191,36,0.9)",
-    BETA: "rgba(34,197,94,0.9)",
-    OMEGA: "rgba(239,68,68,0.9)",
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(10px)" }}
-      onClick={onClose}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: "rgba(4,4,22,0.99)",
-          border: "1px solid rgba(120,100,220,0.5)",
-          borderRadius: "20px",
-          overflow: "hidden",
-          width: "100%",
-          maxWidth: "500px",
-          boxShadow: "0 0 80px rgba(80,60,200,0.3), 0 0 160px rgba(60,40,160,0.15), 0 24px 64px rgba(0,0,0,0.9)",
-          transform: show ? `scale(1) translateY(0) translate(${gx}px,${gy}px)` : "scale(0.88) translateY(30px)",
-          opacity: show ? 1 : 0,
-          transition: glitch ? "none" : "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
-          position: "relative",
-        }}
-      >
-        {/* Scan sweep */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", borderRadius: "20px", zIndex: 5 }}>
-          <div style={{
-            position: "absolute", left: 0, right: 0, height: "3px",
-            top: `${scanPos * 100}%`,
-            background: "linear-gradient(90deg,transparent,rgba(120,100,255,0.5),rgba(200,180,255,0.9),rgba(120,100,255,0.5),transparent)",
-            boxShadow: "0 0 16px rgba(160,140,255,0.7)",
-          }} />
-          <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(100,80,200,0.035) 2px,rgba(100,80,200,0.035) 3px)" }} />
-        </div>
-
-        {/* Top accent bar */}
-        <div style={{ height: "3px", background: "linear-gradient(90deg,transparent,rgba(120,100,255,0.8),rgba(200,160,255,1),rgba(120,100,255,0.8),transparent)", position: "relative", zIndex: 6 }} />
-
-        {/* Header */}
-        <div style={{ padding: "24px 28px 18px", borderBottom: "1px solid rgba(80,60,200,0.2)", position: "relative", zIndex: 6 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                <span style={{ fontSize: "18px" }}>🔒</span>
-                <span style={{ fontSize: "9px", fontFamily: "monospace", letterSpacing: "2px", color: "rgba(120,100,200,0.6)", textTransform: "uppercase" }}>PROJETO CLASSIFICADO</span>
-                <span style={{
-                  fontSize: "9px", fontWeight: 800, padding: "1px 8px", borderRadius: "20px",
-                  background: "rgba(0,0,0,0.5)",
-                  border: `1px solid ${classColors[locked.classLevel] || "rgba(120,100,200,0.5)"}`,
-                  color: classColors[locked.classLevel] || "rgba(180,160,255,0.9)",
-                  fontFamily: "monospace",
-                }}>
-                  {locked.classLevel}
-                </span>
-              </div>
-              <h3 style={{ color: "rgba(200,180,255,0.95)", fontWeight: 900, fontSize: "32px", letterSpacing: "-0.5px", fontFamily: "monospace" }}>
-                {locked.name}
-              </h3>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
-              <button onClick={onClose} style={{ color: "rgba(120,120,130,0.6)", fontSize: "18px", background: "none", border: "none", cursor: "pointer" }}>✕</button>
-              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(239,68,68,0.9)", boxShadow: "0 0 6px rgba(239,68,68,0.8)", animation: "redPulse 1s ease-in-out infinite" }} />
-                <span style={{ fontSize: "8px", color: "rgba(239,68,68,0.7)", fontFamily: "monospace" }}>ACESSO RESTRITO</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ padding: "22px 28px 26px", position: "relative", zIndex: 6 }}>
-          {/* Redacted block that reveals on click */}
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ fontSize: "10px", color: "rgba(120,100,200,0.55)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "10px", textTransform: "uppercase" }}>
-              // Descrição do projeto
-            </div>
-            {!revealed ? (
-              <div
-                onClick={() => setRevealed(true)}
-                style={{ cursor: "pointer", position: "relative", padding: "14px 16px", borderRadius: "10px", border: "1px dashed rgba(100,80,200,0.35)", background: "rgba(80,60,180,0.06)" }}
-              >
-                {/* Fake redacted lines */}
-                {[95, 88, 100, 72, 85, 60].map((w, i) => (
-                  <div key={i} style={{ height: "10px", width: `${w}%`, borderRadius: "3px", marginBottom: "6px", background: "rgba(80,60,180,0.45)", overflow: "hidden", position: "relative" }}>
-                    <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(0,0,0,0.35) 5px,rgba(0,0,0,0.35) 6px)" }} />
-                  </div>
-                ))}
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "10px", background: "rgba(4,4,22,0.5)", backdropFilter: "blur(2px)" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(160,140,255,0.8)", fontFamily: "monospace", letterSpacing: "1.5px" }}>🔓 CLIQUE PARA DECIFRAR</span>
-                </div>
-              </div>
-            ) : (
-              <p style={{ color: "rgba(190,180,255,0.85)", fontSize: "13.5px", lineHeight: "1.7", animation: "fadeIn 0.5s ease" }}>
-                {locked.fullHint}
-              </p>
-            )}
-          </div>
-
-          {/* Pista */}
-          <div style={{ background: "rgba(80,60,180,0.08)", border: "1px solid rgba(100,80,200,0.22)", borderRadius: "10px", padding: "12px 14px", marginBottom: "20px" }}>
-            <div style={{ fontSize: "8px", color: "rgba(120,100,200,0.5)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "5px" }}>// TRANSMISSÃO INTERCEPTADA</div>
-            <p style={{ color: "rgba(180,160,255,0.85)", fontSize: "13px", fontStyle: "italic", lineHeight: "1.6", fontFamily: "serif" }}>"{locked.hint}"</p>
-          </div>
-
-          {/* Stack (hidden) */}
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ fontSize: "10px", color: "rgba(120,100,200,0.55)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "10px", textTransform: "uppercase" }}>// Stack [REDACTED]</div>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {locked.stack.map((s, i) => (
-                <div key={i} style={{ padding: "8px 16px", borderRadius: "10px", fontSize: "13px", fontWeight: 700, background: "rgba(80,60,180,0.15)", border: "1px solid rgba(100,80,200,0.25)", color: "rgba(120,100,200,0.5)", fontFamily: "monospace", letterSpacing: "2px" }}>
-                  {s.repeat(3)}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Release */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(80,60,180,0.2)", paddingTop: "16px" }}>
-            <div>
-              <div style={{ fontSize: "8px", color: "rgba(100,80,200,0.5)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "3px" }}>TRANSMISSÃO PREVISTA</div>
-              <div style={{ fontSize: "20px", fontWeight: 800, fontFamily: "monospace", color: "rgba(180,160,255,0.95)", textShadow: "0 0 20px rgba(160,140,255,0.5)" }}>{locked.date}</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "8px", color: "rgba(100,80,200,0.5)", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "3px" }}>NÍVEL</div>
-              <div style={{ fontSize: "20px", fontWeight: 800, fontFamily: "monospace", color: classColors[locked.classLevel] || "rgba(180,160,255,0.9)", textShadow: `0 0 20px ${classColors[locked.classLevel] || "rgba(160,140,255,0.5)"}` }}>{locked.classLevel}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes redPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-      `}</style>
-    </div>
-  );
-}
-
 /* ── Map ── */
 function IslandMap() {
   const [selectedUnlocked, setSelectedUnlocked] = useState<UnlockedProject | null>(null);
-  const [selectedLocked, setSelectedLocked] = useState<LockedProject | null>(null);
   const [hoveredUnlocked, setHoveredUnlocked] = useState<string | null>(null);
-  const [hoveredLocked, setHoveredLocked] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const VW = 800, VH = 600;
 
@@ -1220,9 +950,6 @@ function IslandMap() {
       {/* Hover cards — desktop only */}
       {!isMobile && UNLOCKED.map(p => (
         <UnlockedHoverCard key={p.id} project={p} svgX={p.mx} svgY={p.my} svgW={VW} svgH={VH} visible={hoveredUnlocked === p.id && selectedUnlocked === null} />
-      ))}
-      {!isMobile && LOCKED.map(lk => (
-        <LockedHoverCard key={lk.id} locked={lk} svgX={lk.mx} svgY={lk.my} svgW={VW} svgH={VH} visible={hoveredLocked === lk.id && selectedLocked === null} />
       ))}
 
       <svg
@@ -1246,21 +973,6 @@ function IslandMap() {
             <stop offset="0%" stopColor="rgba(34,197,94,0.06)" />
             <stop offset="100%" stopColor="rgba(34,197,94,0)" />
           </radialGradient>
-          <radialGradient id="fogGrad0" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(40,40,80,0.95)" />
-            <stop offset="60%" stopColor="rgba(20,20,50,0.85)" />
-            <stop offset="100%" stopColor="rgba(10,10,30,0)" />
-          </radialGradient>
-          <radialGradient id="fogGrad1" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(35,35,75,0.92)" />
-            <stop offset="60%" stopColor="rgba(18,18,48,0.82)" />
-            <stop offset="100%" stopColor="rgba(8,8,28,0)" />
-          </radialGradient>
-          <radialGradient id="fogGrad2" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(45,40,85,0.93)" />
-            <stop offset="60%" stopColor="rgba(22,18,52,0.83)" />
-            <stop offset="100%" stopColor="rgba(10,8,32,0)" />
-          </radialGradient>
           <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
           <filter id="strongGlow"><feGaussianBlur stdDeviation="6" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
         </defs>
@@ -1280,25 +992,6 @@ function IslandMap() {
         {["M 180 220 Q 290 195 400 210 Q 510 225 615 215","M 160 278 Q 280 258 400 270 Q 520 282 635 272","M 162 335 Q 285 318 405 328 Q 525 338 632 330","M 185 388 Q 300 375 415 383 Q 530 390 622 382","M 215 438 Q 330 428 440 434 Q 548 440 603 433"].map((d, i) => (
           <path key={i} d={d} fill="none" stroke="rgba(34,197,94,0.07)" strokeWidth="1" />
         ))}
-
-        {/* Fog for locked */}
-        {LOCKED.map((lk, i) => {
-          const isH = hoveredLocked === lk.id;
-          return (
-            <g key={lk.id}>
-              <ellipse cx={lk.mx} cy={lk.my} rx={isH ? 40 : 70} ry={isH ? 28 : 48} fill={`url(#fogGrad${i})`} style={{ transition: "all 0.6s ease", filter: "blur(1px)", opacity: isH ? 0.4 : 1 }} />
-              <ellipse cx={lk.mx - 15} cy={lk.my + 8} rx={isH ? 22 : 40} ry={isH ? 15 : 28} fill={`url(#fogGrad${i})`} opacity={isH ? 0.2 : 0.7} style={{ filter: "blur(3px)", transition: "all 0.6s ease", animation: `fogDrift 5s ease-in-out infinite`, animationDelay: `${i * 1.2}s` }} />
-              <ellipse cx={lk.mx + 12} cy={lk.my - 10} rx={isH ? 18 : 35} ry={isH ? 12 : 22} fill={`url(#fogGrad${i})`} opacity={isH ? 0.15 : 0.6} style={{ filter: "blur(2px)", transition: "all 0.6s ease", animation: `fogDrift 7s ease-in-out infinite reverse`, animationDelay: `${i * 0.8}s` }} />
-              {isH && (
-                <g>
-                  <line x1={lk.mx - 8} y1={lk.my - 20} x2={lk.mx + 4} y2={lk.my + 5} stroke="rgba(160,140,255,0.6)" strokeWidth="1.5" style={{ filter: "drop-shadow(0 0 4px rgba(140,120,255,0.8))" }} />
-                  <line x1={lk.mx + 4} y1={lk.my + 5} x2={lk.mx - 3} y2={lk.my + 22} stroke="rgba(160,140,255,0.4)" strokeWidth="1" />
-                  <line x1={lk.mx + 4} y1={lk.my + 5} x2={lk.mx + 14} y2={lk.my + 18} stroke="rgba(160,140,255,0.35)" strokeWidth="0.8" />
-                </g>
-              )}
-            </g>
-          );
-        })}
 
         {/* Unlocked markers */}
         {UNLOCKED.map((p, idx) => {
@@ -1321,33 +1014,14 @@ function IslandMap() {
           );
         })}
 
-        {/* Locked markers */}
-        {LOCKED.map((lk, i) => {
-          const isH = hoveredLocked === lk.id;
-          return (
-            <g key={lk.id} style={{ cursor: "pointer" }}
-              onMouseEnter={() => { if (!isMobile) setHoveredLocked(lk.id); }}
-              onMouseLeave={() => { if (!isMobile) setHoveredLocked(null); }}
-              onClick={() => setSelectedLocked(lk)}
-            >
-              <circle cx={lk.mx} cy={lk.my} r={16} fill={isH ? "rgba(60,50,120,0.85)" : "rgba(40,40,80,0.7)"} stroke={isH ? "rgba(140,120,255,0.8)" : "rgba(80,80,140,0.4)"} strokeWidth="1.5" style={{ transition: "all 0.3s", filter: isH ? "drop-shadow(0 0 10px rgba(120,100,255,0.6))" : "none" }} />
-              <circle cx={lk.mx} cy={lk.my} r={isH ? 30 : 24} fill="none" stroke={isH ? "rgba(140,120,255,0.35)" : "rgba(100,100,180,0.25)"} strokeWidth="1" style={{ animation: `ping 2.5s ease-out infinite`, animationDelay: `${i * 0.7}s`, transition: "all 0.3s" }} />
-              <text x={lk.mx} y={lk.my + 1} textAnchor="middle" dominantBaseline="middle" fontSize="12" fill={isH ? "rgba(200,180,255,0.95)" : "rgba(150,150,220,0.8)"}>🔒</text>
-            </g>
-          );
-        })}
-
         <text x="400" y="582" textAnchor="middle" fill="rgba(34,197,94,0.3)" fontSize="11" fontFamily="monospace" letterSpacing="4" fontWeight="600">ILHA DOS PROJETOS</text>
       </svg>
 
       {selectedUnlocked && <UnlockedPanel project={selectedUnlocked} onClose={() => setSelectedUnlocked(null)} />}
-      {selectedLocked && <LockedPanel locked={selectedLocked} onClose={() => setSelectedLocked(null)} />}
 
       <style>{`
         @keyframes ping { 0% { transform-origin:center; transform:scale(1); opacity:0.8; } 100% { transform-origin:center; transform:scale(2.2); opacity:0; } }
-        @keyframes fogDrift { 0%,100% { transform:translate(0,0); } 50% { transform:translate(8px,-6px); } }
         @keyframes shimmer { 0% { stroke-dashoffset:0; } 100% { stroke-dashoffset:-80; } }
-        @keyframes redPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
       `}</style>
     </div>
   );
@@ -1362,8 +1036,8 @@ function Projects() {
           <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Projetos{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
         </h2>
         <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">— explore o território —</p>
-        <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores · Áreas com névoa guardam segredos</p>
-        <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores · Áreas com névoa guardam segredos</p>
+        <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores para ver os detalhes</p>
+        <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores para ver os detalhes</p>
       </div>
       <div className="relative z-10 w-full max-w-3xl"><IslandMap /></div>
     </section>

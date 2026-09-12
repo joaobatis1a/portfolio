@@ -2,7 +2,7 @@
 
 Portfólio pessoal desenvolvido para apresentar minha trajetória, habilidades e projetos como desenvolvedor Front-End. Construído com uma estética inspirada em terminal/hacker, com animações interativas e microinterações em cada seção.
 
-🔗 **Demo ao vivo:** [em breve — link do deploy]
+🔗 **Demo ao vivo:** [joao-batista-portfolio.vercel.app](https://joao-batista-portfolio.vercel.app)
 📂 **Repositório:** [github.com/joaobatis1a/portifolio](https://github.com/joaobatis1a/portifolio)
 
 ---
@@ -89,7 +89,7 @@ src/
 ## 👤 Autor
 
 **João Batista da Silva Neto**
-Estudante de ADS — Faculdade Frassinetti do Recife
+Estudante de ADS — Centro Universitário UNIFAFIRE
 Front-End Developer
 
 - GitHub: [@joaobatis1a](https://github.com/joaobatis1a)

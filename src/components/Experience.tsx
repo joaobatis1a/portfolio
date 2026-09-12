@@ -200,7 +200,7 @@ export default function Experience() {
     if (!inView) return;
     let start: number | null = null;
     let raf: number;
-    const SCAN_DURATION = 1400;
+    const SCAN_DURATION = 700;
     const tick = (ts: number) => {
       if (!start) start = ts;
       const prog = Math.min((ts - start) / SCAN_DURATION * 100, 100);
@@ -208,7 +208,7 @@ export default function Experience() {
       if (prog < 100) { raf = requestAnimationFrame(tick); }
       else {
         setTimeout(() => setRevealed(true), 150);
-        setTimeout(() => { setStamped(true); setShake(true); setTimeout(() => setShake(false), 300); }, 2200);
+        setTimeout(() => { setStamped(true); setShake(true); setTimeout(() => setShake(false), 300); }, 1100);
       }
     };
     raf = requestAnimationFrame(tick);
@@ -389,7 +389,7 @@ export default function Experience() {
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {CAPS.map((c, i) => (
-                    <CapChip key={c} label={c} delay={1000 + i * 80} revealed={revealed} />
+                    <CapChip key={c} label={c} delay={500 + i * 40} revealed={revealed} />
                   ))}
                 </div>
               </div>

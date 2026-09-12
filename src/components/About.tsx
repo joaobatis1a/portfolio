@@ -4,7 +4,7 @@ const ITEMS = [
     { key: "nome     ", value: "João Batista da Silva Neto" },
     { key: "idade    ", value: "19 anos" },
     { key: "local    ", value: "Paulista, PE 📍" },
-    { key: "curso    ", value: "ADS — Frassinetti do Recife" },
+    { key: "curso    ", value: "ADS — Centro Universitário UNIFAFIRE" },
     { key: "foco     ", value: "Front-End Development 💻" },
     { key: "projetos ", value: "5 entregues · 2 premiados 🏆" },
 ];
