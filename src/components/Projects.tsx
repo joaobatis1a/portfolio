@@ -1,7 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 
 /* ── Data ── */
-const UNLOCKED = [
+interface UnlockedProjectData {
+  id: string;
+  name: string;
+  period: string;
+  shortDesc: string;
+  fullDesc: string;
+  role: string;
+  stack: string[];
+  github: string | null;
+  demo: string | null;
+  trailer: string | null;
+  award: string | null;
+  mx: number;
+  my: number;
+  color: {
+    base: string;
+    glow: string;
+    bg: string;
+    border: string;
+    text: string;
+    ping: string;
+    hex: string;
+    solid: string;
+  };
+}
+
+const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "limpattack",
     name: "Limpattack",
@@ -122,9 +148,33 @@ const UNLOCKED = [
       solid: "rgba(20,184,166,0.08)",
     },
   },
+  {
+    id: "despevit",
+    name: "Despevit",
+    period: "Em planejamento",
+    shortDesc: "Gestão e planejamento financeiro pessoal — contas, cartões, metas e previsão de compras num só lugar.",
+    fullDesc: "Vai além de só registrar receitas e despesas: conecta saldo, contas bancárias, cartões de crédito, metas e lista de desejos pra responder perguntas como \"quanto posso gastar sem comprometer minhas contas\" e \"quando vou conseguir comprar isso\". Projeto solo, ainda na fase de planejamento e construção — Angular no front-end, Supabase e PostgreSQL no back-end.",
+    role: "Desenvolvedor Full-stack (solo)",
+    stack: ["Angular", "TypeScript", "Supabase", "PostgreSQL"],
+    github: null,
+    demo: null,
+    trailer: null,
+    award: null,
+    mx: 560, my: 470,
+    color: {
+      base: "rgba(139,92,246,0.95)",
+      glow: "rgba(139,92,246,0.6)",
+      bg: "rgba(139,92,246,0.12)",
+      border: "rgba(167,139,250,0.4)",
+      text: "rgba(196,181,253,0.95)",
+      ping: "rgba(139,92,246,0.3)",
+      hex: "#8b5cf6",
+      solid: "rgba(139,92,246,0.08)",
+    },
+  },
 ];
 
-type UnlockedProject = typeof UNLOCKED[number];
+type UnlockedProject = UnlockedProjectData;
 
 const ISLAND_PATH = `
   M 110 330
@@ -719,7 +769,7 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
             ))}
           </div>
           <div style={{ fontSize: "9px", color: c.text, opacity: 0.45, textAlign: "center", borderTop: `1px solid ${c.solid}`, paddingTop: "7px", fontFamily: "monospace", letterSpacing: "1px" }}>
-            CLIQUE PARA VER CÓDIGO E DEMO
+            {project.github || project.demo ? "CLIQUE PARA VER CÓDIGO E DEMO" : "CLIQUE PARA SABER MAIS"}
           </div>
         </div>
       </div>
@@ -833,6 +883,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                   GitHub
                 </a>
                 )}
+                {project.demo && (
                 <a href={project.demo} target="_blank" rel="noopener noreferrer"
                   style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
                   <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -840,6 +891,13 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                   </svg>
                   Ver Demo
                 </a>
+                )}
+
+                {!project.github && !project.demo && (
+                  <span style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.18)", color: "rgba(200,200,210,0.6)" }}>
+                    🚧 Em planejamento — código ainda não publicado
+                  </span>
+                )}
 
                 {/* Pixel art RPG-style trailer button — Limpattack amber theme */}
                 {project.trailer && (
