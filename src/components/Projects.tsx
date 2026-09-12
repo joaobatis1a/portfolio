@@ -690,12 +690,77 @@ function KairosEffect() {
   );
 }
 
+// Despevit: financial dashboard blueprint being drafted — dashed wireframe,
+// bars breathing as if still being sketched, scan line sweeping, construction
+// stripe at the bottom. Everything reads as "in progress", nothing as "done".
+function DespevitEffect() {
+  const [t, setT] = useState(0);
+  const rafRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    let start: number;
+    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
+  }, []);
+
+  const V = "rgba(139,92,246,";
+  const VL = "rgba(196,181,253,";
+
+  const bars = [26, 40, 18, 34, 24].map((base, i) => Math.max(8, base + Math.sin(t * 1.3 + i * 0.9) * 5));
+  const scanX = ((t * 34) % 260) - 20;
+
+  return (
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
+      {/* dotted blueprint grid */}
+      {Array.from({ length: 40 }, (_, i) => (
+        <rect key={i} x={(i % 8) * 28 + 6} y={Math.floor(i / 8) * 26 + 12} width="1" height="1" fill={`${V}0.16)`} />
+      ))}
+
+      {/* dashboard frame, all dashed — nothing here is "final" */}
+      <rect x="14" y="18" width="192" height="94" rx="4" fill="none" stroke={`${V}0.32)`} strokeWidth="1" strokeDasharray="4 3" />
+      <rect x="14" y="18" width="192" height="13" fill={`${V}0.06)`} stroke={`${V}0.28)`} strokeWidth="0.6" strokeDasharray="3 2" />
+      <circle cx="21" cy="24.5" r="2" fill={`${VL}0.55)`} />
+      <rect x="28" y="23" width="34" height="3" rx="1.5" fill={`${VL}0.3)`} />
+
+      {/* stat card placeholders */}
+      {[0, 1, 2].map(i => (
+        <rect key={i} x={20 + i * 64} y={37} width="56" height="18" rx="3" fill={`${V}0.045)`} stroke={`${V}0.22)`} strokeWidth="0.6" strokeDasharray="3 2" />
+      ))}
+
+      {/* bar chart being drafted */}
+      {bars.map((h, i) => (
+        <rect key={i} x={26 + i * 32} y={104 - h} width="18" height={h} rx="2"
+          fill={`${V}${(0.14 + i * 0.025).toFixed(2)})`} stroke={`${VL}0.35)`} strokeWidth="0.6" strokeDasharray="2 2" />
+      ))}
+      <line x1="20" y1="104" x2="200" y2="104" stroke={`${V}0.28)`} strokeWidth="1" />
+
+      {/* blueprint scan sweep */}
+      <rect x={scanX} y="14" width="2" height="100" fill={`${VL}0.45)`} opacity="0.55" />
+
+      {/* construction stripe accent */}
+      <clipPath id="despevitStripe"><rect x="0" y="124" width="220" height="8" /></clipPath>
+      <g clipPath="url(#despevitStripe)">
+        {Array.from({ length: 16 }, (_, i) => (
+          <rect key={i} x={i * 18 - ((t * 22) % 18)} y="120" width="9" height="16" transform="skewX(-30)"
+            fill={i % 2 === 0 ? `${V}0.4)` : `${VL}0.4)`} />
+        ))}
+      </g>
+
+      <rect x="52" y="4" width="116" height="12" rx="2" fill={`${V}0.08)`} stroke={`${V}0.2)`} strokeWidth="0.5" />
+      <text x="110" y="13" textAnchor="middle" fill={`${VL}0.65)`} fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
+        RASCUNHO EM PROGRESSO
+      </text>
+    </svg>
+  );
+}
+
 const CARD_EFFECTS: Record<string, React.FC> = {
   limpattack: LimpattackEffect,
   benevo: BenevoEffect,
   ponte: PonteEffect,
   praxis: PraxisEffect,
   kairos: KairosEffect,
+  despevit: DespevitEffect,
 };
 
 /* ── Hover preview card for UNLOCKED ── */
