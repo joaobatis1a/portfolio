@@ -151,16 +151,16 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "despevit",
     name: "Despevit",
-    period: "Em planejamento",
-    shortDesc: "Gestão e planejamento financeiro pessoal — contas, cartões, metas e previsão de compras num só lugar.",
-    fullDesc: "Vai além de só registrar receitas e despesas: conecta saldo, contas bancárias, cartões de crédito, metas e lista de desejos pra responder perguntas como \"quanto posso gastar sem comprometer minhas contas\" e \"quando vou conseguir comprar isso\". Projeto solo, ainda na fase de planejamento e construção — Angular no front-end, Supabase e PostgreSQL no back-end.",
+    period: "Set 2026 – presente",
+    shortDesc: "App de planejamento financeiro pessoal. Contas, cartões, metas e previsão de compras num lugar só, ainda em construção.",
+    fullDesc: "A ideia é entender de verdade a situação financeira, não só registrar gastos. Junto contas, cartões, metas e lista de desejos pra responder perguntas tipo \"quanto posso gastar sem comprometer minhas contas\" ou \"quando vou conseguir comprar isso\". Tô planejando e construindo sozinho, com Angular no front e Supabase no back.",
     role: "Desenvolvedor Full-stack (solo)",
     stack: ["Angular", "TypeScript", "Supabase", "PostgreSQL"],
-    github: null,
+    github: "https://github.com/joaobatis1a/despevit",
     demo: null,
     trailer: null,
     award: null,
-    mx: 560, my: 470,
+    mx: 480, my: 495,
     color: {
       base: "rgba(139,92,246,0.95)",
       glow: "rgba(139,92,246,0.6)",
@@ -960,7 +960,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
 
                 {!project.github && !project.demo && (
                   <span style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.18)", color: "rgba(200,200,210,0.6)" }}>
-                    🚧 Em planejamento — código ainda não publicado
+                    🚧 Ainda em planejamento, sem código publicado
                   </span>
                 )}
 
