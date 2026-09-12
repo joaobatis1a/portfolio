@@ -30,7 +30,6 @@ Benevo      2º lugar   ██████████ concluído
 </div>
 
 🔗 **Demo:** [joao-batista-portfolio.vercel.app](https://joao-batista-portfolio.vercel.app)
-📂 **Repositório:** [github.com/joaobatis1a/portfolio](https://github.com/joaobatis1a/portfolio)
 
 ---
 
@@ -122,11 +121,3 @@ Desenvolvedor Front-End · Estudante de ADS — Centro Universitário UNIFAFIRE
 ## 📄 Licença
 
 Distribuído sob a licença MIT. Veja [`LICENSE`](LICENSE) para mais detalhes.
-
----
-
-<div align="center">
-
-Feito com 💚 e bastante café.
-
-</div>
