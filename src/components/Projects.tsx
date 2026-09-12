@@ -81,7 +81,7 @@ const UNLOCKED: UnlockedProjectData[] = [
     name: "P.O.N.T.E",
     period: "Jan 2026 – presente",
     shortDesc: "Plataforma que conecta jovens talentos a oportunidades profissionais reais.",
-    fullDesc: "Plataforma de Oportunidades e Novos Talentos Emergentes — conecta jovens talentos a oportunidades profissionais reais. Conduzi os rituais ágeis como Scrum Master e dirigi toda a frente de design e desenvolvimento front-end: sistema de rotas, componentização, prototipagem no Figma e handoff para o time. O projeto nasceu de uma demanda real identificada durante vivências acadêmicas.",
+    fullDesc: "Plataforma de Oportunidades e Novos Talentos Emergentes, conecta jovens talentos a oportunidades profissionais reais. Conduzi os rituais ágeis como Scrum Master e dirigi toda a frente de design e desenvolvimento front-end: sistema de rotas, componentização, prototipagem no Figma e handoff para o time. O projeto nasceu de uma demanda real identificada durante vivências acadêmicas.",
     role: "Líder de Front-end & Scrum Master",
     stack: ["HTML", "CSS", "JavaScript", "Figma"],
     github: "https://github.com/joaobatis1a/ponte",
@@ -690,9 +690,9 @@ function KairosEffect() {
   );
 }
 
-// Despevit: financial dashboard blueprint being drafted — dashed wireframe,
-// bars breathing as if still being sketched, scan line sweeping, construction
-// stripe at the bottom. Everything reads as "in progress", nothing as "done".
+// Despevit: expenses/balance line chart evolving over time — scrolling
+// wave, gradient area fill, glowing line and a pulsing reader dot, like a
+// live financial ticker.
 function DespevitEffect() {
   const [t, setT] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
@@ -705,50 +705,57 @@ function DespevitEffect() {
 
   const V = "rgba(139,92,246,";
   const VL = "rgba(196,181,253,";
+  const W = 220, H = 140, baseline = 92;
 
-  const bars = [26, 40, 18, 34, 24].map((base, i) => Math.max(8, base + Math.sin(t * 1.3 + i * 0.9) * 5));
-  const scanX = ((t * 34) % 260) - 20;
+  const sampleY = (x: number) =>
+    baseline
+    - Math.sin(x * 0.05 + t * 1.15) * 15
+    - Math.sin(x * 0.11 + t * 1.15 * 2.2 + 1.3) * 7
+    - Math.sin(x * 0.028 + t * 1.15 * 0.55 + 0.4) * 9;
+
+  const N = 48;
+  const points = Array.from({ length: N }, (_, i) => {
+    const x = (i / (N - 1)) * (W + 24) - 12;
+    return { x, y: sampleY(x) };
+  });
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L ${(W + 12).toFixed(1)} ${H} L -12 ${H} Z`;
+
+  const tipX = W - 40;
+  const tipY = sampleY(tipX);
+  const pingT = (t % 1.4) / 1.4;
+  const pingR = 5 + pingT * 13;
+  const pingOpacity = (1 - pingT) * 0.5;
 
   return (
-    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox="0 0 220 140">
-      {/* dotted blueprint grid */}
-      {Array.from({ length: 40 }, (_, i) => (
-        <rect key={i} x={(i % 8) * 28 + 6} y={Math.floor(i / 8) * 26 + 12} width="1" height="1" fill={`${V}0.16)`} />
+    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} viewBox={`0 0 ${W} ${H}`}>
+      <defs>
+        <linearGradient id="despevitArea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={`${V}0.32)`} />
+          <stop offset="100%" stopColor={`${V}0)`} />
+        </linearGradient>
+      </defs>
+
+      {/* grid */}
+      {[0.28, 0.56, 0.82].map((f, i) => (
+        <line key={i} x1="0" y1={H * f} x2={W} y2={H * f} stroke={`${V}0.09)`} strokeWidth="0.6" strokeDasharray="3 4" />
       ))}
 
-      {/* dashboard frame, all dashed — nothing here is "final" */}
-      <rect x="14" y="18" width="192" height="94" rx="4" fill="none" stroke={`${V}0.32)`} strokeWidth="1" strokeDasharray="4 3" />
-      <rect x="14" y="18" width="192" height="13" fill={`${V}0.06)`} stroke={`${V}0.28)`} strokeWidth="0.6" strokeDasharray="3 2" />
-      <circle cx="21" cy="24.5" r="2" fill={`${VL}0.55)`} />
-      <rect x="28" y="23" width="34" height="3" rx="1.5" fill={`${VL}0.3)`} />
+      {/* area under the curve */}
+      <path d={areaPath} fill="url(#despevitArea)" />
 
-      {/* stat card placeholders */}
-      {[0, 1, 2].map(i => (
-        <rect key={i} x={20 + i * 64} y={37} width="56" height="18" rx="3" fill={`${V}0.045)`} stroke={`${V}0.22)`} strokeWidth="0.6" strokeDasharray="3 2" />
-      ))}
+      {/* glow + line */}
+      <path d={linePath} fill="none" stroke={`${V}0.35)`} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+      <path d={linePath} fill="none" stroke={`${VL}0.9)`} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* bar chart being drafted */}
-      {bars.map((h, i) => (
-        <rect key={i} x={26 + i * 32} y={104 - h} width="18" height={h} rx="2"
-          fill={`${V}${(0.14 + i * 0.025).toFixed(2)})`} stroke={`${VL}0.35)`} strokeWidth="0.6" strokeDasharray="2 2" />
-      ))}
-      <line x1="20" y1="104" x2="200" y2="104" stroke={`${V}0.28)`} strokeWidth="1" />
+      {/* reader line + pulsing dot */}
+      <line x1={tipX} y1="10" x2={tipX} y2={H - 6} stroke={`${V}0.25)`} strokeWidth="0.7" strokeDasharray="2 3" />
+      <circle cx={tipX} cy={tipY} r={pingR} fill="none" stroke={`${VL}${pingOpacity.toFixed(2)})`} strokeWidth="1.2" />
+      <circle cx={tipX} cy={tipY} r="3.4" fill={`${VL}0.95)`} />
 
-      {/* blueprint scan sweep */}
-      <rect x={scanX} y="14" width="2" height="100" fill={`${VL}0.45)`} opacity="0.55" />
-
-      {/* construction stripe accent */}
-      <clipPath id="despevitStripe"><rect x="0" y="124" width="220" height="8" /></clipPath>
-      <g clipPath="url(#despevitStripe)">
-        {Array.from({ length: 16 }, (_, i) => (
-          <rect key={i} x={i * 18 - ((t * 22) % 18)} y="120" width="9" height="16" transform="skewX(-30)"
-            fill={i % 2 === 0 ? `${V}0.4)` : `${VL}0.4)`} />
-        ))}
-      </g>
-
-      <rect x="52" y="4" width="116" height="12" rx="2" fill={`${V}0.08)`} stroke={`${V}0.2)`} strokeWidth="0.5" />
-      <text x="110" y="13" textAnchor="middle" fill={`${VL}0.65)`} fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
-        RASCUNHO EM PROGRESSO
+      <rect x="46" y="4" width="128" height="12" rx="2" fill={`${V}0.08)`} stroke={`${V}0.2)`} strokeWidth="0.5" />
+      <text x="110" y="13" textAnchor="middle" fill={`${VL}0.7)`} fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
+        DESPESAS EM EVOLUÇÃO
       </text>
     </svg>
   );
@@ -834,7 +841,11 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
             ))}
           </div>
           <div style={{ fontSize: "9px", color: c.text, opacity: 0.45, textAlign: "center", borderTop: `1px solid ${c.solid}`, paddingTop: "7px", fontFamily: "monospace", letterSpacing: "1px" }}>
-            {project.github || project.demo ? "CLIQUE PARA VER CÓDIGO E DEMO" : "CLIQUE PARA SABER MAIS"}
+            {project.github && project.demo
+              ? "CLIQUE PARA VER CÓDIGO E DEMO"
+              : project.github
+              ? "CLIQUE PARA VER O CÓDIGO"
+              : "CLIQUE PARA SABER MAIS"}
           </div>
         </div>
       </div>
@@ -1158,7 +1169,7 @@ function Projects() {
         <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
           <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Projetos{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
         </h2>
-        <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">— explore o território —</p>
+        <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">// explore o território</p>
         <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores para ver os detalhes</p>
         <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores para ver os detalhes</p>
       </div>

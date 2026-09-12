@@ -173,9 +173,9 @@ function RadarCanvas({
             s.interferencePoints.push({ x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2, life: Math.random() * 80 });
         }
 
-        const ROTATIONS_BEFORE_DETECT = 0.45;
+        const ROTATIONS_BEFORE_DETECT = 0.28;
         const TARGET_TOTAL = Math.PI * 2 * ROTATIONS_BEFORE_DETECT;
-        const BASE_SPEED = 0.032;
+        const BASE_SPEED = 0.045;
         const TRAIL_ANGLE = Math.PI * 0.78;
 
         const HUD_LINES = [
@@ -653,7 +653,7 @@ function RadarCanvas({
 
             /* ── 14. FASE ZOOM ── */
             if (ph === "zoom") {
-                s.zoomProgress = Math.min(s.zoomProgress + 0.035, 1);
+                s.zoomProgress = Math.min(s.zoomProgress + 0.06, 1);
                 const tex = Math.cos(s.targetAngle) * R * s.targetDist;
                 const tey = Math.sin(s.targetAngle) * R * s.targetDist;
                 // easeOutQuad para as ondas
@@ -765,8 +765,8 @@ function MaterializeCard({ show }: { show: boolean }) {
         columns.forEach((_, i) => {
             setTimeout(() => {
                 setColumns(prev => { const n = [...prev]; n[i] = true; return n; });
-                if (i === 19) setTimeout(() => setFullyVisible(true), 200);
-            }, i * 55);
+                if (i === 19) setTimeout(() => setFullyVisible(true), 120);
+            }, i * 30);
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [show]);
@@ -930,7 +930,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                 letterSpacing: 1, marginBottom: 14,
                                 opacity: fullyVisible ? 1 : 0, transition: "opacity 0.5s ease 0.4s",
                             }}>
-                                // Front + Batista — uma marca, uma missão
+                                // Front + Batista, uma marca e uma missão
                             </div>
 
                             <div style={{ height: 1, background: "linear-gradient(90deg,rgba(34,197,94,0.4),transparent)", marginBottom: 14 }} />
@@ -943,7 +943,7 @@ function MaterializeCard({ show }: { show: boolean }) {
                                     Mais do que um nome, é um compromisso de tornar o aprendizado de programação acessível, criativo e sem frescura.
                                 </p>
                                 <p style={{ color: "rgba(180,210,190,0.65)", fontSize: 12, lineHeight: 1.6, marginBottom: 14 }}>
-                                    Aqui eu documento minha evolução em tempo real, compartilho o que aprendo e produzo conteúdo pensado para quem está começando —
+                                    Aqui eu documento minha evolução em tempo real, compartilho o que aprendo e produzo conteúdo pensado para quem está começando,
                                     porque programação não precisa ser difícil de entender, só precisa ser bem explicada.
                                 </p>
                             </div>
@@ -1168,7 +1168,7 @@ export default function Frontista() {
             ([entry]) => {
                 if (entry.isIntersecting && !triggered.current) {
                     triggered.current = true;
-                    setTimeout(() => setPhase("scanning"), 300);
+                    setTimeout(() => setPhase("scanning"), 150);
                 }
             },
             { threshold: 0.3 }
@@ -1182,7 +1182,7 @@ export default function Frontista() {
 
     useEffect(() => {
         if (phase !== "detected") return;
-        const t = setTimeout(() => setPhase("zoom"), 700);
+        const t = setTimeout(() => setPhase("zoom"), 450);
         return () => clearTimeout(t);
     }, [phase]);
 
@@ -1217,7 +1217,7 @@ export default function Frontista() {
                         <span className="text-emerald-400/40 font-light">/&gt;</span>
                     </h2>
                     <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase whitespace-nowrap">
-                        — sintonizando transmissão —
+                        // sintonizando transmissão
                     </p>
                 </div>
 
@@ -1235,7 +1235,7 @@ export default function Frontista() {
                         <span className="text-emerald-400/40 font-light">/&gt;</span>
                     </h2>
                     <p className="mt-3 text-xs tracking-widest text-emerald-500/30 uppercase whitespace-nowrap">
-                        — sinal captado · transmissão estabilizada —
+                        // sinal captado · transmissão estabilizada
                     </p>
                 </div>
             </div>

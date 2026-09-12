@@ -11,7 +11,7 @@ const TIMELINE_NODES = [
     color: "#22c55e",
     glow: "rgba(34,197,94,0.6)",
     events: [
-      { icon: "⚙️", text: "Entrada no Senac — Mediotech (Ensino Médio + Técnico em TI)" },
+      { icon: "⚙️", text: "Entrada no Senac, curso Mediotech (Ensino Médio + Técnico em TI)" },
       { icon: "🖥️", text: "Foco em Montagem e Manutenção de Computadores" },
       { icon: "📜", text: "Certificado: Aperfeiçoamento em Algoritmo e Pensamento Computacional" },
       { icon: "💡", text: "Primeiro contato com lógica de programação" },
@@ -36,7 +36,7 @@ const TIMELINE_NODES = [
     events: [
       { icon: "💻", text: "Foco em Desenvolvimento de Software" },
       { icon: "🧠", text: "HTML, CSS, JavaScript, Python, Dart e MySQL" },
-      { icon: "🏗️", text: "Projeto Integrador: SkillShare — plataforma de venda de cursos online" },
+      { icon: "🏗️", text: "Projeto Integrador SkillShare, plataforma de venda de cursos online" },
       { icon: "🚀", text: "SkillShare selecionado para o REC'n'Play" },
       { icon: "📜", text: "Certificado: Assistente de Desenvolvimento de Aplicativos Computacionais" },
     ],
@@ -47,9 +47,9 @@ const TIMELINE_NODES = [
     color: "#f59e0b",
     glow: "rgba(245,158,11,0.6)",
     events: [
-      { icon: "🎓", text: "Ingresso no Centro Universitário UNIFAFIRE — ADS (Análise e Desenvolvimento de Sistemas)" },
-      { icon: "🏆", text: "LimpAttack — 1º lugar no 1º período" },
-      { icon: "🥈", text: "Benevo — 2º lugar no 2º período" },
+      { icon: "🎓", text: "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)" },
+      { icon: "🏆", text: "LimpAttack: 1º lugar no 1º período" },
+      { icon: "🥈", text: "Benevo: 2º lugar no 2º período" },
       { icon: "📜", text: "Certificado: Formação em Lógica de Programação com JavaScript (Dio)" },
     ],
   },
@@ -59,9 +59,9 @@ const TIMELINE_NODES = [
     color: "#ec4899",
     glow: "rgba(236,72,153,0.6)",
     events: [
-      { icon: "🏆", text: "P.O.N.T.E — 1º lugar no 3º período" },
+      { icon: "🏆", text: "P.O.N.T.E: 1º lugar no 3º período" },
       { icon: "📡", text: "Marca Frontista: criador de conteúdo de front-end" },
-      { icon: "⚡", text: "4º período em andamento — foco em projetos pessoais" },
+      { icon: "⚡", text: "4º período em andamento, com foco em projetos pessoais" },
     ],
   },
 ];
@@ -92,7 +92,7 @@ const CERTIFICATES = [
     icon: "NET",
   },
   {
-    title: "Basic 1 — Inglês",
+    title: "Basic 1, Inglês",
     institution: "Senac",
     date: "Julho 2024",
     category: "Idioma",
@@ -258,7 +258,7 @@ function NeuralTimeline({
             key={node.year}
             role="button"
             tabIndex={0}
-            aria-label={`${node.year} — ${node.label}`}
+            aria-label={`${node.year}, ${node.label}`}
             onMouseEnter={() => onHoverNode(i)}
             onMouseLeave={() => onHoverNode(null)}
             onFocus={() => onHoverNode(i)}
@@ -405,7 +405,7 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
       display: "flex", alignItems: "center", justifyContent: "center",
       fontFamily: "monospace", fontSize: 11, color: "rgba(34,197,94,0.3)", letterSpacing: 3,
     }}>
-      — PASSE O MOUSE SOBRE UM NÓ —
+      // PASSE O MOUSE SOBRE UM NÓ
     </div>
   );
 
@@ -611,7 +611,7 @@ export default function Training() {
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
           <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            — cada nó é um capítulo —
+            // cada nó é um capítulo
           </p>
           <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores · Cada ano guarda uma história</p>
           <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores · Cada ano guarda uma história</p>
@@ -656,7 +656,7 @@ export default function Training() {
               fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
               color: "rgba(34,197,94,0.35)", pointerEvents: "none",
             }}>
-              CH.1 — TRAJETÓRIA
+              CH.1 · TRAJETÓRIA
             </div>
             <NeuralTimeline
               nodes={TIMELINE_NODES}

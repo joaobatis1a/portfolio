@@ -14,7 +14,7 @@ import BackToTop from "./components/BackToTop";
 function App() {
     return (
         <main className="bg-black text-white overflow-hidden">
-            <h1 className="sr-only">João Batista — Desenvolvedor Front-End em Recife | React, Next.js e TypeScript</h1>
+            <h1 className="sr-only">João Batista, Desenvolvedor Front-End em Recife | React, Next.js e TypeScript</h1>
             <StarBackground />
             <div className="relative z-10">
                 <Navbar />

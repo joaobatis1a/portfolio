@@ -113,7 +113,7 @@ function FeaturedEmailCard({ href }: { href: string }) {
                 </span>
                 <h3 className="text-2xl font-bold text-white">E-mail</h3>
                 <p className="text-sm leading-relaxed text-zinc-300 sm:max-w-md">
-                    A forma mais rápida de falar comigo — orçamentos, dúvidas ou oportunidades. Respondo em até 24h.
+                    A forma mais rápida de falar comigo, seja pra orçamento, dúvida ou oportunidade. Respondo em até 24h.
                 </p>
             </div>
 
@@ -165,7 +165,7 @@ function Contact() {
 
             <div className="relative z-10 w-full max-w-3xl text-center">
                 <p className="text-xs tracking-widest text-emerald-500/40 uppercase">
-                    — vamos construir algo juntos —
+                    // vamos construir algo juntos
                 </p>
                 <h2 className="mt-3 text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
                     <span className="text-emerald-400/40 font-light">&lt;</span>

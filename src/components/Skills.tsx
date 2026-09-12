@@ -254,7 +254,7 @@ function Skills() {
                     {" "}Skills{" "}
                     <span className="text-blue-500/40 font-light">/&gt;</span>
                 </h2>
-                <p className="mt-2 text-xs tracking-widest text-blue-400/50 uppercase">— transmission received —</p>
+                <p className="mt-2 text-xs tracking-widest text-blue-400/50 uppercase">// transmission received</p>
             </div>
 
             {/* Tabs */}
