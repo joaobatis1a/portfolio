@@ -195,6 +195,7 @@ export default function Experience() {
           position: "relative",
         }}>
           {/* Wrapper único de tilt: card e carimbo giram juntos, no mesmo espaço 3D */}
+          <div className="exp-float">
           <div
             ref={tiltRef}
             onMouseMove={onCardMouseMove}
@@ -220,6 +221,8 @@ export default function Experience() {
               backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,197,94,0.012) 3px,rgba(34,197,94,0.012) 4px)",
               zIndex: 0,
             }} />
+
+            {revealed && <div className="exp-live" aria-hidden="true"><i /></div>}
 
             {/* Barra de scan */}
             {inView && !revealed && (
@@ -349,6 +352,7 @@ export default function Experience() {
           {/* ── CARIMBO ── */}
           <Stamp active={stamped} />
           </div>
+          </div>
         </div>
       </div>
 
@@ -403,6 +407,39 @@ export default function Experience() {
           position: absolute; inset: -22px; border-radius: 2px;
           background: radial-gradient(ellipse, rgba(34,197,94,0.4) 0%, transparent 70%);
           animation: stampFlash 0.3s ease forwards;
+        }
+
+        /* Ficha viva: tudo em transform/opacity (compostos), sem custo de layout */
+        .exp-float { animation: expFloat 7s ease-in-out infinite; }
+        .exp-float:hover { animation-play-state: paused; }
+        @keyframes expFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        .exp-live { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; border-radius: inherit; }
+        /* feixe horizontal de ponta a ponta, em loop */
+        .exp-live::before {
+          content: ""; position: absolute; inset: 0;
+          background: linear-gradient(180deg, transparent 0, transparent 48.4%, rgba(34,211,238,0.10) 49.3%, rgba(74,222,128,0.5) 50%, rgba(34,211,238,0.10) 50.7%, transparent 51.6%, transparent 100%);
+          animation: expBeam 6.5s linear infinite;
+        }
+        @keyframes expBeam { from { transform: translateY(-50%); } to { transform: translateY(50%); } }
+        /* brilho diagonal que atravessa a ficha de tempos em tempos */
+        .exp-live::after {
+          content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 26%;
+          background: linear-gradient(100deg, transparent, rgba(134,239,172,0.09), transparent);
+          transform: translateX(-160%) skewX(-18deg);
+          animation: expSweep 9s ease-in-out 2s infinite;
+        }
+        @keyframes expSweep { 0% { transform: translateX(-160%) skewX(-18deg); } 40%, 100% { transform: translateX(520%) skewX(-18deg); } }
+        /* a luz interna "respira" */
+        .exp-live i {
+          position: absolute; inset: 0; border-radius: inherit;
+          box-shadow: inset 0 0 46px rgba(34,197,94,0.16), inset 0 0 2px rgba(74,222,128,0.5);
+          animation: expBreath 4.5s ease-in-out infinite alternate;
+        }
+        @keyframes expBreath { from { opacity: 0.25; } to { opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) {
+          .exp-float, .exp-live::before, .exp-live::after, .exp-live i { animation: none; }
+          .exp-live::before, .exp-live::after { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
