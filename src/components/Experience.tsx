@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { useLang, type Lang } from "../i18n/context";
 
 /* ══ DURAÇÃO DINÂMICA ══ */
-function tempoDesde(ano: number, mes: number) {
+function tempoDesde(ano: number, mes: number, lang: Lang) {
   const inicio = new Date(ano, mes - 1, 1);
   const agora  = new Date();
   const meses  = Math.max(0, (agora.getFullYear() - inicio.getFullYear()) * 12 + (agora.getMonth() - inicio.getMonth()));
-  if (meses < 1)  return "recém-iniciado";
-  if (meses < 12) return `${meses} ${meses === 1 ? "mês" : "meses"}`;
+  const en = lang === "en";
+  if (meses < 1)  return en ? "just started" : "recém-iniciado";
+  if (meses < 12) return en ? `${meses} ${meses === 1 ? "month" : "months"}` : `${meses} ${meses === 1 ? "mês" : "meses"}`;
   const anos  = Math.floor(meses / 12);
   const restM = meses % 12;
-  return `${anos}a${restM ? ` ${restM}m` : ""}`;
+  return `${anos}${en ? "y" : "a"}${restM ? ` ${restM}m` : ""}`;
 }
 
 /* ══ REVEAL: o texto está sempre no HTML; a tarja ▓ é só uma camada visual que recolhe ══ */
@@ -59,6 +61,7 @@ function CapChip({ label, delay, revealed }: { label: string; delay: number; rev
 
 /* ══ CARIMBO: efeito de stamp físico, todo em CSS ══ */
 function Stamp({ active }: { active: boolean }) {
+  const { t } = useLang();
   return (
     <div aria-hidden="true" style={{
       position: "absolute",
@@ -70,15 +73,15 @@ function Stamp({ active }: { active: boolean }) {
       <div className={`exp-stamp${active ? " is-on" : ""}`}>
         <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 3,
           color: "rgba(34,197,94,0.55)" }}>
-          MISSÃO
+          {t("MISSÃO", "MISSION")}
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 13, fontWeight: 900,
           letterSpacing: 4, color: "rgba(34,197,94,0.88)" }}>
-          ACEITA
+          {t("ACEITA", "ACCEPTED")}
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 2,
           color: "rgba(34,197,94,0.4)" }}>
-          NOV 2025
+          {t("NOV 2025", "NOV 2025")}
         </span>
       </div>
     </div>
@@ -144,11 +147,15 @@ export default function Experience() {
   };
   const onCardMouseLeave = () => { tiltTarget.current = { x: 0, y: 0 }; runTilt(); };
 
-  const dur  = tempoDesde(2025, 11);
-  const CAPS = [
+  const { lang, t } = useLang();
+  const dur  = tempoDesde(2025, 11, lang);
+  const CAPS = t([
     "Notas de Empenho", "Gestão Documental", "Comunicados e Circulares",
     "Processos Internos", "Padronização", "Microsoft Excel", "Microsoft Word",
-  ];
+  ], [
+    "Purchase Commitments", "Document Management", "Memos & Circulars",
+    "Internal Processes", "Standardization", "Microsoft Excel", "Microsoft Word",
+  ]);
 
   return (
     <section
@@ -172,11 +179,11 @@ export default function Experience() {
         }}>
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
             <span className="text-emerald-400/40 font-light">&lt;</span>
-            {" "}Experiência{" "}
+            {" "}{t("Experiência", "Experience")}{" "}
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
           <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            // primeira missão profissional
+            {t("// primeira missão profissional", "// first professional mission")}
           </p>
         </div>
 
@@ -234,33 +241,33 @@ export default function Experience() {
               <div>
                 <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 3,
                   color: "rgba(34,197,94,0.4)", marginBottom: 2 }}>
-                  REGISTRO OPERACIONAL · Nº EXP-2025-001
+                  {t("REGISTRO OPERACIONAL · Nº EXP-2025-001", "OPERATIONAL RECORD · NO. EXP-2025-001")}
                 </div>
                 <div style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700,
                   color: "rgba(34,197,94,0.7)", letterSpacing: 2 }}>
-                  FICHA DE MISSÃO
+                  {t("FICHA DE MISSÃO", "MISSION FILE")}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontFamily: "monospace", fontSize: 8,
                   color: "rgba(255,255,255,0.2)", letterSpacing: 1 }}>
-                  CLASSIFICAÇÃO
+                  {t("CLASSIFICAÇÃO", "CLEARANCE")}
                 </div>
                 <div style={{ fontFamily: "monospace", fontSize: 9, fontWeight: 700,
                   color: revealed ? "rgba(34,197,94,0.55)" : "rgba(34,197,94,0.2)",
                   letterSpacing: 2, transition: "color 0.5s" }}>
-                  {revealed ? "LIBERADO" : "RESTRITO"}
+                  {revealed ? t("LIBERADO", "CLEARED") : t("RESTRITO", "RESTRICTED")}
                 </div>
               </div>
             </div>
 
             {/* Corpo */}
             <div style={{ padding: "18px 20px 20px", position: "relative", zIndex: 1 }}>
-              <MissionField label="Cargo"       value="Assistente Administrativo · Jovem Aprendiz" delay={0}   revealed={revealed} />
-              <MissionField label="Organização" value="Grupo ACLF, Paulista/PE"                   delay={100} revealed={revealed} />
-              <MissionField label="Início"      value="Novembro de 2025"                   delay={200} revealed={revealed} mono />
-              <MissionField label="Status"      value="EM ANDAMENTO"                       delay={300} revealed={revealed} mono />
-              <MissionField label="Duração"     value={dur}                                delay={400} revealed={revealed} mono />
+              <MissionField label={t("Cargo", "Role")}              value={t("Assistente Administrativo · Jovem Aprendiz", "Administrative Assistant · Apprentice")} delay={0}   revealed={revealed} />
+              <MissionField label={t("Organização", "Organization")} value={t("Grupo ACLF, Paulista/PE", "Grupo ACLF, Paulista, Brazil")} delay={100} revealed={revealed} />
+              <MissionField label={t("Início", "Start")}             value={t("Novembro de 2025", "November 2025")} delay={200} revealed={revealed} mono />
+              <MissionField label="Status"                           value={t("EM ANDAMENTO", "ONGOING")}           delay={300} revealed={revealed} mono />
+              <MissionField label={t("Duração", "Duration")}         value={dur}                                    delay={400} revealed={revealed} mono />
 
               {/* Sumário */}
               <div style={{
@@ -271,13 +278,13 @@ export default function Experience() {
               }}>
                 <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
                   color: "rgba(34,197,94,0.35)", marginBottom: 8 }}>
-                  SUMÁRIO OPERACIONAL
+                  {t("SUMÁRIO OPERACIONAL", "OPERATIONAL SUMMARY")}
                 </div>
                 <p style={{ fontSize: 12, lineHeight: 1.75, color: "rgba(210,228,210,0.78)", margin: 0 }}>
-                  Elaboro e controlo notas de empenho, documentos e planilhas em Word e Excel, com foco em
-                  precisão e rastreabilidade, e distribuo comunicados e circulares para setores internos e lojas.
-                  Foi aqui que percebi a falta de padronização de documentos e procedimentos e criei o{" "}
-                  <span style={{ color: "rgba(74,222,128,0.9)" }}>Praxis</span>, que uso na rotina e apresentei ao setor.
+                  {t("Elaboro e controlo notas de empenho, documentos e planilhas em Word e Excel, com foco em precisão e rastreabilidade, e distribuo comunicados e circulares para setores internos e lojas. Foi aqui que percebi a falta de padronização de documentos e procedimentos e criei o ",
+                     "I prepare and track purchase commitments, documents and spreadsheets in Word and Excel, focused on accuracy and traceability, and I send memos and circulars to internal departments and stores. This is where I noticed the lack of standards for documents and procedures and built ")}
+                  <span style={{ color: "rgba(74,222,128,0.9)" }}>Praxis</span>
+                  {t(", que uso na rotina e apresentei ao setor.", ", which I use every day and presented to my department.")}
                 </p>
               </div>
 
@@ -288,7 +295,7 @@ export default function Experience() {
               }}>
                 <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
                   color: "rgba(34,197,94,0.3)", marginBottom: 10 }}>
-                  CAPACIDADES ADQUIRIDAS
+                  {t("CAPACIDADES ADQUIRIDAS", "SKILLS ACQUIRED")}
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {CAPS.map((c, i) => (
@@ -306,11 +313,11 @@ export default function Experience() {
               }}>
                 <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
                   color: "rgba(34,197,94,0.35)", marginBottom: 6 }}>
-                  APRENDIZADO-CHAVE
+                  {t("APRENDIZADO-CHAVE", "KEY LESSON")}
                 </p>
                 <p style={{ fontSize: 11.5, lineHeight: 1.7, color: "rgba(220,235,220,0.7)",
                   fontStyle: "italic", margin: 0 }}>
-                  "Antes de aprender a estruturar sistemas, aprendi a estruturar processos."
+                  {t("\"Antes de aprender a estruturar sistemas, aprendi a estruturar processos.\"", "\"Before I learned to structure systems, I learned to structure processes.\"")}
                 </p>
               </div>
             </div>
@@ -333,7 +340,7 @@ export default function Experience() {
                   animation: "expPulse 1.6s ease-in-out infinite" }} />
                 <span style={{ fontFamily: "monospace", fontSize: 8,
                   color: "rgba(74,222,128,0.7)", letterSpacing: 2 }}>
-                  ATIVO
+                  {t("ATIVO", "ACTIVE")}
                 </span>
               </div>
             </div>

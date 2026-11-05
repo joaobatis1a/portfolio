@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLang } from "../i18n/context";
 
 /* ══════════════════════════════════════════════════════════
    DADOS
@@ -120,6 +121,60 @@ const CERTIFICATES = [
   },
 ];
 
+/* Tradução dos dados acima: a chave é o texto em português */
+const EN: Record<string, string> = {
+  "ORIGEM": "ORIGIN",
+  "EXPANSÃO": "EXPANSION",
+  "CÓDIGO": "CODE",
+  "DECOLAGEM": "TAKEOFF",
+  "PRESENTE": "PRESENT",
+  "Entrada no Senac, curso Mediotech (Ensino Médio + Técnico em TI)": "Joined Senac's Mediotech program (high school + IT technical course)",
+  "Foco em Montagem e Manutenção de Computadores": "Focus on computer assembly and maintenance",
+  "Certificado: Aperfeiçoamento em Algoritmo e Pensamento Computacional": "Certificate: Algorithms and Computational Thinking",
+  "Primeiro contato com lógica de programação": "First contact with programming logic",
+  "Foco em Redes de Computadores e infraestrutura": "Focus on computer networks and infrastructure",
+  "Certificado: Assistente de Suporte e Manutenção de Computadores": "Certificate: Computer Support and Maintenance Assistant",
+  "Certificado: Assistente de Operação de Redes de Computadores": "Certificate: Computer Network Operations Assistant",
+  "Foco em Desenvolvimento de Software": "Focus on software development",
+  "HTML, CSS, JavaScript, Python, Dart e MySQL": "HTML, CSS, JavaScript, Python, Dart and MySQL",
+  "Projeto Integrador SkillShare, plataforma de venda de cursos online": "Capstone project SkillShare, a platform for selling online courses",
+  "SkillShare selecionado para o REC'n'Play": "SkillShare selected for REC'n'Play",
+  "Certificado: Assistente de Desenvolvimento de Aplicativos Computacionais": "Certificate: Software Application Development Assistant",
+  "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)": "Started Systems Analysis and Development at Centro Universitário UNIFAFIRE",
+  "LimpAttack: 1º lugar no 1º período": "LimpAttack: 1st place in the 1st semester",
+  "Benevo: 2º lugar no 2º período": "Benevo: 2nd place in the 2nd semester",
+  "Jovem Aprendiz no Grupo ACLF, onde nasceu a ideia do Praxis": "Apprentice at Grupo ACLF, where the idea for Praxis was born",
+  "P.O.N.T.E: 1º lugar no 3º período": "P.O.N.T.E: 1st place in the 3rd semester",
+  "Hacka Business da Avanade: selecionado, Cápsula como Product Owner": "Avanade's Hacka Business: selected, Product Owner of Cápsula",
+  "DIO Campus Expert, Turma 16, com apoio do Santander Universidades": "DIO Campus Expert, Class 16, backed by Santander Universidades",
+  "Certificado: Lógica de Programação com JavaScript (DIO)": "Certificate: Programming Logic with JavaScript (DIO)",
+  "Confluência: líder do projeto final do 4º período, apresentação em dezembro": "Confluência: team lead of the 4th-semester final project, presenting in December",
+  "Marca Frontista: criador de conteúdo de front-end": "Frontista brand: front-end content creator",
+  "Lógica de Programação com JavaScript": "Programming Logic with JavaScript",
+  "Assistente de Desenvolvimento de Aplicativos Computacionais": "Software Application Development Assistant",
+  "Assistente de Operação de Redes de Computadores": "Computer Network Operations Assistant",
+  "Basic 1, Inglês": "English, Basic 1",
+  "Assistente de Suporte e Manutenção de Computadores": "Computer Support and Maintenance Assistant",
+  "Aperfeiçoamento em Algoritmo e Pensamento Computacional": "Algorithms and Computational Thinking",
+  "Abril 2026": "April 2026",
+  "Janeiro 2025": "January 2025",
+  "Janeiro 2024": "January 2024",
+  "Julho 2024": "July 2024",
+  "Abril 2023": "April 2023",
+  "Dezembro 2022": "December 2022",
+  "Desenvolvimento": "Development",
+  "Infraestrutura": "Infrastructure",
+  "Idioma": "Language",
+  "Fundamentos": "Fundamentals",
+  "// PASSE O MOUSE SOBRE UM NÓ": "// HOVER OVER A NODE"
+};
+
+/** Devolve o texto no idioma atual (os dados ficam escritos em português) */
+function useTx() {
+  const { lang } = useLang();
+  return (pt: string) => (lang === "en" ? EN[pt] ?? pt : pt);
+}
+
 /* ══════════════════════════════════════════════════════════
    LINHA DO TEMPO — curva SVG (viewBox) + marcadores HTML
    Toda a geometria é fixa e calculada uma única vez, em unidades
@@ -169,6 +224,7 @@ function NeuralTimeline({
   activeIdx: number | null;
   onHoverNode: (idx: number | null) => void;
 }) {
+  const tx = useTx();
   // Calculado uma única vez a partir da quantidade de nós — não depende
   // do tamanho do container, então nunca precisa ser recalculado depois
   // que os dados chegaram. Zero medição, zero ResizeObserver, zero raf.
@@ -261,7 +317,7 @@ function NeuralTimeline({
             key={node.year}
             role="button"
             tabIndex={0}
-            aria-label={`${node.year}, ${node.label}`}
+            aria-label={`${node.year}, ${tx(node.label)}`}
             onMouseEnter={() => onHoverNode(i)}
             onMouseLeave={() => onHoverNode(null)}
             onFocus={() => onHoverNode(i)}
@@ -340,7 +396,7 @@ function NeuralTimeline({
                 color: node.color + (isActive ? "cc" : "77"),
                 letterSpacing: 2, marginTop: 1,
               }}>
-                {node.label}
+                {tx(node.label)}
               </div>
             </div>
           </div>
@@ -395,6 +451,7 @@ function NeuralTimeline({
    PAINEL DE EVENTOS DO ANO
 ══════════════════════════════════════════════════════════ */
 function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; visible: boolean }) {
+  const tx = useTx();
   // Guarda o último ano aberto e reinicia a animação quando ele muda (ajuste durante o render, sem efeito)
   const [rendered, setRendered] = useState<typeof TIMELINE_NODES[0] | null>(node);
   const [animKey, setAnimKey] = useState(node ? 1 : 0);
@@ -410,7 +467,7 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
       display: "flex", alignItems: "center", justifyContent: "center",
       fontFamily: "monospace", fontSize: 11, color: "rgba(34,197,94,0.3)", letterSpacing: 3,
     }}>
-      // PASSE O MOUSE SOBRE UM NÓ
+      {tx("// PASSE O MOUSE SOBRE UM NÓ")}
     </div>
   );
 
@@ -435,7 +492,7 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
           {rendered.year}
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 9, color: c + "88", letterSpacing: 3, textTransform: "uppercase" }}>
-          // {rendered.label}
+          // {tx(rendered.label)}
         </span>
         <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${c}40, transparent)` }} />
       </div>
@@ -454,7 +511,7 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
           >
             <span style={{ fontSize: 14, lineHeight: 1.4, flexShrink: 0 }}>{ev.icon}</span>
             <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(220,240,220,0.75)", lineHeight: 1.6 }}>
-              {ev.text}
+              {tx(ev.text)}
             </span>
           </div>
         ))}
@@ -467,6 +524,8 @@ function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; v
    CARD DE CERTIFICADO com flip 3D
 ══════════════════════════════════════════════════════════ */
 function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
+  const tx = useTx();
+  const { t } = useLang();
   const [hovering, setHovering] = useState(false);
   const [tapped, setTapped] = useState(false);
   const flipped = hovering || tapped;
@@ -514,14 +573,14 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
                 {cert.icon}
               </span>
               <span style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
-                {cert.category.toUpperCase()}
+                {tx(cert.category).toUpperCase()}
               </span>
             </div>
             <p style={{
               fontFamily: "monospace", fontSize: 11, color: "rgba(220,240,220,0.85)",
               lineHeight: 1.55, margin: 0,
             }}>
-              {cert.title}
+              {tx(cert.title)}
             </p>
           </div>
 
@@ -530,7 +589,7 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
               {cert.institution}
             </span>
             <span style={{ fontFamily: "monospace", fontSize: 8, color: c + "88", letterSpacing: 1 }}>
-              HOVER →
+              {t("VIRAR →", "FLIP →")}
             </span>
           </div>
           {/* Barra inferior colorida */}
@@ -557,12 +616,12 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
               {cert.institution}
             </p>
             <p style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.35)", margin: 0, letterSpacing: 2 }}>
-              {cert.date.toUpperCase()}
+              {tx(cert.date).toUpperCase()}
             </p>
           </div>
           <div style={{ height: 1, width: "60%", background: `linear-gradient(90deg,transparent,${c},transparent)` }} />
           <p style={{ fontFamily: "monospace", fontSize: 8, color: c + "aa", letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>
-            {cert.category}
+            {tx(cert.category)}
           </p>
         </div>
       </div>
@@ -574,6 +633,7 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
    SEÇÃO PRINCIPAL
 ══════════════════════════════════════════════════════════ */
 export default function Training() {
+  const { t } = useLang();
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [panelVisible, setPanelVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -612,14 +672,14 @@ export default function Training() {
         >
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
             <span className="text-emerald-400/40 font-light">&lt;</span>
-            {" "}Formação{" "}
+            {" "}{t("Formação", "Education")}{" "}
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
           <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            // cada nó é um capítulo
+            {t("// cada nó é um capítulo", "// every node is a chapter")}
           </p>
-          <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores · Cada ano guarda uma história</p>
-          <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores · Cada ano guarda uma história</p>
+          <p className="mt-2 text-sm text-zinc-500 hidden md:block">{t("Passe o mouse nos marcadores · Cada ano guarda uma história", "Hover over the markers · Every year holds a story")}</p>
+          <p className="mt-2 text-sm text-zinc-500 md:hidden">{t("Toque nos marcadores · Cada ano guarda uma história", "Tap the markers · Every year holds a story")}</p>
         </div>
 
         {/* ══════════════════════════════════
@@ -637,7 +697,7 @@ export default function Training() {
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e" }} />
             <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(34,197,94,0.5)", letterSpacing: 3, textTransform: "uppercase" }}>
-              // linha do tempo
+              {t("// linha do tempo", "// timeline")}
             </span>
             <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(34,197,94,0.2),transparent)" }} />
           </div>
@@ -692,7 +752,7 @@ export default function Training() {
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#06b6d4", boxShadow: "0 0 8px #06b6d4" }} />
             <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(6,182,212,0.5)", letterSpacing: 3, textTransform: "uppercase" }}>
-              // certificados
+              {t("// certificados", "// certificates")}
             </span>
             <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(6,182,212,0.2),transparent)" }} />
             <span style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.15)", letterSpacing: 2 }}>
@@ -701,7 +761,7 @@ export default function Training() {
           </div>
 
           <p style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 1, marginBottom: 20 }}>
-            // passe o mouse para virar
+            {t("// passe o mouse para virar", "// hover to flip")}
           </p>
 
           {/* Grid de cards */}

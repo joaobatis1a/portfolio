@@ -1,3 +1,4 @@
+import { useLang } from "../i18n/context";
 /* ══ ÍCONES SOCIAIS ══ */
 function SocialIcon({
     href,
@@ -29,6 +30,7 @@ function SocialIcon({
 
 /* ══ FOOTER ══ */
 function Footer() {
+    const { t } = useLang();
     const year = new Date().getFullYear();
 
     const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -73,7 +75,7 @@ function Footer() {
                             <span className="text-emerald-400/40 font-light">/&gt;</span>
                         </span>
                         <p className="text-xs italic text-zinc-500 max-w-[220px]">
-                            código, criatividade e um toque de café.
+                            {t("código, criatividade e um toque de café.", "code, creativity and a dash of coffee.")}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                             <span style={{
@@ -82,7 +84,7 @@ function Footer() {
                                 animation: "footerPulse 1.8s ease-in-out infinite",
                             }} />
                             <span className="text-[11px] font-mono tracking-wider text-emerald-400/70 uppercase">
-                                disponível para novos projetos
+                                {t("disponível para novos projetos", "available for new projects")}
                             </span>
                         </div>
                     </div>
@@ -109,15 +111,15 @@ function Footer() {
                                 <p className="text-zinc-500">
                                     <span className="text-emerald-400">$</span> whoami
                                 </p>
-                                <p className="text-zinc-300 mb-1.5">joão_batista, frontend dev</p>
+                                <p className="text-zinc-300 mb-1.5">{t("joão_batista, frontend dev", "joão_batista, frontend dev")}</p>
                                 <p className="text-zinc-500">
                                     <span className="text-emerald-400">$</span> status
                                 </p>
-                                <p className="text-zinc-300 mb-1.5">construindo algo novo<span className="footer-cursor">_</span></p>
+                                <p className="text-zinc-300 mb-1.5">{t("construindo algo novo", "building something new")}<span className="footer-cursor">_</span></p>
                                 <p className="text-zinc-500">
                                     <span className="text-emerald-400">$</span> uptime
                                 </p>
-                                <p className="text-cyan-300/80">codando desde 2022</p>
+                                <p className="text-cyan-300/80">{t("codando desde 2022", "coding since 2022")}</p>
                             </div>
                         </div>
                     </div>
@@ -125,7 +127,7 @@ function Footer() {
                     {/* Contato + redes */}
                     <div className="flex flex-col items-center sm:items-start gap-3">
                         <p className="text-[10px] font-mono tracking-[0.2em] text-zinc-600 uppercase">
-                            contato
+                            {t("contato", "contact")}
                         </p>
                         <a
                             href="mailto:profissionalba1is1a@gmail.com"
@@ -180,18 +182,18 @@ function Footer() {
                 {/* ── Barra inferior ── */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-zinc-600 order-2 sm:order-1">
-                        © {year} Frontista. Todos os direitos reservados.
+                        © {year} Frontista. {t("Todos os direitos reservados.", "All rights reserved.")}
                     </p>
                     <p className="text-xs text-zinc-600 order-1 sm:order-2">
-                        feito com <span className="text-emerald-500/60">React</span> &amp;{" "}
+                        {t("feito com", "made with")} <span className="text-emerald-500/60">React</span> &amp;{" "}
                         <span className="text-cyan-500/60">Tailwind</span>
                     </p>
                     <button
                         onClick={scrollTop}
                         className="footer-totop order-3 flex items-center gap-1.5 text-xs text-zinc-500"
-                        aria-label="Voltar ao topo"
+                        aria-label={t("Voltar ao topo", "Back to top")}
                     >
-                        voltar ao topo
+                        {t("voltar ao topo", "back to top")}
                         <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
                         </svg>

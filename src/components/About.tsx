@@ -1,17 +1,31 @@
 import { useEffect, useState, useRef } from "react";
+import { useLang } from "../i18n/context";
 
-const ITEMS = [
-    { key: "nome     ", value: "João Batista Neto" },
-    { key: "idade    ", value: "19 anos" },
-    { key: "local    ", value: "Paulista, PE 📍" },
-    { key: "curso    ", value: "ADS na UNIFAFIRE" },
-    { key: "foco     ", value: "Front-End · React e Next.js 💻" },
-    { key: "projetos ", value: "10 no ar · 3 premiados 🏆" },
-];
+const ITEMS_BY_LANG = {
+    pt: [
+        { key: "nome     ", value: "João Batista Neto" },
+        { key: "idade    ", value: "19 anos" },
+        { key: "local    ", value: "Paulista, PE 📍" },
+        { key: "curso    ", value: "ADS na UNIFAFIRE" },
+        { key: "foco     ", value: "Front-End · React e Next.js 💻" },
+        { key: "projetos ", value: "10 no ar · 3 premiados 🏆" },
+    ],
+    en: [
+        { key: "name     ", value: "João Batista Neto" },
+        { key: "age      ", value: "19" },
+        { key: "location ", value: "Paulista, Brazil 📍" },
+        { key: "degree   ", value: "Systems Analysis & Dev · UNIFAFIRE" },
+        { key: "focus    ", value: "Front-End · React & Next.js 💻" },
+        { key: "projects ", value: "10 live · 3 award-winning 🏆" },
+    ],
+};
+const ITEMS = ITEMS_BY_LANG.pt;
 
 const STEP_MS = 520;
 
 function Terminal() {
+    const { lang, t } = useLang();
+    const items = ITEMS_BY_LANG[lang];
     const [step, setStep] = useState(-1); // -1 = not started
     const [pct, setPct] = useState(0);
     const [showCursor, setShowCursor] = useState(true);
@@ -72,11 +86,11 @@ function Terminal() {
                 )}
 
                 {step >= 0 && (
-                    <div className="text-zinc-400 mb-3">&gt; Inicializando João Batista...</div>
+                    <div className="text-zinc-400 mb-3">&gt; {t("Inicializando João Batista...", "Booting João Batista...")}</div>
                 )}
 
                 {/* Data items */}
-                {ITEMS.slice(0, Math.max(0, step)).map((item, i) => (
+                {items.slice(0, Math.max(0, step)).map((item, i) => (
                     <div key={i} className="flex gap-2 text-[11px]">
                         <span className="text-cyan-500 select-none">✓</span>
                         <span className="text-zinc-500">{item.key}</span>
@@ -102,7 +116,7 @@ function Terminal() {
                 {/* Final line */}
                 {done && (
                     <div className="mt-3 text-emerald-400">
-                        ✓ Build concluído. Pronto para colaborar!
+                        ✓ {t("Build concluído. Pronto para colaborar!", "Build complete. Ready to collaborate!")}
                     </div>
                 )}
 
@@ -116,6 +130,7 @@ function Terminal() {
 }
 
 function About() {
+    const { t } = useLang();
     return (
         <section id="about" className="relative min-h-screen flex flex-col items-center justify-center px-6 py-24">
 
@@ -129,7 +144,7 @@ function About() {
                 <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent"
                     style={{ textShadow: "none" }}>
                     <span className="text-emerald-400/40 font-light">&lt;</span>
-                    {" "}Sobre{" "}
+                    {" "}{t("Sobre", "About")}{" "}
                     <span className="text-emerald-400/40 font-light">/&gt;</span>
                 </h2>
             </div>
@@ -169,7 +184,7 @@ function About() {
                         >
                             <img
                                 src="/foto_perfil.jpeg"
-                                alt="João Batista"
+                                alt={t("Foto de João Batista Neto", "Photo of João Batista Neto")}
                                 className="w-56 h-72 md:w-64 md:h-80 object-cover object-top rounded-2xl block"
                             />
                             {/* Moving shine */}
@@ -192,17 +207,16 @@ function About() {
                 {/* ── Conteúdo ── */}
                 <div className="flex flex-col gap-5">
                     <h2 className="text-2xl md:text-3xl font-bold leading-snug text-white">
-                        Dev front-end em construção,{" "}
+                        {t("Dev front-end em construção,", "A front-end dev in the making,")}{" "}
                         <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                            com projetos reais
+                            {t("com projetos reais", "with real projects")}
                         </span>{" "}
-                        pra mostrar.
+                        {t("pra mostrar.", "to show.")}
                     </h2>
 
                     <p className="text-zinc-400 text-sm leading-relaxed max-w-xl text-justify">
-                        Comecei cedo, aprendo rápido e já entreguei projetos reconhecidos por bancas técnicas.
-                        Gosto de fazer a aplicação inteira, do layout no Figma até rodando em produção, sempre
-                        com atenção ao código limpo e à experiência de quem usa.
+                        {t("Comecei cedo, aprendo rápido e já entreguei projetos reconhecidos por bancas técnicas. Gosto de fazer a aplicação inteira, do layout no Figma até rodando em produção, sempre com atenção ao código limpo e à experiência de quem usa.",
+                           "I started early, I learn fast and I've already shipped projects recognized by technical panels. I like building the whole application, from the Figma layout to running in production, always paying attention to clean code and to the experience of the people using it.")}
                     </p>
 
                     <Terminal />
