@@ -194,8 +194,8 @@ function SocialLinks() {
         <div className="relative z-10 mt-14 px-4 flex flex-col items-center">
             <p className="text-xs tracking-widest text-blue-400/50 uppercase">{t("// sintonize o canal", "// tune in")}</p>
             <div className="mt-4 grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3">
-                {links.map(l => (
-                    <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer" className="ft-chan holo-blue">
+                {links.map((l, i) => (
+                    <a key={l.name} style={{ "--i": i + 2 } as React.CSSProperties} href={l.href} target="_blank" rel="noopener noreferrer" className="ft-chan holo-blue">
                         <span className="ft-chan-ico" aria-hidden="true">{l.icon}</span>
                         <span className="ft-chan-text">
                             <b>{l.name}</b>
