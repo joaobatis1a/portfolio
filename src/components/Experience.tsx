@@ -169,7 +169,7 @@ export default function Experience() {
         backgroundSize: "60px 60px", zIndex: 1,
       }} />
 
-      <div className="relative w-full max-w-2xl" style={{ zIndex: 2 }}>
+      <div className="relative w-full max-w-4xl" style={{ zIndex: 2 }}>
 
         {/* ── Título ── */}
         <div className="text-center mb-12" style={{

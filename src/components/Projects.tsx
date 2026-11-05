@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useLang, type L10n } from "../i18n/context";
 
 /* ── Data ── */
@@ -239,7 +239,7 @@ const UNLOCKED: UnlockedProjectData[] = [
     demo: "https://limpattack.vercel.app/",
     trailer: "/trailer_limpattack.mp4",
     award: { pt: "🏆 1º Lugar", en: "🏆 1st Place" },
-    island: "team", logo: "/logos/projects/limpattack.svg",
+    island: "team", logo: "/logos/projects/limpattack.png",
     mx: 245, my: 430,
     color: {
       base: "rgba(251,191,36,0.95)",
@@ -279,14 +279,7 @@ const ISLAND_PATH = `
 
 // Limpattack: pixel fox walks across the card
 function LimpattackEffect() {
-  const [t, setT] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    let start: number;
-    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  const t = useClock();
 
   const speed = 22;
   const totalWidth = 260;
@@ -389,14 +382,7 @@ function LimpattackEffect() {
 // Benevo: pixel art crates being stacked and organized in a warehouse
 function BenevoEffect() {
   const { t: tr } = useLang();
-  const [t, setT] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    let start: number;
-    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  const t = useClock();
 
   // Worker walks left and right carrying a crate
   const cycleTime = 5.5;
@@ -533,14 +519,7 @@ function BenevoEffect() {
 
 // Ponte: clean pixel bridge — solid arch, no suspension cables, person walking across
 function PonteEffect() {
-  const [t, setT] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    let start: number;
-    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  const t = useClock();
 
   const personX = 18 + ((t * 20) % 186);
   const legPhase = t * 6;
@@ -628,14 +607,7 @@ function PonteEffect() {
 // Praxis: pixel knowledge graph — scattered doc-nodes wire up, a pulse runs the edges
 function PraxisEffect() {
   const { t: tr } = useLang();
-  const [t, setT] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    let start: number;
-    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  const t = useClock();
 
   const nodes = [
     { x: 34, y: 44 }, { x: 92, y: 30 }, { x: 150, y: 46 }, { x: 190, y: 78 },
@@ -692,14 +664,7 @@ function PraxisEffect() {
 // Kairos: pixel barbershop — the pole spins, the scissors snip, the chair frees up
 function KairosEffect() {
   const { t: tr } = useLang();
-  const [t, setT] = useState(0);
-  const rafRef = useRef<number | undefined>(undefined);
-  useEffect(() => {
-    let start: number;
-    const tick = (ts: number) => { if (!start) start = ts; setT((ts - start) / 1000); rafRef.current = requestAnimationFrame(tick); };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  const t = useClock();
 
   const gap = 1.5 + Math.max(0, Math.sin(t * 6)) * 3.5;
   const poleOffset = (t * 12) % 10;
@@ -774,19 +739,25 @@ function KairosEffect() {
 }
 
 // Relógio compartilhado pelos efeitos novos: segundos desde a montagem
+/* Quadros por segundo das animações: 60 no mapa, menos no carrossel do Frontista (várias ao mesmo tempo) */
+const ClockFps = createContext(60);
+
 function useClock() {
+  const fps = useContext(ClockFps);
   const [t, setT] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     let start: number | undefined;
+    let last = -Infinity;
+    const minGap = 1000 / fps - 1;
     const tick = (ts: number) => {
       if (start === undefined) start = ts;
-      setT((ts - start) / 1000);
+      if (ts - last >= minGap) { last = ts; setT((ts - start) / 1000); }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
+  }, [fps]);
   return t;
 }
 
@@ -1029,14 +1000,14 @@ const CARD_EFFECTS: Record<string, React.FC> = {
 };
 
 /* Animação de um projeto como tile solto (usada no carrossel do Frontista) */
-export function ProjectMotion({ id }: { id: string }) {
+export function ProjectMotion({ id, fps = 60 }: { id: string; fps?: number }) {
   const Effect = CARD_EFFECTS[id];
   const p = UNLOCKED.find(u => u.id === id);
   if (!Effect || !p) return null;
   const c = p.color;
   return (
     <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 45%, ${c.bg}, rgba(3,7,5,0.97) 78%)` }}>
-      <Effect />
+      <ClockFps.Provider value={fps}><Effect /></ClockFps.Provider>
       <div style={{ position: "absolute", left: 12, right: 12, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
         <span style={{ color: c.text, fontWeight: 600, fontSize: 13 }}>{p.name}</span>
         <span style={{ color: c.text, opacity: 0.5, fontSize: 9, fontFamily: "monospace", letterSpacing: 1, whiteSpace: "nowrap" }}>MOTION</span>
@@ -1362,13 +1333,13 @@ const TEAM_PATH = `
 const ISLANDS = {
   solo: {
     path: ISLAND_PATH,
-    name: { pt: "Ilha Solo", en: "Solo Island" },
+    name: { pt: "Ilha do Lobo Solitário", en: "Lone Wolf Isle" },
     sub: { pt: "feitos sozinho, do banco ao deploy", en: "built alone, from database to deploy" },
     accent: "52,211,153",
   },
   team: {
     path: TEAM_PATH,
-    name: { pt: "Ilha Coletiva", en: "Team Island" },
+    name: { pt: "Ilha da Tripulação", en: "Crew Isle" },
     sub: { pt: "times, bancas e hackathon", en: "teams, panels and a hackathon" },
     accent: "34,211,238",
   },
@@ -1380,25 +1351,28 @@ const ISLAND_ORDER: IslandId[] = ["solo", "team"];
 function Hologram({ p, idx, hovered }: { p: UnlockedProject; idx: number; hovered: boolean }) {
   const c = p.color;
   const x = p.mx, y = p.my;
-  const S = 1.45; // escala do holograma inteiro em volta do ponto do projeto
+  const S = 1.2; // escala do holograma inteiro em volta do ponto do projeto
   return (
     <>
-      <circle cx={x} cy={y} r={52} fill="transparent" />
+      <circle cx={x} cy={y} r={44} fill="transparent" />
       <g transform={`translate(${x} ${y}) scale(${S}) translate(${-x} ${-y})`}>
       <ellipse cx={x} cy={y + 22} rx={24} ry={7} fill="none" stroke={c.ping} strokeWidth="1"
         className="holo-ping" style={{ animationDelay: `${idx * 0.5}s` }} />
       <path d={`M ${x - 12} ${y + 20} L ${x - 28} ${y - 28} L ${x + 28} ${y - 28} L ${x + 12} ${y + 20} Z`}
         fill={`url(#beam-${p.id})`} className={`holo-beam${hovered ? " is-h" : ""}`} />
       <ellipse cx={x} cy={y + 22} rx="16" ry="5" fill="rgba(4,10,6,0.95)" stroke={c.border} strokeWidth="1" />
-      <ellipse cx={x} cy={y + 21} rx="9" ry="2.6" fill={c.base} filter="url(#glow)" />
+      <ellipse cx={x} cy={y + 21} rx="13" ry="4.2" fill={c.ping} />
+      <ellipse cx={x} cy={y + 21} rx="9" ry="2.6" fill={c.base} />
       <g className="holo-float" style={{ animationDelay: `${-idx * 0.7}s` }}>
         <g className={`holo-logo${hovered ? " is-h" : ""}`} style={{ animationDelay: `${idx * 0.9}s` }}>
+          {/* Halo de luz: gradiente estático (o filtro de desfoque era refeito a cada quadro) */}
+          <circle cx={x} cy={y - 7} r="30" fill={`url(#halo-${p.id})`} />
           <image href={p.logo} x={x - 19} y={y - 26} width="38" height="38" preserveAspectRatio="xMidYMid meet"
-            filter={`url(#holo-${p.id})`} mask="url(#scanMask)" />
+            mask="url(#scanMask)" />
         </g>
       </g>
       </g>
-      <text x={x} y={y + 58} textAnchor="middle" fill={c.text} fontSize="12" fontWeight="600"
+      <text x={x} y={y + 50} textAnchor="middle" fill={c.text} fontSize="11" fontWeight="600"
         fontFamily="Poppins, sans-serif" stroke="rgba(2,8,4,0.85)" strokeWidth="3" paintOrder="stroke"
         style={{ opacity: hovered ? 1 : 0.8, transition: "opacity 0.2s ease" }}>{p.name}</text>
     </>
@@ -1465,7 +1439,7 @@ function IslandMap() {
       <svg
         viewBox={viewBox}
         className="w-full"
-        style={{ filter: "drop-shadow(0 0 40px rgba(34,197,94,0.08))", minHeight: isMobile ? "340px" : undefined }}
+        style={{ minHeight: isMobile ? "340px" : undefined }}
       >
         <defs>
           <pattern id="waterGrid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -1486,7 +1460,8 @@ function IslandMap() {
             <rect width="6" height="2" fill="white" />
             <rect y="2" width="6" height="1" fill="rgb(90,90,90)" />
           </pattern>
-          <mask id="scanMask" maskUnits="userSpaceOnUse" x="0" y="0" width={VW} height={VH}>
+          {/* A máscara cobre só a caixa de cada logo (antes cobria o mapa inteiro, 5 vezes por quadro) */}
+          <mask id="scanMask" maskContentUnits="userSpaceOnUse">
             <rect width={VW} height={VH} fill="url(#scanPat)" />
           </mask>
           {UNLOCKED.map(p => (
@@ -1495,12 +1470,10 @@ function IslandMap() {
                 <stop offset="0" stopColor={p.color.hex} stopOpacity="0.5" />
                 <stop offset="1" stopColor={p.color.hex} stopOpacity="0" />
               </linearGradient>
-              <filter id={`holo-${p.id}`} x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b" />
-                <feFlood floodColor={p.color.hex} floodOpacity="0.9" />
-                <feComposite in2="b" operator="in" result="g" />
-                <feMerge><feMergeNode in="g" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
+              <radialGradient id={`halo-${p.id}`}>
+                <stop offset="0.45" stopColor={p.color.hex} stopOpacity="0.55" />
+                <stop offset="1" stopColor={p.color.hex} stopOpacity="0" />
+              </radialGradient>
             </g>
           ))}
         </defs>
@@ -1556,6 +1529,26 @@ function IslandMap() {
         </text>
       </svg>
 
+      {/* Lista da ilha: o conteúdo fica visível sem precisar passar o mouse */}
+      <ul key={island} className="arch-list">
+        {projects.map(p => (
+          <li key={p.id}>
+            <button type="button" onClick={() => setSelectedUnlocked(p)}
+              onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
+              onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
+              className="arch-item holo-blue">
+              <span className="arch-item-head">
+                <img src={p.logo} alt="" width={28} height={28} loading="lazy" />
+                <b className="holo-title">{p.name}</b>
+                {p.award && <em>{pick(p.award)}</em>}
+              </span>
+              <small className="holo-text">{pick(p.shortDesc)}</small>
+              <span className="arch-more">{t("ver mais", "see more")} <span aria-hidden="true">→</span></span>
+            </button>
+          </li>
+        ))}
+      </ul>
+
       {selectedUnlocked && <UnlockedPanel project={selectedUnlocked} onClose={() => setSelectedUnlocked(null)} />}
 
       <style>{`
@@ -1591,6 +1584,24 @@ function IslandMap() {
           transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease; animation: holoFlicker 6s steps(1) infinite; }
         .holo-logo.is-h { transform: scale(1.22); opacity: 1; }
         @keyframes holoFlicker { 0%, 100% { opacity: 0.9; } 91% { opacity: 0.55; } 92% { opacity: 0.95; } 94% { opacity: 0.4; } 95% { opacity: 0.9; } }
+        .arch-list { list-style: none; margin: 22px auto 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 780px;
+          animation: archIn 0.5s cubic-bezier(0.22,1,0.36,1); }
+        .arch-list li { width: 244px; max-width: 100%; }
+        .arch-item {
+          width: 100%; height: 100%; display: flex; flex-direction: column; gap: 6px; padding: 11px 13px 10px;
+          text-align: left; cursor: pointer; border: 0; color: inherit; font: inherit;
+        }
+        .arch-item:hover { transform: translateY(-2px); }
+        .arch-item > * { position: relative; z-index: 1; }
+        .arch-item-head { display: flex; align-items: center; gap: 8px; }
+        .arch-item-head img { width: 26px; height: 26px; object-fit: contain; border-radius: 7px; flex-shrink: 0; }
+        .arch-item-head b { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
+        .arch-item-head em { margin-left: auto; font-style: normal; font-size: 9.5px; font-weight: 600; color: rgba(147,197,253,0.85); white-space: nowrap; }
+        .arch-item small { font-size: 11px; line-height: 1.45;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .arch-more { margin-top: 2px; font: 700 10px/1 monospace; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(0,200,255,0.85); }
+        .arch-more span { display: inline-block; transition: transform 0.25s ease; }
+        .arch-item:hover .arch-more span { transform: translateX(4px); }
         .arch-mini { cursor: pointer; opacity: 0.75; transition: opacity 0.2s ease; outline: none; }
         .arch-mini:hover, .arch-mini:focus-visible { opacity: 1; }
 

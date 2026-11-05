@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-scroll";
 import { useLang, type Lang } from "../i18n/context";
 
@@ -33,14 +33,29 @@ function LangSwitch({ compact = false }: { compact?: boolean }) {
 }
 
 function Navbar() {
-    const { t, pick } = useLang();
-    const [active, setActive]   = useState("hero");
+    const { lang, t, pick } = useLang();
+    const [active, setActive]     = useState("hero");
     const [scrolled, setScrolled] = useState(false);
-    const [open, setOpen]       = useState(false);
+    const [hidden, setHidden]     = useState(false);
+    const [open, setOpen]         = useState(false);
+    const progressRef  = useRef<HTMLSpanElement>(null);
+    const linksRef     = useRef<HTMLUListElement>(null);
+    const indicatorRef = useRef<HTMLSpanElement>(null);
 
-    // shrink on scroll — no hide
+    // Rolagem: encolhe, esconde ao descer e volta ao subir, e atualiza a barra de progresso
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 60);
+        let lastY = window.scrollY;
+        let ticking = false;
+        const update = () => {
+            ticking = false;
+            const y = window.scrollY;
+            setScrolled(y > 60);
+            if (Math.abs(y - lastY) > 8) { setHidden(y > lastY && y > 320); lastY = y; }
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+        };
+        const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+        requestAnimationFrame(update);
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
@@ -56,6 +71,29 @@ function Navbar() {
         return () => observer.disconnect();
     }, []);
 
+    // Pílula que desliza até o link ativo (mexe direto no DOM: nada de re-render)
+    useEffect(() => {
+        const place = () => {
+            const ind = indicatorRef.current;
+            const el = linksRef.current?.querySelector<HTMLElement>(`[data-to="${active}"]`);
+            if (!ind) return;
+            if (!el) { ind.style.opacity = "0"; return; }
+            const box = linksRef.current!.getBoundingClientRect();
+            const r = el.getBoundingClientRect();
+            ind.style.opacity = "1";
+            ind.style.width = `${r.width}px`;
+            ind.style.transform = `translateX(${r.left - box.left}px)`;
+        };
+        place();
+        // A barra muda de largura e fonte ao rolar: reposiciona a cada mudança de tamanho
+        const ro = new ResizeObserver(place);
+        if (linksRef.current) {
+            ro.observe(linksRef.current);
+            linksRef.current.querySelectorAll("[data-to]").forEach(el => ro.observe(el));
+        }
+        return () => ro.disconnect();
+    }, [active, scrolled, lang]);
+
     // lock body scroll when drawer open
     useEffect(() => {
         document.body.style.overflow = open ? "hidden" : "";
@@ -63,49 +101,48 @@ function Navbar() {
     }, [open]);
 
     const fireWarp = () => window.dispatchEvent(new CustomEvent("warp"));
-
-    const linkClass = (id: string) =>
-        `relative inline-block cursor-pointer transition-all duration-300
-        ${active === id
-            ? "text-cyan-300 after:w-full"
-            : "text-white hover:text-cyan-300 after:w-0 hover:after:w-full"
-        }
-        after:absolute after:left-0 after:-bottom-1 after:h-[2px]
-        after:bg-gradient-to-r after:from-emerald-400 after:via-green-400 after:to-cyan-400
-        after:transition-all after:duration-300`;
+    const current = NAV_LINKS.find(l => l.to === active);
+    const path = current ? pick(current.label).toLowerCase() : "";
 
     return (
         <>
-            {/* ── Navbar pill — shrinks on scroll ── */}
-            <div className="fixed top-4 left-0 w-full z-50 flex justify-center transition-all duration-500">
+            {/* ── Navbar: encolhe ao rolar, some ao descer, volta ao subir ── */}
+            <div className="fixed top-4 left-0 w-full z-50 flex justify-center"
+                style={{ transform: hidden && !open ? "translateY(-150%)" : "none", transition: "transform 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
                 <nav
-                    className="w-[95%] max-w-6xl rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10 transition-all duration-500"
-                    style={{ padding: scrolled ? "11px 0" : "16px 0", background: scrolled ? "rgba(24,24,27,0.88)" : "rgba(24,24,27,0.7)" }}
+                    className="relative overflow-hidden rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10"
+                    style={{
+                        width: scrolled ? "min(92%, 1040px)" : "min(95%, 1152px)",
+                        padding: scrolled ? "9px 0" : "15px 0",
+                        background: scrolled ? "rgba(14,16,18,0.9)" : "rgba(24,24,27,0.7)",
+                        transition: "width 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.4s ease, background 0.4s ease",
+                    }}
                 >
-                    <div
-                        className="flex items-center justify-between transition-all duration-500"
-                        style={{ padding: scrolled ? "0 30px" : "0 48px" }}
-                    >
-                        {/* Logo */}
+                    <div className="flex items-center justify-between gap-4 transition-all duration-500"
+                        style={{ padding: scrolled ? "0 22px" : "0 36px" }}>
+                        {/* Marca: nome completo no topo; ao rolar, vira "FRONT" + o caminho da seção atual */}
                         <Link
                             to="hero" smooth duration={500} onClick={fireWarp}
                             aria-label={t("Voltar ao início", "Back to top")}
-                            className="cursor-pointer font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent transition-all duration-500"
-                            style={{ fontSize: scrolled ? "18px" : "22px" }}
+                            className="nav-brand cursor-pointer"
                         >
-                            JOÃO BATISTA
+                            <span className={`nav-full nav-grad${scrolled ? " is-off" : ""}`}>JOÃO BATISTA NETO</span>
+                            <span className={`nav-short nav-grad${scrolled ? " is-on" : ""}`} aria-hidden="true">FRONT</span>
+                            <span className={`nav-path${scrolled && path ? " is-on" : ""}`} aria-hidden="true">
+                                <span key={path} className="nav-path-txt">~/{path}</span><i className="nav-caret" />
+                            </span>
                         </Link>
 
                         {/* Desktop links */}
-                        <ul
-                            className="hidden lg:flex gap-7 transition-all duration-500"
-                            style={{ fontSize: scrolled ? "13px" : "14px" }}
-                        >
+                        <ul ref={linksRef} className="relative hidden lg:flex items-center gap-1"
+                            style={{ fontSize: scrolled ? "13px" : "14px", transition: "font-size 0.4s ease" }}>
+                            <span ref={indicatorRef} className="nav-ind" aria-hidden="true" />
                             {NAV_LINKS.map(({ to, label }) => (
-                                <li key={to}>
+                                <li key={to} className="relative">
                                     <Link
                                         to={to} smooth offset={-70} duration={500}
-                                        className={linkClass(to)}
+                                        data-to={to}
+                                        className={`nav-link${active === to ? " is-on" : ""}`}
                                         onClick={fireWarp}
                                     >
                                         {pick(label)}
@@ -117,7 +154,7 @@ function Navbar() {
                         <div className="flex items-center gap-3">
                         <LangSwitch compact={scrolled} />
 
-                        {/* Hamburger — 3 linhas → X */}
+                        {/* Hamburger: 3 linhas viram X */}
                         <button
                             className="lg:hidden flex flex-col justify-center items-center gap-[5px] focus:outline-none"
                             style={{ width: scrolled ? 28 : 30, height: scrolled ? 28 : 30 }}
@@ -130,6 +167,9 @@ function Navbar() {
                         </button>
                         </div>
                     </div>
+
+                    {/* Progresso de leitura na borda de baixo */}
+                    <span ref={progressRef} className="nav-progress" aria-hidden="true" />
                 </nav>
             </div>
 
@@ -231,6 +271,40 @@ function Navbar() {
             </div>
 
             <style>{`
+                .nav-brand { display: inline-flex; align-items: baseline; white-space: nowrap; font-weight: 700; letter-spacing: 0.3px; }
+                .nav-grad {
+                    background: linear-gradient(90deg, #34d399, #4ade80, #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent;
+                    transition: font-size 0.4s ease;
+                }
+                .nav-full, .nav-short { display: inline-block; overflow: hidden; vertical-align: bottom; font-size: 19px;
+                    transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease; }
+                .nav-full { max-width: 12em; }
+                .nav-full.is-off { max-width: 0; opacity: 0; }
+                .nav-short { max-width: 0; opacity: 0; font-size: 17px; letter-spacing: 1.5px; }
+                .nav-short.is-on { max-width: 4em; opacity: 1; }
+                .nav-path { display: inline-flex; align-items: center; max-width: 0; opacity: 0; overflow: hidden; margin-left: 0;
+                    font: 500 12px/1 monospace; color: rgba(103,232,249,0.8);
+                    transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease, margin 0.4s ease; }
+                .nav-path.is-on { max-width: 12em; opacity: 1; margin-left: 10px; }
+                .nav-path-txt { display: inline-block; animation: navType 0.5s steps(14) both; }
+                @keyframes navType { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+                .nav-caret { display: inline-block; width: 6px; height: 12px; margin-left: 2px; background: rgba(103,232,249,0.85); animation: navBlink 1s steps(1) infinite; }
+                @keyframes navBlink { 50% { opacity: 0; } }
+
+                .nav-ind {
+                    position: absolute; left: 0; top: 50%; height: 32px; margin-top: -16px; width: 0; opacity: 0; border-radius: 999px;
+                    background: linear-gradient(90deg, rgba(52,211,153,0.14), rgba(34,211,238,0.14));
+                    border: 1px solid rgba(34,211,238,0.3); box-shadow: 0 0 16px rgba(34,211,238,0.15);
+                    transition: transform 0.45s cubic-bezier(0.34,1.3,0.64,1), width 0.45s cubic-bezier(0.34,1.3,0.64,1), opacity 0.3s ease;
+                    pointer-events: none;
+                }
+                .nav-link { position: relative; z-index: 1; display: inline-block; padding: 6px 13px; border-radius: 999px; cursor: pointer;
+                    color: rgba(255,255,255,0.85); transition: color 0.25s ease; }
+                .nav-link:hover { color: #67e8f9; }
+                .nav-link.is-on { color: #67e8f9; }
+                .nav-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; transform: scaleX(0); transform-origin: left;
+                    background: linear-gradient(90deg, #34d399, #22d3ee); box-shadow: 0 0 8px rgba(34,211,238,0.6); pointer-events: none; }
+
                 .lang-switch {
                     position: relative; display: grid; grid-template-columns: 1fr 1fr;
                     padding: 3px; border-radius: 999px;

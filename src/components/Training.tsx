@@ -586,7 +586,7 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.3)" }}>
-              {cert.institution}
+              {cert.institution} · {tx(cert.date)}
             </span>
             <span style={{ fontFamily: "monospace", fontSize: 8, color: c + "88", letterSpacing: 1 }}>
               {t("VIRAR →", "FLIP →")}
@@ -634,8 +634,9 @@ function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
 ══════════════════════════════════════════════════════════ */
 export default function Training() {
   const { t } = useLang();
-  const [activeNode, setActiveNode] = useState<number | null>(null);
-  const [panelVisible, setPanelVisible] = useState(false);
+  // Começa no ano mais recente, já aberto: o conteúdo aparece sem precisar de interação
+  const [activeNode, setActiveNode] = useState<number | null>(TIMELINE_NODES.length - 1);
+  const [interacted, setInteracted] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -648,9 +649,17 @@ export default function Training() {
     return () => obs.disconnect();
   }, []);
 
+  // Enquanto ninguém interage, a linha do tempo avança sozinha pelos anos
+  useEffect(() => {
+    if (!inView || interacted) return;
+    const id = setInterval(() => setActiveNode(i => ((i ?? -1) + 1) % TIMELINE_NODES.length), 4500);
+    return () => clearInterval(id);
+  }, [inView, interacted]);
+
+  // Ao tirar o mouse, o painel fica no último ano visto em vez de sumir
   const handleHoverNode = (idx: number | null) => {
-    setActiveNode(idx);
-    setPanelVisible(idx !== null);
+    setInteracted(true);
+    if (idx !== null) setActiveNode(idx);
   };
 
   return (
@@ -733,7 +742,7 @@ export default function Training() {
           {/* Painel de eventos */}
           <YearPanel
             node={activeNode !== null ? TIMELINE_NODES[activeNode] : null}
-            visible={panelVisible}
+            visible={activeNode !== null}
           />
         </div>
 
