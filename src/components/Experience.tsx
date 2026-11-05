@@ -354,8 +354,8 @@ export default function Experience() {
 
             {/* Corpo */}
             <div style={{ padding: "18px 20px 20px", position: "relative", zIndex: 1 }}>
-              <MissionField label="Cargo"       value="Auxiliar Administrativo · Aprendiz" delay={0}   revealed={revealed} />
-              <MissionField label="Organização" value="ACLF, Pernambuco"                   delay={100} revealed={revealed} />
+              <MissionField label="Cargo"       value="Assistente Administrativo · Jovem Aprendiz" delay={0}   revealed={revealed} />
+              <MissionField label="Organização" value="Grupo ACLF, Paulista/PE"                   delay={100} revealed={revealed} />
               <MissionField label="Início"      value="Novembro de 2025"                   delay={200} revealed={revealed} mono />
               <MissionField label="Status"      value="EM ANDAMENTO"                       delay={300} revealed={revealed} mono />
               <MissionField label="Duração"     value={dur}                                delay={400} revealed={revealed} mono />

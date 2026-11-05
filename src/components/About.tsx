@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 
 const ITEMS = [
-    { key: "nome     ", value: "João Batista da Silva Neto" },
+    { key: "nome     ", value: "João Batista Neto" },
     { key: "idade    ", value: "19 anos" },
     { key: "local    ", value: "Paulista, PE 📍" },
     { key: "curso    ", value: "ADS na UNIFAFIRE" },
-    { key: "foco     ", value: "Front-End Júnior 💻" },
-    { key: "projetos ", value: "5 entregues · 3 premiados 🏆" },
+    { key: "foco     ", value: "Front-End · React e Next.js 💻" },
+    { key: "projetos ", value: "10 no ar · 3 premiados 🏆" },
 ];
 
 const STEP_MS = 520;

@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-scroll";
 
+// Cada link cobre uma ou mais seções: o destaque acompanha qualquer uma delas
 const NAV_LINKS = [
-    { to: "hero",       label: "Início",      icon: "⌂" },
-    { to: "about",      label: "Sobre",       icon: "◈" },
-    { to: "skills",     label: "Habilidades", icon: "◆" },
-    { to: "projects",   label: "Projetos",    icon: "◉" },
-    { to: "frontista",  label: "Criação",     icon: "◈" },
-    { to: "training",   label: "Formação",    icon: "◎" },
-    { to: "experience", label: "Experiência", icon: "◇" },
-    { to: "contact",    label: "Contato",     icon: "◈" },
+    { to: "about",     label: "Sobre",      icon: "◈", sections: ["about", "skills"] },
+    { to: "projects",  label: "Projetos",   icon: "◉", sections: ["projects"] },
+    { to: "frontista", label: "Frontista",  icon: "▶", sections: ["frontista"] },
+    { to: "training",  label: "Trajetória", icon: "◎", sections: ["training", "experience"] },
+    { to: "contact",   label: "Contato",    icon: "◇", sections: ["contact"] },
 ];
+
+const linkFor = (sectionId: string) =>
+    NAV_LINKS.find(l => l.sections.includes(sectionId))?.to ?? sectionId;
 
 function Navbar() {
     const [active, setActive]   = useState("hero");
@@ -28,7 +29,7 @@ function Navbar() {
     useEffect(() => {
         const sections = document.querySelectorAll("section");
         const observer = new IntersectionObserver(
-            entries => entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); }),
+            entries => entries.forEach(e => { if (e.isIntersecting) setActive(linkFor(e.target.id)); }),
             { threshold: 0.5 }
         );
         sections.forEach(s => observer.observe(s));
@@ -66,16 +67,18 @@ function Navbar() {
                         style={{ padding: scrolled ? "0 30px" : "0 48px" }}
                     >
                         {/* Logo */}
-                        <div
-                            className="font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent transition-all duration-500"
+                        <Link
+                            to="hero" smooth duration={500} onClick={fireWarp}
+                            aria-label="Voltar ao início"
+                            className="cursor-pointer font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent transition-all duration-500"
                             style={{ fontSize: scrolled ? "18px" : "22px" }}
                         >
                             JOÃO BATISTA
-                        </div>
+                        </Link>
 
                         {/* Desktop links */}
                         <ul
-                            className="hidden md:flex gap-6 transition-all duration-500"
+                            className="hidden md:flex gap-8 transition-all duration-500"
                             style={{ fontSize: scrolled ? "13px" : "14px" }}
                         >
                             {NAV_LINKS.map(({ to, label }) => (
