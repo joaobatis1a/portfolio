@@ -15,7 +15,7 @@
 
 ```
 $ whoami
-João Batista da Silva Neto — Front-End Developer, Recife/PE
+João Batista Neto — Front-End Developer, Paulista/PE
 $ cat sobre.txt
 Construo a aplicação inteira: layout no Figma, componentização, consumo de
 API e interface responsiva, do zero até a produção.
