@@ -12,33 +12,16 @@ function tempoDesde(ano: number, mes: number) {
   return `${anos}a${restM ? ` ${restM}m` : ""}`;
 }
 
-/* ══ REVEAL — fade + slide suave, sem hacker ══ */
+/* ══ REVEAL: o texto está sempre no HTML; a tarja ▓ é só uma camada visual que recolhe ══ */
 function Reveal({ children, delay = 0, revealed, mono = false }: {
   children: string; delay?: number; revealed: boolean; mono?: boolean;
 }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!revealed) return;
-    const t = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(t);
-  }, [revealed, delay]);
-
   return (
-    <span style={{
-      display: "inline-block",
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(5px)",
-      transition: "opacity 0.45s ease, transform 0.45s ease",
-      fontFamily: mono ? "monospace" : "inherit",
-    }}>
-      {/* enquanto não revelado mostra bloco redacted */}
-      {!visible
-        ? <span style={{ background: "rgba(34,197,94,0.25)", color: "transparent", borderRadius: 2, userSelect: "none" }}>
-            {"▓".repeat(Math.max(children.length, 4))}
-          </span>
-        : children
-      }
+    <span
+      className={`exp-redact${revealed ? " is-on" : ""}`}
+      style={{ "--d": `${delay}ms`, fontFamily: mono ? "monospace" : "inherit" } as React.CSSProperties}
+    >
+      {children}
     </span>
   );
 }
@@ -64,109 +47,37 @@ function MissionField({ label, value, delay, revealed, mono = false }: {
 
 /* ══ CHIP DE CAPACIDADE ══ */
 function CapChip({ label, delay, revealed }: { label: string; delay: number; revealed: boolean }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    if (!revealed) return;
-    const t = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(t);
-  }, [revealed, delay]);
-
   return (
-    <span style={{
-      fontFamily: "monospace", fontSize: 9, letterSpacing: 1, padding: "3px 9px",
-      border: `1px solid rgba(34,197,94,${visible ? "0.28" : "0"})`,
-      color: `rgba(34,197,94,${visible ? "0.62" : "0"})`,
-      background: `rgba(34,197,94,${visible ? "0.05" : "0"})`,
-      opacity: visible ? 1 : 0,
-      transform: visible ? "scale(1)" : "scale(0.92)",
-      transition: "all 0.35s cubic-bezier(0.34,1.56,0.64,1)",
-      display: "inline-block",
-    }}>
+    <span
+      className={`exp-chip${revealed ? " is-on" : ""}`}
+      style={{ "--d": `${delay}ms` } as React.CSSProperties}
+    >
       {label}
     </span>
   );
 }
 
-/* ══ CARIMBO — efeito de stamp físico ══ */
+/* ══ CARIMBO: efeito de stamp físico, todo em CSS ══ */
 function Stamp({ active }: { active: boolean }) {
-  const [phase, setPhase] = useState<"hidden"|"impact"|"bounce"|"settle">("hidden");
-
-  useEffect(() => {
-    if (!active) return;
-    setPhase("impact");
-    const t1 = setTimeout(() => setPhase("bounce"), 80);
-    const t2 = setTimeout(() => setPhase("settle"), 220);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [active]);
-
-  const transforms: Record<typeof phase, string> = {
-    hidden:  "rotate(-12deg) scale(0.05)",
-    impact:  "rotate(-12deg) scale(1.12)",
-    bounce:  "rotate(-12deg) scale(0.97)",
-    settle:  "rotate(-12deg) scale(1)",
-  };
-  const opacities: Record<typeof phase, number> = {
-    hidden: 0, impact: 1, bounce: 1, settle: 1,
-  };
-  const durations: Record<typeof phase, string> = {
-    hidden:  "0s",
-    impact:  "0.07s",
-    bounce:  "0.14s cubic-bezier(0.34,1.56,0.64,1)",
-    settle:  "0.18s ease",
-  };
-
   return (
-    <div style={{
+    <div aria-hidden="true" style={{
       position: "absolute",
       top: "34%", right: 14,
-      transformOrigin: "center",
       pointerEvents: "none",
       zIndex: 30,
     }}>
-      {/* Halo de impacto — flash que some */}
-      {phase === "impact" && (
-        <div style={{
-          position: "absolute", inset: -22, borderRadius: 2,
-          background: "radial-gradient(ellipse, rgba(34,197,94,0.4) 0%, transparent 70%)",
-          animation: "stampFlash 0.3s ease forwards",
-        }} />
-      )}
-
-      {/* O carimbo em si */}
-      <div style={{
-        transform: transforms[phase],
-        opacity: opacities[phase],
-        transition: `transform ${durations[phase]}, opacity ${phase === "hidden" ? "0s" : "0.06s"}, box-shadow 0.3s ease`,
-        border: "3px solid rgba(34,197,94,0.85)",
-        padding: "10px 18px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-        background: "rgba(2,8,4,0.98)",
-        boxShadow: phase === "impact"
-          ? "0 0 0 4px rgba(34,197,94,0.25), 0 0 36px rgba(34,197,94,0.5)"
-          : "0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2)",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* "Tinta" que escorre após impact */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "rgba(34,197,94,0.07)",
-          opacity: phase === "impact" ? 1 : 0,
-          transition: "opacity 0.4s ease",
-        }} />
-
+      {active && <div className="exp-stamp-flash" />}
+      <div className={`exp-stamp${active ? " is-on" : ""}`}>
         <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 3,
-          color: "rgba(34,197,94,0.55)", position: "relative" }}>
+          color: "rgba(34,197,94,0.55)" }}>
           MISSÃO
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 13, fontWeight: 900,
-          letterSpacing: 4, color: "rgba(34,197,94,0.88)", position: "relative",
-          textShadow: phase === "impact" ? "0 0 12px rgba(34,197,94,0.8)" : "none",
-          transition: "text-shadow 0.4s ease" }}>
-          CONCLUÍDA
+          letterSpacing: 4, color: "rgba(34,197,94,0.88)" }}>
+          ACEITA
         </span>
         <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 2,
-          color: "rgba(34,197,94,0.4)", position: "relative" }}>
+          color: "rgba(34,197,94,0.4)" }}>
           NOV 2025
         </span>
       </div>
@@ -178,67 +89,60 @@ function Stamp({ active }: { active: boolean }) {
 /* ══ SEÇÃO PRINCIPAL ══ */
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
-  const cardRef    = useRef<HTMLDivElement>(null);
+  const tiltRef    = useRef<HTMLDivElement>(null);
   const [inView,   setInView]   = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [stamped,  setStamped]  = useState(false);
-  const [shake,    setShake]    = useState(false);
-  const [scanLine, setScanLine] = useState(0);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Sem animação (preferência do sistema): a ficha já aparece aberta
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold: 0.3 }
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        setInView(true);
+        if (still) { setRevealed(true); setStamped(true); }
+        obs.disconnect();
+      },
+      { threshold: 0.15 }
     );
     if (sectionRef.current) obs.observe(sectionRef.current);
     return () => obs.disconnect();
   }, []);
 
-  /* Sequência: scan → reveal → stamp */
-  useEffect(() => {
-    if (!inView) return;
-    let start: number | null = null;
-    let raf: number;
-    const SCAN_DURATION = 700;
-    const tick = (ts: number) => {
-      if (!start) start = ts;
-      const prog = Math.min((ts - start) / SCAN_DURATION * 100, 100);
-      setScanLine(prog);
-      if (prog < 100) { raf = requestAnimationFrame(tick); }
-      else {
-        setTimeout(() => setRevealed(true), 150);
-        setTimeout(() => { setStamped(true); setShake(true); setTimeout(() => setShake(false), 300); }, 1100);
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView]);
+  /* Sequência: scan (CSS) → reveal → stamp */
+  const onScanEnd = () => {
+    setRevealed(true);
+    setTimeout(() => setStamped(true), 950);
+  };
 
-  /* Tilt do card no mouse — spring suavizado via lerp inline */
+  /* Tilt do card no mouse: lerp num rAF que só roda enquanto há movimento */
   const tiltTarget  = useRef({ x: 0, y: 0 });
   const tiltCurrent = useRef({ x: 0, y: 0 });
-  useEffect(() => {
-    let id: number;
+  const tiltRaf     = useRef(0);
+  const runTilt = () => {
+    if (tiltRaf.current) return;
     const tick = () => {
-      tiltCurrent.current.x += (tiltTarget.current.x - tiltCurrent.current.x) * 0.1;
-      tiltCurrent.current.y += (tiltTarget.current.y - tiltCurrent.current.y) * 0.1;
-      setTilt({ x: tiltCurrent.current.x, y: tiltCurrent.current.y });
-      id = requestAnimationFrame(tick);
+      const c = tiltCurrent.current, t = tiltTarget.current;
+      c.x += (t.x - c.x) * 0.1;
+      c.y += (t.y - c.y) * 0.1;
+      if (tiltRef.current) tiltRef.current.style.transform = `perspective(1100px) rotateX(${c.x}deg) rotateY(${c.y}deg)`;
+      if (Math.abs(t.x - c.x) + Math.abs(t.y - c.y) > 0.01) tiltRaf.current = requestAnimationFrame(tick);
+      else tiltRaf.current = 0;
     };
-    id = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(id);
-  }, []);
+    tiltRaf.current = requestAnimationFrame(tick);
+  };
+  useEffect(() => () => cancelAnimationFrame(tiltRaf.current), []);
 
   const onCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    const rect = el.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     tiltTarget.current = {
       x: ((e.clientY - rect.top) / rect.height - 0.5) * 7,
       y: ((e.clientX - rect.left) / rect.width - 0.5) * 7,
     };
+    runTilt();
   };
-  const onCardMouseLeave = () => { tiltTarget.current = { x: 0, y: 0 }; };
+  const onCardMouseLeave = () => { tiltTarget.current = { x: 0, y: 0 }; runTilt(); };
 
   const dur  = tempoDesde(2025, 11);
   const CAPS = [
@@ -285,18 +189,16 @@ export default function Experience() {
         }}>
           {/* Wrapper único de tilt: card e carimbo giram juntos, no mesmo espaço 3D */}
           <div
+            ref={tiltRef}
             onMouseMove={onCardMouseMove}
             onMouseLeave={onCardMouseLeave}
             style={{
               position: "relative",
-              transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-              transition: "transform 0.05s linear",
               transformStyle: "preserve-3d",
-              animation: shake ? "cardShake 0.3s ease" : "none",
+              animation: stamped ? "cardShake 0.3s ease" : "none",
             }}
           >
           <div
-            ref={cardRef}
             style={{
               background: "rgba(2,8,4,0.97)",
               border: "1px solid rgba(34,197,94,0.18)",
@@ -313,10 +215,10 @@ export default function Experience() {
             }} />
 
             {/* Barra de scan */}
-            {!revealed && (
-              <div style={{
+            {inView && !revealed && (
+              <div className="exp-scan" onAnimationEnd={onScanEnd} style={{
                 position: "absolute", left: 0, right: 0, zIndex: 10,
-                top: `${scanLine}%`, height: 2,
+                top: 0, height: 2,
                 background: "linear-gradient(90deg,transparent,rgba(34,197,94,0.9),rgba(6,182,212,0.9),transparent)",
                 boxShadow: "0 0 20px rgba(34,197,94,0.6), 0 0 40px rgba(34,197,94,0.2)",
               }} />
@@ -445,6 +347,62 @@ export default function Experience() {
       <style>{`
         @keyframes expPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
         @keyframes stampFlash { 0%{opacity:1} 100%{opacity:0} }
+        @keyframes expScan { from { top: 0%; } to { top: 100%; } }
+        .exp-scan { animation: expScan 0.7s linear forwards; }
+
+        /* Tarja: o texto real fica embaixo e a barra recolhe para a direita */
+        .exp-redact { position: relative; display: inline-block; }
+        .exp-redact::after {
+          content: ""; position: absolute; inset: 1px -2px; border-radius: 2px;
+          background:
+            repeating-linear-gradient(90deg, rgba(34,197,94,0.32) 0 5px, rgba(34,197,94,0.18) 5px 6px),
+            #06140b;
+          transform-origin: right center;
+          transition: transform 0.45s cubic-bezier(0.65,0,0.35,1) var(--d, 0ms);
+        }
+        .exp-redact.is-on::after { transform: scaleX(0); }
+
+        .exp-chip {
+          font-family: monospace; font-size: 9px; letter-spacing: 1px; padding: 3px 9px;
+          display: inline-block;
+          border: 1px solid rgba(34,197,94,0.28);
+          color: rgba(34,197,94,0.62);
+          background: rgba(34,197,94,0.05);
+          opacity: 0; transform: scale(0.92);
+          transition: opacity 0.35s ease var(--d, 0ms), transform 0.35s cubic-bezier(0.34,1.56,0.64,1) var(--d, 0ms);
+        }
+        .exp-chip.is-on { opacity: 1; transform: scale(1); }
+
+        .exp-stamp {
+          border: 3px solid rgba(34,197,94,0.85);
+          padding: 10px 18px;
+          display: flex; flex-direction: column; align-items: center; gap: 2px;
+          background: rgba(2,8,4,0.98);
+          box-shadow: 0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2);
+          transform: rotate(-12deg) scale(0.05);
+          opacity: 0;
+        }
+        .exp-stamp.is-on { animation: stampIn 0.4s ease forwards; }
+        @keyframes stampIn {
+          0%   { transform: rotate(-12deg) scale(0.05); opacity: 0; }
+          18%  { transform: rotate(-12deg) scale(1.12); opacity: 1;
+                 box-shadow: 0 0 0 4px rgba(34,197,94,0.25), 0 0 36px rgba(34,197,94,0.5); }
+          55%  { transform: rotate(-12deg) scale(0.97); opacity: 1; }
+          100% { transform: rotate(-12deg) scale(1); opacity: 1;
+                 box-shadow: 0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2); }
+        }
+        .exp-stamp-flash {
+          position: absolute; inset: -22px; border-radius: 2px;
+          background: radial-gradient(ellipse, rgba(34,197,94,0.4) 0%, transparent 70%);
+          animation: stampFlash 0.3s ease forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .exp-redact::after { display: none; }
+          .exp-chip { opacity: 1; transform: none; transition: none; }
+          .exp-stamp, .exp-stamp.is-on { animation: none; opacity: 1; transform: rotate(-12deg); }
+          .exp-stamp-flash { display: none; }
+        }
         @keyframes cardShake {
           0%   { translate: 0 0; }
           20%  { translate: -3px 1px; }

@@ -12,8 +12,8 @@ function StarBackground() {
         let animId: number;
         let warpActive = false;
         let warpSpeed = 0;
-        let mouse = { x: 0.5, y: 0.5 };
-        let targetMouse = { x: 0.5, y: 0.5 };
+        const mouse = { x: 0.5, y: 0.5 };
+        const targetMouse = { x: 0.5, y: 0.5 };
 
         const W = () => canvas.width;
         const H = () => canvas.height;
