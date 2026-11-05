@@ -8,3 +8,46 @@ body {
   margin: 0;
   font-family: "Poppins", sans-serif;
 }
+/* ── Holograma azul (mesma linguagem dos cartões de Habilidades) ── */
+.holo-blue {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(0, 110, 255, 0.07);
+  box-shadow: 0 0 0 1px rgba(0, 149, 255, 0.45), 0 0 22px rgba(0, 149, 255, 0.16), inset 0 0 24px rgba(0, 100, 255, 0.06);
+  transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease;
+}
+/* cantos em destaque: borda de 2px visível só nos quatro cantos */
+.holo-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(0, 180, 255, 0.65);
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) top left / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) top right / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+          mask:
+    linear-gradient(#000 0 0) top left / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) top right / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat,
+    linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+}
+/* scanlines */
+.holo-blue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 180, 255, 0.03) 3px 4px);
+}
+.holo-blue:hover,
+.holo-blue:focus-visible {
+  background: rgba(0, 110, 255, 0.11);
+  box-shadow: 0 0 0 1.5px rgba(0, 190, 255, 0.8), 0 0 34px rgba(0, 149, 255, 0.4), inset 0 0 30px rgba(0, 149, 255, 0.1);
+}
+.holo-title { color: rgba(120, 210, 255, 0.95); text-shadow: 0 0 12px rgba(0, 180, 255, 0.6); }
+.holo-text { color: rgba(150, 210, 255, 0.7); }

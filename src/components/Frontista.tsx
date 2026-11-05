@@ -11,18 +11,32 @@ const ACCENTS: Record<Accent, { text: string; soft: string; line: string }> = {
 
 const ratioOf = (r: string) => { const [w, h] = r.split("/").map(Number); return w / h; };
 
-/* Monta o conteúdo do tile só quando ele está na tela (animações e vídeos custam CPU) */
+/* Um único IntersectionObserver para todos os tiles.
+   "near": o tile está na tela (monta a animação); "focus": está bem visível (vídeo toca). */
+type Watch = (near: boolean, focus: boolean) => void;
+const watchers = new Map<Element, Watch>();
+let sharedObserver: IntersectionObserver | null = null;
+function observe(el: Element, cb: Watch) {
+    if (!sharedObserver) {
+        sharedObserver = new IntersectionObserver(entries => {
+            for (const e of entries) watchers.get(e.target)?.(e.isIntersecting, e.intersectionRatio >= 0.6);
+        }, { threshold: [0, 0.6] });
+    }
+    watchers.set(el, cb);
+    sharedObserver.observe(el);
+    return () => { watchers.delete(el); sharedObserver?.unobserve(el); };
+}
+
 function useOnScreen<T extends Element>() {
     const ref = useRef<T>(null);
-    const [on, setOn] = useState(false);
+    const [state, setState] = useState({ near: false, focus: false });
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        const obs = new IntersectionObserver(([e]) => setOn(e.isIntersecting));
-        obs.observe(el);
-        return () => obs.disconnect();
+        return observe(el, (near, focus) =>
+            setState(prev => (prev.near === near && prev.focus === focus ? prev : { near, focus })));
     }, []);
-    return [ref, on] as const;
+    return [ref, state] as const;
 }
 
 function useText() {
@@ -30,13 +44,39 @@ function useText() {
     return (v: Text | undefined) => (v === undefined ? undefined : typeof v === "string" ? v : v[lang]);
 }
 
+/* No máximo 2 vídeos tocando ao mesmo tempo: decodificar vídeo é o que mais pesa no carrossel.
+   Quem quer tocar entra na fila; quando uma vaga abre, o próximo da fila começa. */
+const MAX_PLAYING = 2;
+const playing = new Set<HTMLVideoElement>();
+const waiting: HTMLVideoElement[] = [];
+function startNext() {
+    while (playing.size < MAX_PLAYING && waiting.length) {
+        const v = waiting.shift()!;
+        playing.add(v);
+        v.play().catch(() => {});
+    }
+}
+function requestPlay(v: HTMLVideoElement) {
+    if (playing.has(v) || waiting.includes(v)) return;
+    waiting.push(v);
+    startNext();
+}
+function releasePlay(v: HTMLVideoElement) {
+    v.pause();
+    playing.delete(v);
+    const i = waiting.indexOf(v);
+    if (i >= 0) waiting.splice(i, 1);
+    startNext();
+}
+
 function VideoTile({ src, poster, on }: { src: string; poster?: string; on: boolean }) {
     const ref = useRef<HTMLVideoElement>(null);
     useEffect(() => {
         const v = ref.current;
         if (!v) return;
-        if (on) v.play().catch(() => {});
-        else v.pause();
+        if (on) requestPlay(v);
+        else releasePlay(v);
+        return () => releasePlay(v);
     }, [on]);
     return (
         <video ref={ref} src={src} poster={poster} muted loop playsInline preload="none"
@@ -65,7 +105,7 @@ function NoteTile({ tile }: { tile: Extract<FrontistaTile, { kind: "note" }> }) 
 
 function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
     const tx = useText();
-    const [ref, on] = useOnScreen<HTMLDivElement>();
+    const [ref, { near, focus }] = useOnScreen<HTMLDivElement>();
     const width = Math.round(height * ratioOf(tile.ratio));
     const href = tile.kind === "video" || tile.kind === "image" ? tile.href : undefined;
     const title = tile.kind === "video" || tile.kind === "image" ? tx(tile.title) : undefined;
@@ -73,9 +113,9 @@ function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
 
     const body = (
         <>
-            {tile.kind === "motion" && on && <ProjectMotion id={tile.project} />}
-            {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} on={on} />}
-            {tile.kind === "image" && <img src={tile.src} alt={tx(tile.alt)} loading="lazy" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+            {tile.kind === "motion" && near && <ProjectMotion id={tile.project} fps={20} />}
+            {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} on={focus} />}
+            {tile.kind === "image" && <img src={tile.src} alt={tx(tile.alt)} loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
             {tile.kind === "note" && <NoteTile tile={tile} />}
             {tile.kind === "video" && <span className="ft-rec"><i />REC</span>}
             {title && <span className="ft-caption">{title}</span>}
@@ -116,33 +156,26 @@ const TIKTOK_PATH = "M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.8
 
 function SocialLinks() {
     const { t } = useLang();
+    const links = [
+        { href: FRONTISTA_LINKS.tiktok, name: "TikTok", note: t("vídeos curtos", "short videos"),
+          icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d={TIKTOK_PATH} /></svg> },
+        { href: FRONTISTA_LINKS.instagram, name: "Instagram", note: t("reels e bastidores", "reels & behind the scenes"),
+          icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" /></svg> },
+    ];
     return (
         <div className="relative z-10 mt-14 px-4 flex flex-col items-center">
-            <p className="ft-handle">@frontista</p>
-            <p className="mt-1 mb-6 text-xs tracking-[3px] uppercase text-zinc-500">{t("siga o processo", "follow the process")}</p>
-            <div className="flex flex-wrap justify-center gap-3">
-                <a href={FRONTISTA_LINKS.tiktok} target="_blank" rel="noopener noreferrer" className="ft-social ft-social-tt">
-                    <span className="ft-badge ft-badge-tt" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="20" height="20"><path d={TIKTOK_PATH} fill="#25f4ee" transform="translate(-1 -1)" /><path d={TIKTOK_PATH} fill="#fe2c55" transform="translate(1 1)" /><path d={TIKTOK_PATH} fill="#fff" /></svg>
-                    </span>
-                    <span className="ft-social-text">
-                        <b>TikTok</b>
-                        <small>{t("vídeos curtos", "short videos")}</small>
-                    </span>
-                    <span className="ft-social-go">{t("Seguir", "Follow")} <span aria-hidden="true">→</span></span>
-                </a>
-                <a href={FRONTISTA_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="ft-social ft-social-ig">
-                    <span className="ft-badge ft-badge-ig" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2">
-                            <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.4" cy="6.6" r="1" fill="#fff" stroke="none" />
-                        </svg>
-                    </span>
-                    <span className="ft-social-text">
-                        <b>Instagram</b>
-                        <small>{t("reels e bastidores", "reels & behind the scenes")}</small>
-                    </span>
-                    <span className="ft-social-go">{t("Seguir", "Follow")} <span aria-hidden="true">→</span></span>
-                </a>
+            <p className="text-xs tracking-widest text-blue-400/50 uppercase">{t("// sintonize o canal", "// tune in")}</p>
+            <div className="mt-4 grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3">
+                {links.map(l => (
+                    <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer" className="ft-chan holo-blue">
+                        <span className="ft-chan-ico" aria-hidden="true">{l.icon}</span>
+                        <span className="ft-chan-text">
+                            <b>{l.name}</b>
+                            <small>@frontista · {l.note}</small>
+                        </span>
+                        <span className="ft-chan-go" aria-hidden="true">↗</span>
+                    </a>
+                ))}
             </div>
         </div>
     );
@@ -169,8 +202,13 @@ export default function Frontista() {
 
     useEffect(() => {
         const obs = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "100px 0px" });
+        // Com as fileiras cobrindo a tela, o fundo de estrelas congela (libera a GPU para o carrossel)
+        const freeze = new IntersectionObserver(([e]) =>
+            window.dispatchEvent(new CustomEvent("starfield-freeze", { detail: e.isIntersecting })), { rootMargin: "-30% 0px -30% 0px" });
+        const rows = sectionRef.current?.querySelector(".ft-rows");
+        if (rows) freeze.observe(rows);
         if (sectionRef.current) obs.observe(sectionRef.current);
-        return () => obs.disconnect();
+        return () => { obs.disconnect(); freeze.disconnect(); window.dispatchEvent(new CustomEvent("starfield-freeze", { detail: false })); };
     }, []);
 
     /* Loop das fileiras: velocidade base + empurrão da rolagem (rolar para cima inverte), inclinação com a velocidade */
@@ -201,7 +239,7 @@ export default function Frontista() {
                 const half = el.scrollWidth / 2;
                 if (!half) return;
                 const m = ((offsets[i] % half) + half) % half;
-                el.style.transform = `translate3d(${-m}px,0,0) skewX(${skew * row.dir}deg)`;
+                el.style.transform = `translate3d(${-m.toFixed(1)}px,0,0) skewX(${(skew * row.dir).toFixed(2)}deg)`;
             });
             raf = requestAnimationFrame(tick);
         };
@@ -238,15 +276,18 @@ export default function Frontista() {
             <SocialLinks />
 
             <style>{`
-                .ft-rows { display: flex; flex-direction: column; gap: 14px;
-                    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-                            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
-                .ft-row { overflow: hidden; padding: 10px 0; }
+                .ft-rows { position: relative; display: flex; flex-direction: column; gap: 14px; }
+                .ft-rows::before, .ft-rows::after {
+                    content: ""; position: absolute; top: 0; bottom: 0; width: 7%; z-index: 3; pointer-events: none;
+                }
+                .ft-rows::before { left: 0; background: linear-gradient(90deg, #000, transparent); }
+                .ft-rows::after { right: 0; background: linear-gradient(270deg, #000, transparent); }
+                .ft-row { overflow: hidden; padding: 10px 0; contain: layout paint; }
                 .ft-track { display: flex; width: max-content; will-change: transform; }
                 .ft-copy { display: flex; gap: 14px; padding-right: 14px; }
                 .ft-tile {
                     position: relative; flex-shrink: 0; overflow: hidden; border-radius: 14px;
-                    border: 1px solid; background: rgba(3,7,5,0.96);
+                    border: 1px solid; background: rgba(3,7,5,0.96); contain: layout paint style;
                     transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
                 }
                 .ft-tile:hover { transform: scale(1.035); box-shadow: 0 0 28px rgba(34,197,94,0.18); z-index: 2; }
@@ -254,7 +295,7 @@ export default function Frontista() {
                     position: absolute; top: 8px; left: 8px; z-index: 1;
                     display: flex; align-items: center; gap: 5px; padding: 2px 7px; border-radius: 6px;
                     font: 700 9px/1.4 monospace; letter-spacing: 1.5px; color: rgba(255,255,255,0.85);
-                    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+                    background: rgba(0,0,0,0.65);
                 }
                 .ft-rec i { width: 6px; height: 6px; border-radius: 50%; background: #f43f5e; animation: ftRec 1.2s ease-in-out infinite; }
                 @keyframes ftRec { 50% { opacity: 0.25; } }
@@ -277,36 +318,21 @@ export default function Frontista() {
                 .ft-still .ft-row { overflow-x: auto; scrollbar-width: none; }
                 .ft-still .ft-copy[aria-hidden] { display: none; }
 
-                /* Perfis */
-                .ft-handle {
-                    font-family: "Bebas Neue", sans-serif; font-size: clamp(40px, 7vw, 64px); line-height: 1; letter-spacing: 2px;
-                    background: linear-gradient(90deg, #34d399, #22d3ee 50%, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent;
+                /* Perfis: holograma azul, como os cartões de Habilidades */
+                .ft-chan { display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-decoration: none; }
+                .ft-chan > * { position: relative; z-index: 1; }
+                .ft-chan:hover { transform: translateY(-2px); }
+                .ft-chan-ico {
+                    width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 12px;
+                    color: rgba(120,210,255,0.95); background: rgba(0,100,255,0.1); border: 1px solid rgba(0,149,255,0.3);
+                    box-shadow: inset 0 0 12px rgba(0,100,255,0.1); transition: color 0.25s ease, box-shadow 0.25s ease;
                 }
-                .ft-social {
-                    --brand: 34,211,238;
-                    display: flex; align-items: center; gap: 14px; min-width: 268px;
-                    padding: 10px 18px 10px 10px; border-radius: 999px; text-decoration: none; color: #e4e4e7;
-                    background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.09);
-                    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-                }
-                .ft-social-ig { --brand: 225,48,108; }
-                .ft-social:hover, .ft-social:focus-visible {
-                    transform: translateY(-3px); border-color: rgba(var(--brand),0.6);
-                    background: rgba(var(--brand),0.06); box-shadow: 0 10px 30px -10px rgba(var(--brand),0.55);
-                }
-                .ft-badge {
-                    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-                    display: grid; place-items: center; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-                }
-                .ft-social:hover .ft-badge { transform: rotate(-10deg) scale(1.08); }
-                .ft-badge-tt { background: #000; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
-                .ft-badge-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
-                .ft-social-text { display: flex; flex-direction: column; flex: 1; line-height: 1.2; }
-                .ft-social-text b { font-size: 15px; font-weight: 600; }
-                .ft-social-text small { font-size: 11px; color: rgba(161,161,170,0.9); }
-                .ft-social-go { font-size: 12px; font-weight: 600; color: rgb(var(--brand)); white-space: nowrap; }
-                .ft-social-go span { display: inline-block; transition: transform 0.25s ease; }
-                .ft-social:hover .ft-social-go span { transform: translateX(4px); }
+                .ft-chan:hover .ft-chan-ico { color: #fff; box-shadow: inset 0 0 14px rgba(0,149,255,0.3), 0 0 14px rgba(0,149,255,0.35); }
+                .ft-chan-text { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.3; }
+                .ft-chan-text b { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: rgba(120,210,255,0.95); text-shadow: 0 0 12px rgba(0,180,255,0.6); }
+                .ft-chan-text small { font-family: monospace; font-size: 11px; color: rgba(150,210,255,0.6); }
+                .ft-chan-go { font-size: 16px; color: rgba(0,200,255,0.75); transition: transform 0.25s ease; }
+                .ft-chan:hover .ft-chan-go { transform: translate(3px, -3px); }
             `}</style>
         </section>
     );
