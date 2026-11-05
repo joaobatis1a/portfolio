@@ -20,7 +20,7 @@ function observe(el: Element, cb: Watch) {
     if (!sharedObserver) {
         sharedObserver = new IntersectionObserver(entries => {
             for (const e of entries) watchers.get(e.target)?.(e.isIntersecting, e.intersectionRatio >= 0.6);
-        }, { threshold: [0, 0.6] });
+        }, { threshold: [0, 0.6], rootMargin: "0px 160px 0px 160px" });
     }
     watchers.set(el, cb);
     sharedObserver.observe(el);
@@ -44,44 +44,69 @@ function useText() {
     return (v: Text | undefined) => (v === undefined ? undefined : typeof v === "string" ? v : v[lang]);
 }
 
-/* No máximo 2 vídeos tocando ao mesmo tempo: decodificar vídeo é o que mais pesa no carrossel.
-   Quem quer tocar entra na fila; quando uma vaga abre, o próximo da fila começa. */
-const MAX_PLAYING = 2;
-const playing = new Set<HTMLVideoElement>();
-const waiting: HTMLVideoElement[] = [];
-function startNext() {
-    while (playing.size < MAX_PLAYING && waiting.length) {
-        const v = waiting.shift()!;
-        playing.add(v);
-        v.play().catch(() => {});
-    }
+/* Vagas: decodificar vídeo e redesenhar animações é o que mais pesa no carrossel.
+   Quem quer ficar ativo entra na fila; quando uma vaga abre, o próximo da fila ganha. */
+function createSlots(max: number) {
+    const granted = new Set<number>();
+    const queue: number[] = [];
+    const subs = new Map<number, (g: boolean) => void>();
+    let uid = 0;
+    const pump = () => {
+        while (granted.size < max && queue.length) {
+            const id = queue.shift()!;
+            granted.add(id);
+            subs.get(id)?.(true);
+        }
+    };
+    const release = (id: number) => {
+        if (granted.delete(id)) subs.get(id)?.(false);
+        const i = queue.indexOf(id);
+        if (i >= 0) queue.splice(i, 1);
+        pump();
+    };
+    return {
+        join(cb: (g: boolean) => void) { const id = ++uid; subs.set(id, cb); return id; },
+        want(id: number) { if (!granted.has(id) && !queue.includes(id)) { queue.push(id); pump(); } },
+        release,
+        leave(id: number) { subs.delete(id); release(id); },
+    };
 }
-function requestPlay(v: HTMLVideoElement) {
-    if (playing.has(v) || waiting.includes(v)) return;
-    waiting.push(v);
-    startNext();
-}
-function releasePlay(v: HTMLVideoElement) {
-    v.pause();
-    playing.delete(v);
-    const i = waiting.indexOf(v);
-    if (i >= 0) waiting.splice(i, 1);
-    startNext();
+type Slots = ReturnType<typeof createSlots>;
+const videoSlots = createSlots(2);
+const motionSlots = createSlots(3);
+
+function useSlot(slots: Slots, want: boolean) {
+    const [granted, setGranted] = useState(false);
+    const idRef = useRef(0);
+    useEffect(() => {
+        const id = slots.join(setGranted);
+        idRef.current = id;
+        return () => slots.leave(id);
+    }, [slots]);
+    useEffect(() => {
+        const id = idRef.current;
+        if (!id) return;
+        if (want) slots.want(id); else slots.release(id);
+    }, [want, slots]);
+    return granted;
 }
 
-function VideoTile({ src, poster, on }: { src: string; poster?: string; on: boolean }) {
-    const ref = useRef<HTMLVideoElement>(null);
-    useEffect(() => {
-        const v = ref.current;
-        if (!v) return;
-        if (on) requestPlay(v);
-        else releasePlay(v);
-        return () => releasePlay(v);
-    }, [on]);
+/* Vídeo: a capa é uma imagem; o <video> só existe enquanto o tile tem vaga */
+function VideoTile({ src, poster, focus }: { src: string; poster?: string; focus: boolean }) {
+    const playing = useSlot(videoSlots, focus);
+    const fill = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" } as const;
     return (
-        <video ref={ref} src={src} poster={poster} muted loop playsInline preload="none"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        <>
+            {poster && <img src={poster} alt="" loading="lazy" decoding="async" draggable={false} style={fill} />}
+            {playing && <video src={src} poster={poster} autoPlay muted loop playsInline disablePictureInPicture disableRemotePlayback style={fill} />}
+        </>
     );
+}
+
+/* Animação de projeto: congelada num quadro bonito; só roda (15 fps) enquanto tem vaga */
+function MotionTile({ project, focus }: { project: string; focus: boolean }) {
+    const animate = useSlot(motionSlots, focus);
+    return <ProjectMotion id={project} fps={animate ? 15 : 0} />;
 }
 
 function NoteTile({ tile }: { tile: Extract<FrontistaTile, { kind: "note" }> }) {
@@ -113,8 +138,8 @@ function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
 
     const body = (
         <>
-            {tile.kind === "motion" && near && <ProjectMotion id={tile.project} fps={20} />}
-            {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} on={focus} />}
+            {tile.kind === "motion" && near && <MotionTile project={tile.project} focus={focus} />}
+            {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} focus={focus} />}
             {tile.kind === "image" && <img src={tile.src} alt={tx(tile.alt)} loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
             {tile.kind === "note" && <NoteTile tile={tile} />}
             {tile.kind === "video" && <span className="ft-rec"><i />REC</span>}
@@ -131,14 +156,17 @@ function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
     );
 }
 
-function Row({ row, mobile, trackRef, onHover }: {
-    row: FrontistaRow; mobile: boolean;
+function Row({ row, mobile, vw, trackRef, onHover }: {
+    row: FrontistaRow; mobile: boolean; vw: number;
     trackRef: (el: HTMLDivElement | null) => void;
     onHover: (h: boolean) => void;
 }) {
     const h = row.height[mobile ? 1 : 0];
-    // Duas voltas da lista por cópia garantem largura de sobra em telas largas
-    const set = [...row.tiles, ...row.tiles];
+    // A lista só se repete até uma cópia cobrir a tela inteira (a trilha tem 2 cópias para o laço sem emenda)
+    const gap = mobile ? 10 : 14;
+    const copyW = row.tiles.reduce((sum, t) => sum + Math.round(h * ratioOf(t.ratio)) + gap, 0);
+    const repeat = Math.max(1, Math.ceil(vw / copyW));
+    const set = Array.from({ length: repeat }, () => row.tiles).flat();
     return (
         <div className="ft-row" onMouseEnter={() => onHover(true)} onMouseLeave={() => onHover(false)}>
             <div ref={trackRef} className="ft-track">
@@ -189,6 +217,14 @@ export default function Frontista() {
     const [mobile, setMobile] = useState(false);
     const [still, setStill] = useState(false);
     const [inView, setInView] = useState(false);
+    const [vw, setVw] = useState(() => (typeof window === "undefined" ? 1440 : window.innerWidth));
+
+    useEffect(() => {
+        let raf = 0;
+        const onResize = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => setVw(window.innerWidth)); };
+        window.addEventListener("resize", onResize);
+        return () => { window.removeEventListener("resize", onResize); cancelAnimationFrame(raf); };
+    }, []);
 
     useEffect(() => {
         const mq = window.matchMedia("(max-width: 640px)");
@@ -211,14 +247,17 @@ export default function Frontista() {
         return () => { obs.disconnect(); freeze.disconnect(); window.dispatchEvent(new CustomEvent("starfield-freeze", { detail: false })); };
     }, []);
 
-    /* Loop das fileiras: velocidade base + empurrão da rolagem (rolar para cima inverte), inclinação com a velocidade */
+    /* Loop das fileiras: velocidade base + empurrão da rolagem (rolar para cima inverte).
+       Só translate3d (camada composta, sem repintar) e a meia-largura fica em cache. */
     useEffect(() => {
         if (!inView || still) return;
         const offsets = FRONTISTA_ROWS.map(() => 0);
         const speedMul = FRONTISTA_ROWS.map(() => 1);
+        const halves = FRONTISTA_ROWS.map(() => 0);
         let lastY = window.scrollY;
         let boost = 0;
         let last = performance.now();
+        let frame = 0;
         let raf = 0;
 
         const tick = (now: number) => {
@@ -228,7 +267,7 @@ export default function Frontista() {
             const dy = y - lastY;
             lastY = y;
             boost += (dy * 0.9 - boost) * 0.12;
-            const skew = Math.max(-6, Math.min(6, -boost * 0.35));
+            const remeasure = frame++ % 45 === 0;
 
             FRONTISTA_ROWS.forEach((row, i) => {
                 const el = tracks.current[i];
@@ -236,10 +275,11 @@ export default function Frontista() {
                 // Com o mouse em cima a fileira só desacelera um pouco: continua andando
                 speedMul[i] += ((hovered.current[i] ? 0.5 : 1) - speedMul[i]) * 0.08;
                 offsets[i] += row.dir * (row.speed * dt * speedMul[i] + boost * (0.6 + (i % 3) * 0.25));
-                const half = el.scrollWidth / 2;
+                if (remeasure || !halves[i]) halves[i] = el.scrollWidth / 2;
+                const half = halves[i];
                 if (!half) return;
                 const m = ((offsets[i] % half) + half) % half;
-                el.style.transform = `translate3d(${-m.toFixed(1)}px,0,0) skewX(${(skew * row.dir).toFixed(2)}deg)`;
+                el.style.transform = `translate3d(${-m.toFixed(1)}px,0,0)`;
             });
             raf = requestAnimationFrame(tick);
         };
@@ -267,7 +307,7 @@ export default function Frontista() {
             {/* Fileiras */}
             <div className="ft-rows">
                 {FRONTISTA_ROWS.map((row, i) => (
-                    <Row key={i} row={row} mobile={mobile}
+                    <Row key={i} row={row} mobile={mobile} vw={vw}
                         trackRef={el => { tracks.current[i] = el; }}
                         onHover={h => { hovered.current[i] = h; }} />
                 ))}

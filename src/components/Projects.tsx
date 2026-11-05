@@ -742,17 +742,23 @@ function KairosEffect() {
 /* Quadros por segundo das animações: 60 no mapa, menos no carrossel do Frontista (várias ao mesmo tempo) */
 const ClockFps = createContext(60);
 
+/* fps 0 = animação congelada num quadro bonito (custa só uma renderização, nenhum loop) */
+const FROZEN_T = 1.35;
+
 function useClock() {
   const fps = useContext(ClockFps);
-  const [t, setT] = useState(0);
+  const [t, setT] = useState(fps === 0 ? FROZEN_T : 0);
+  const tRef = useRef(t);
   const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
+    if (fps === 0) return;
+    // continua de onde parou (quando uma animação congelada ganha vaga para rodar)
     let start: number | undefined;
     let last = -Infinity;
     const minGap = 1000 / fps - 1;
     const tick = (ts: number) => {
-      if (start === undefined) start = ts;
-      if (ts - last >= minGap) { last = ts; setT((ts - start) / 1000); }
+      if (start === undefined) start = ts - tRef.current * 1000;
+      if (ts - last >= minGap) { last = ts; tRef.current = (ts - start) / 1000; setT(tRef.current); }
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
@@ -1367,7 +1373,9 @@ function Hologram({ p, idx, hovered }: { p: UnlockedProject; idx: number; hovere
         <g className={`holo-logo${hovered ? " is-h" : ""}`} style={{ animationDelay: `${idx * 0.9}s` }}>
           {/* Halo de luz: gradiente estático (o filtro de desfoque era refeito a cada quadro) */}
           <circle cx={x} cy={y - 7} r="30" fill={`url(#halo-${p.id})`} />
-          <image href={p.logo} x={x - 19} y={y - 26} width="38" height="38" preserveAspectRatio="xMidYMid meet"
+          {/* Placa escura: garante contraste para qualquer logo, inclusive as azuis */}
+          <rect x={x - 21} y={y - 28} width="42" height="42" rx="10" fill="rgba(3,8,14,0.9)" stroke={c.border} strokeWidth="1" />
+          <image href={p.logo} x={x - 17} y={y - 24} width="34" height="34" preserveAspectRatio="xMidYMid meet"
             mask="url(#scanMask)" />
         </g>
       </g>
@@ -1384,6 +1392,8 @@ function IslandMap() {
   const [island, setIsland] = useState<IslandId>("solo");
   const [selectedUnlocked, setSelectedUnlocked] = useState<UnlockedProject | null>(null);
   const [hoveredUnlocked, setHoveredUnlocked] = useState<string | null>(null);
+  // Card da lista sob o mouse: acende o holograma no mapa, mas não abre o mini card
+  const [listHover, setListHover] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const VW = 800, VH = 600;
 
@@ -1506,7 +1516,7 @@ function IslandMap() {
               onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
               onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
             >
-              <Hologram p={p} idx={idx} hovered={hoveredUnlocked === p.id} />
+              <Hologram p={p} idx={idx} hovered={hoveredUnlocked === p.id || listHover === p.id} />
             </g>
           ))}
         </g>
@@ -1534,11 +1544,11 @@ function IslandMap() {
         {projects.map(p => (
           <li key={p.id}>
             <button type="button" onClick={() => setSelectedUnlocked(p)}
-              onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
-              onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
+              onMouseEnter={() => setListHover(p.id)} onFocus={() => setListHover(p.id)}
+              onMouseLeave={() => setListHover(null)} onBlur={() => setListHover(null)}
               className="arch-item holo-blue">
               <span className="arch-item-head">
-                <img src={p.logo} alt="" width={28} height={28} loading="lazy" />
+                <img src={p.logo} alt="" width={30} height={30} loading="lazy" />
                 <b className="holo-title">{p.name}</b>
                 {p.award && <em>{pick(p.award)}</em>}
               </span>
@@ -1594,14 +1604,26 @@ function IslandMap() {
         .arch-item:hover { transform: translateY(-2px); }
         .arch-item > * { position: relative; z-index: 1; }
         .arch-item-head { display: flex; align-items: center; gap: 8px; }
-        .arch-item-head img { width: 26px; height: 26px; object-fit: contain; border-radius: 7px; flex-shrink: 0; }
+        .arch-item-head img { width: 30px; height: 30px; padding: 3px; object-fit: contain; border-radius: 8px; flex-shrink: 0;
+          background: rgba(3,8,14,0.92); border: 1px solid rgba(0,149,255,0.35); }
         .arch-item-head b { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
         .arch-item-head em { margin-left: auto; font-style: normal; font-size: 9.5px; font-weight: 600; color: rgba(147,197,253,0.85); white-space: nowrap; }
         .arch-item small { font-size: 11px; line-height: 1.45;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .arch-more { margin-top: 2px; font: 700 10px/1 monospace; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(0,200,255,0.85); }
-        .arch-more span { display: inline-block; transition: transform 0.25s ease; }
-        .arch-item:hover .arch-more span { transform: translateX(4px); }
+        .arch-more {
+          position: relative; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 10px; border-radius: 9px;
+          font: 700 11px/1 monospace; letter-spacing: 1.6px; text-transform: uppercase;
+          color: rgba(170,230,255,0.98); text-shadow: 0 0 10px rgba(0,190,255,0.85);
+          background:
+            repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,200,255,0.07) 2px 3px),
+            linear-gradient(180deg, rgba(0,140,255,0.16), rgba(0,110,255,0.06));
+          border: 1px solid rgba(0,190,255,0.6);
+          box-shadow: inset 0 0 14px rgba(0,149,255,0.22), 0 0 12px rgba(0,149,255,0.28);
+          transition: box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+        }
+        .arch-more span { display: inline-block; font-size: 13px; transition: transform 0.25s ease; }
+        .arch-item:hover .arch-more { border-color: rgba(120,225,255,0.95); box-shadow: inset 0 0 18px rgba(0,190,255,0.4), 0 0 20px rgba(0,190,255,0.55); }
+        .arch-item:hover .arch-more span { transform: translateX(5px); }
         .arch-mini { cursor: pointer; opacity: 0.75; transition: opacity 0.2s ease; outline: none; }
         .arch-mini:hover, .arch-mini:focus-visible { opacity: 1; }
 

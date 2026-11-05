@@ -636,7 +636,8 @@ export default function Training() {
   const { t } = useLang();
   // Começa no ano mais recente, já aberto: o conteúdo aparece sem precisar de interação
   const [activeNode, setActiveNode] = useState<number | null>(TIMELINE_NODES.length - 1);
-  const [interacted, setInteracted] = useState(false);
+  const hovering = useRef(false);
+  const lastTouch = useRef(0);
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -650,15 +651,20 @@ export default function Training() {
   }, []);
 
   // Enquanto ninguém interage, a linha do tempo avança sozinha pelos anos
+  // Depois de 2026 volta para 2022 (loop). Se a pessoa mexeu, espera 6 s parada antes de retomar.
   useEffect(() => {
-    if (!inView || interacted) return;
-    const id = setInterval(() => setActiveNode(i => ((i ?? -1) + 1) % TIMELINE_NODES.length), 4500);
+    if (!inView) return;
+    const id = setInterval(() => {
+      if (hovering.current || Date.now() - lastTouch.current < 6000) return;
+      setActiveNode(i => ((i ?? -1) + 1) % TIMELINE_NODES.length);
+    }, 4500);
     return () => clearInterval(id);
-  }, [inView, interacted]);
+  }, [inView]);
 
   // Ao tirar o mouse, o painel fica no último ano visto em vez de sumir
   const handleHoverNode = (idx: number | null) => {
-    setInteracted(true);
+    lastTouch.current = Date.now();
+    hovering.current = idx !== null;
     if (idx !== null) setActiveNode(idx);
   };
 
