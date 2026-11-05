@@ -10,11 +10,13 @@ import Contact from "./components/Contact";
 import StarBackground from "./components/StarBackground";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
+import { useLang } from "./i18n/context";
 
 function App() {
+    const { t } = useLang();
     return (
         <main className="bg-black text-white overflow-hidden">
-            <h1 className="sr-only">João Batista, Desenvolvedor Front-End em Paulista, PE | React, Next.js e TypeScript</h1>
+            <h1 className="sr-only">{t("João Batista Neto, Desenvolvedor Front-End em Paulista, PE | React, Next.js e TypeScript", "João Batista Neto, Front-End Developer in Paulista, Brazil | React, Next.js and TypeScript")}</h1>
             <StarBackground />
             <div className="relative z-10">
                 <Navbar />

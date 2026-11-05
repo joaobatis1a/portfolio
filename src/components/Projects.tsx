@@ -159,7 +159,7 @@ const UNLOCKED: UnlockedProjectData[] = [
     role: "Desenvolvedor Front-end (solo)",
     stack: ["Next.js", "React", "TypeScript", "Tailwind", "React Hook Form", "Zod"],
     github: "https://github.com/joaobatis1a/ninabrinquedos",
-    demo: "https://ninabrinquedos.vercel.app/",
+    demo: "https://ninabrinquedos-mvp.vercel.app/",
     trailer: null,
     award: null,
     mx: 480, my: 495,
