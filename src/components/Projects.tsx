@@ -1,18 +1,23 @@
 import { useEffect, useRef, useState } from "react";
+import { useLang, type L10n } from "../i18n/context";
 
 /* ── Data ── */
 interface UnlockedProjectData {
   id: string;
   name: string;
-  period: string;
-  shortDesc: string;
-  fullDesc: string;
-  role: string;
+  period: L10n;
+  shortDesc: L10n;
+  fullDesc: L10n;
+  role: L10n;
   stack: string[];
   github: string | null;
   demo: string | null;
   trailer: string | null;
-  award: string | null;
+  award: L10n | null;
+  /** ilha do arquipélago: projetos solo ou em equipe */
+  island: "solo" | "team";
+  /** logo do projeto em public/logos/projects */
+  logo: string;
   mx: number;
   my: number;
   color: {
@@ -45,16 +50,17 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "kairos",
     name: "Kairos",
-    period: "Jun 2026 – Set 2026",
-    shortDesc: "Agendamento pra barbearias: o cliente marca sozinho pelo link e o dono vê agenda, equipe e faturamento num painel.",
-    fullDesc: "Cada barbearia ganha um link próprio pra botar na bio. O cliente escolhe serviço, barbeiro e horário sozinho, e o dono acompanha agenda, equipe e faturamento num painel só. Fiz sozinho, do banco ao deploy, em Next.js e Supabase: cada barbearia fica isolada no Postgres com Row Level Security, a agenda atualiza em tempo real, o app instala como PWA e os e-mails de confirmação e lembrete saem automáticos pela Resend.",
-    role: "Desenvolvedor Full-stack (solo)",
+    period: { pt: "Jun 2026 – Set 2026", en: "Jun 2026 – Sep 2026" },
+    shortDesc: { pt: "Agendamento pra barbearias: o cliente marca sozinho pelo link e o dono vê agenda, equipe e faturamento num painel.", en: "Booking for barbershops: clients book on their own through a link and the owner tracks schedule, team and revenue in one dashboard." },
+    fullDesc: { pt: "Cada barbearia ganha um link próprio pra botar na bio. O cliente escolhe serviço, barbeiro e horário sozinho, e o dono acompanha agenda, equipe e faturamento num painel só. Fiz sozinho, do banco ao deploy, em Next.js e Supabase: cada barbearia fica isolada no Postgres com Row Level Security, a agenda atualiza em tempo real, o app instala como PWA e os e-mails de confirmação e lembrete saem automáticos pela Resend.", en: "Each barbershop gets its own link to put in its bio. Clients pick the service, barber and time on their own, and the owner tracks schedule, team and revenue in a single dashboard. I built it alone, from database to deploy, with Next.js and Supabase: each shop is isolated in Postgres with Row Level Security, the schedule updates in real time, the app installs as a PWA and confirmation and reminder emails go out automatically through Resend." },
+    role: { pt: "Desenvolvedor Full-stack (solo)", en: "Full-stack Developer (solo)" },
     stack: ["Next.js", "React", "TypeScript", "Tailwind", "Supabase", "Resend"],
     github: "https://github.com/joaobatis1a/kairos",
     demo: "https://kairos-demo-rouge.vercel.app/",
     trailer: null,
     award: null,
-    mx: 415, my: 150,
+    island: "solo", logo: "/logos/projects/kairos.svg",
+    mx: 250, my: 215,
     color: {
       base: "rgba(244,63,94,0.95)",
       glow: "rgba(244,63,94,0.6)",
@@ -69,16 +75,17 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "praxis",
     name: "Praxis",
-    period: "Mai 2026 – Jul 2026",
-    shortDesc: "Gestão do conhecimento: documentos, procedimentos e avisos da equipe num lugar só. Nasceu no meu trabalho.",
-    fullDesc: "Nasceu de um problema que vi no meu trabalho no Grupo ACLF: documentos e procedimentos espalhados e sem padrão. Juntei tudo num lugar só: documentos versionados, procedimentos com checklist e responsável, avisos internos e suporte, com acesso por cargo. Fiz sozinho, do banco à tela: modelei o Postgres no Supabase com Row Level Security e montei o front em React, com design system próprio e tema claro e escuro. Uso na minha rotina e apresentei a proposta ao setor.",
-    role: "Desenvolvedor Full-stack (solo)",
+    period: { pt: "Mai 2026 – Jul 2026", en: "May 2026 – Jul 2026" },
+    shortDesc: { pt: "Gestão do conhecimento: documentos, procedimentos e avisos da equipe num lugar só. Nasceu no meu trabalho.", en: "Knowledge management: a team's documents, procedures and announcements in one place. Born at my job." },
+    fullDesc: { pt: "Nasceu de um problema que vi no meu trabalho no Grupo ACLF: documentos e procedimentos espalhados e sem padrão. Juntei tudo num lugar só: documentos versionados, procedimentos com checklist e responsável, avisos internos e suporte, com acesso por cargo. Fiz sozinho, do banco à tela: modelei o Postgres no Supabase com Row Level Security e montei o front em React, com design system próprio e tema claro e escuro. Uso na minha rotina e apresentei a proposta ao setor.", en: "It came from a problem I saw at my job at Grupo ACLF: documents and procedures scattered with no standard. I brought it all into one place: versioned documents, procedures with checklists and owners, internal announcements and support, with role-based access. I built it alone, from database to UI: I modeled Postgres on Supabase with Row Level Security and built the front end in React, with its own design system and light and dark themes. I use it in my daily routine and presented the proposal to my department." },
+    role: { pt: "Desenvolvedor Full-stack (solo)", en: "Full-stack Developer (solo)" },
     stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
     github: "https://github.com/joaobatis1a/praxis",
     demo: "https://demo-praxis.vercel.app/",
     trailer: null,
     award: null,
-    mx: 300, my: 415,
+    island: "solo", logo: "/logos/projects/praxis.png",
+    mx: 535, my: 200,
     color: {
       base: "rgba(20,184,166,0.95)",
       glow: "rgba(20,184,166,0.6)",
@@ -93,91 +100,97 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "confluencia",
     name: "Confluência",
-    period: "Out 2026 – Nov 2026",
-    shortDesc: "Plataforma cívica do Recife: o cidadão relata problemas num mapa 3D, vota nas soluções e acompanha a obra.",
-    fullDesc: "Fecha o ciclo entre o problema e a obra: o cidadão relata no mapa, o relato ganha peso pelos apoios, o órgão público responde em público, transforma o relato em projeto, abre consulta com voto secreto e comprovante verificável e publica a obra numa linha do tempo com prazos. Fui o líder do time de três: coordenei as entregas semanais, revisei os pull requests, criei a base do projeto e o Feed com o mapa 3D (MapLibre GL e deck.gl) e redesenhei landing, login, perfil e projetos. Apresentação à banca em dezembro de 2026.",
-    role: "Líder da equipe (time de 3)",
+    period: { pt: "Out 2026 – Nov 2026", en: "Oct 2026 – Nov 2026" },
+    shortDesc: { pt: "Plataforma cívica do Recife: o cidadão relata problemas num mapa 3D, vota nas soluções e acompanha a obra.", en: "Civic platform for Recife: citizens report problems on a 3D map, vote on solutions and follow the public works." },
+    fullDesc: { pt: "Fecha o ciclo entre o problema e a obra: o cidadão relata no mapa, o relato ganha peso pelos apoios, o órgão público responde em público, transforma o relato em projeto, abre consulta com voto secreto e comprovante verificável e publica a obra numa linha do tempo com prazos. Fui o líder do time de três: coordenei as entregas semanais, revisei os pull requests, criei a base do projeto e o Feed com o mapa 3D (MapLibre GL e deck.gl) e redesenhei landing, login, perfil e projetos. Apresentação à banca em dezembro de 2026.", en: "It closes the loop between a problem and the public work: citizens report on the map, reports gain weight through support, the public agency responds publicly, turns the report into a project, opens a consultation with a secret ballot and a verifiable receipt, and publishes the work on a timeline with deadlines. I led the team of three: I coordinated the weekly deliveries, reviewed pull requests, created the project foundation and the Feed with the 3D map (MapLibre GL and deck.gl), and redesigned landing, login, profile and projects. Presentation to the panel in December 2026." },
+    role: { pt: "Líder da equipe (time de 3)", en: "Team lead (team of 3)" },
     stack: ["React", "TypeScript", "Vite", "Tailwind", "MapLibre GL", "deck.gl", "Supabase"],
     github: "https://github.com/joaobatis1a/confluencia",
     demo: "https://confluencia-liart.vercel.app/",
     trailer: null,
     award: null,
-    mx: 530, my: 390,
+    island: "team", logo: "/logos/projects/confluencia.png",
+    mx: 400, my: 320,
     color: palette(245, 184, 0, 254, 240, 138, "#f5b800"),
   },
   {
     id: "nyxa",
     name: "Nyxa",
-    period: "Out 2026",
-    shortDesc: "Marketplace de NFTs com preço e estoque em tempo real e uma compra que não quebra com rede lenta ou clique repetido.",
-    fullDesc: "Marketplace de arte digital com catálogo, favoritos, carrinho, checkout e conta. Preço e estoque mudam em tempo real pelo Socket.IO, e o pedido é idempotente: clique repetido ou resposta perdida nunca criam duas compras. A API e o tempo real são simulados com MSW, com 16 cenários de falha num painel dentro do app. Defini os requisitos e a arquitetura (cache com TanStack Query e reconciliação do tempo real) e rodei e depurei os 41 testes E2E e a auditoria Lighthouse. Projeto pessoal, com marca fictícia.",
-    role: "Desenvolvedor Front-end (solo)",
+    period: { pt: "Out 2026", en: "Oct 2026" },
+    shortDesc: { pt: "Marketplace de NFTs com preço e estoque em tempo real e uma compra que não quebra com rede lenta ou clique repetido.", en: "NFT marketplace with real-time price and stock and a checkout that doesn't break on a slow network or repeated clicks." },
+    fullDesc: { pt: "Marketplace de arte digital com catálogo, favoritos, carrinho, checkout e conta. Preço e estoque mudam em tempo real pelo Socket.IO, e o pedido é idempotente: clique repetido ou resposta perdida nunca criam duas compras. A API e o tempo real são simulados com MSW, com 16 cenários de falha num painel dentro do app. Defini os requisitos e a arquitetura (cache com TanStack Query e reconciliação do tempo real) e rodei e depurei os 41 testes E2E e a auditoria Lighthouse. Projeto pessoal, com marca fictícia.", en: "Digital art marketplace with catalog, favorites, cart, checkout and account. Price and stock change in real time via Socket.IO, and orders are idempotent: a repeated click or a lost response never creates two purchases. The API and real-time layer are mocked with MSW, with 16 failure scenarios in an in-app panel. I defined the requirements and architecture (caching with TanStack Query and real-time reconciliation) and ran and debugged the 41 E2E tests and the Lighthouse audit. Personal project with a fictional brand." },
+    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
     stack: ["React", "TypeScript", "TanStack Query", "Socket.IO", "MSW", "Tailwind"],
     github: "https://github.com/joaobatis1a/nyxa",
     demo: "https://nyxa-nft-marketplace.vercel.app/",
     trailer: null,
     award: null,
-    mx: 370, my: 500,
+    island: "solo", logo: "/logos/projects/nyxa.svg",
+    mx: 395, my: 335,
     color: palette(210, 138, 76, 240, 196, 150, "#d28a4c"),
   },
   {
     id: "capsula",
     name: "Cápsula",
-    period: "Out 2026",
-    shortDesc: "Estúdio criativo com IA para marketing de farmácia, criado no Hacka Business da Avanade.",
-    fullDesc: "Transforma o briefing de uma campanha em peças para feed, story e banner. Antes de escrever, consulta o que já funcionou, o que está em alta e a sazonalidade da saúde. Cada peça mostra de onde veio cada ideia e passa por um checklist baseado na RDC 96/2008 da Anvisa, que bloqueia o que não pode ir ao ar e explica o motivo; nada é publicado sem aprovação humana. Fui Product Owner e principal desenvolvedor num time de três, com geração via Gemini e RAG e contratos validados com Zod no navegador e no servidor.",
-    role: "Product Owner & dev principal (time de 3)",
+    period: { pt: "Out 2026", en: "Oct 2026" },
+    shortDesc: { pt: "Estúdio criativo com IA para marketing de farmácia, criado no Hacka Business da Avanade.", en: "AI creative studio for pharmacy marketing, built at Avanade's Hacka Business." },
+    fullDesc: { pt: "Transforma o briefing de uma campanha em peças para feed, story e banner. Antes de escrever, consulta o que já funcionou, o que está em alta e a sazonalidade da saúde. Cada peça mostra de onde veio cada ideia e passa por um checklist baseado na RDC 96/2008 da Anvisa, que bloqueia o que não pode ir ao ar e explica o motivo; nada é publicado sem aprovação humana. Fui Product Owner e principal desenvolvedor num time de três, com geração via Gemini e RAG e contratos validados com Zod no navegador e no servidor.", en: "It turns a campaign brief into pieces for feed, story and banner. Before writing, it checks what has worked before, what's trending and health seasonality. Each piece shows where every idea came from and goes through a checklist based on Anvisa's RDC 96/2008, which blocks what can't go live and explains why; nothing is published without human approval. I was Product Owner and lead developer on a team of three, with generation via Gemini and RAG and contracts validated with Zod on the client and the server." },
+    role: { pt: "Product Owner & dev principal (time de 3)", en: "Product Owner & lead dev (team of 3)" },
     stack: ["Next.js", "React", "TypeScript", "Zod", "Gemini"],
     github: "https://github.com/joaobatis1a/capsula",
     demo: "https://capsula-mvp.vercel.app/",
     trailer: null,
     award: null,
-    mx: 655, my: 300,
+    island: "team", logo: "/logos/projects/capsula.svg",
+    mx: 560, my: 440,
     color: palette(99, 102, 241, 169, 174, 255, "#4c4fe8"),
   },
   {
     id: "vessa",
     name: "VESSA",
-    period: "Out 2026",
-    shortDesc: "Landing page de moda costurada por um fio animado que acompanha a rolagem do início ao fim.",
-    fullDesc: "Landing page editorial para uma marca de roupas fictícia: um fio animado nasce no logo, acompanha a rolagem com curvas e nós e termina amarrado no rodapé. Tem cenas presas ao scroll, galeria horizontal, menu com revelação circular e pedido montado direto no WhatsApp. Fiz sozinho, do conceito ao deploy, com a geometria do fio calculada em JavaScript puro para a rolagem não travar, além de SEO e analytics.",
-    role: "Desenvolvedor Front-end (solo)",
+    period: { pt: "Out 2026", en: "Oct 2026" },
+    shortDesc: { pt: "Landing page de moda costurada por um fio animado que acompanha a rolagem do início ao fim.", en: "Fashion landing page stitched together by an animated thread that follows the scroll from start to finish." },
+    fullDesc: { pt: "Landing page editorial para uma marca de roupas fictícia: um fio animado nasce no logo, acompanha a rolagem com curvas e nós e termina amarrado no rodapé. Tem cenas presas ao scroll, galeria horizontal, menu com revelação circular e pedido montado direto no WhatsApp. Fiz sozinho, do conceito ao deploy, com a geometria do fio calculada em JavaScript puro para a rolagem não travar, além de SEO e analytics.", en: "Editorial landing page for a fictional clothing brand: an animated thread is born in the logo, follows the scroll with curves and knots and ends tied at the footer. It has scroll-pinned scenes, a horizontal gallery, a menu with a circular reveal and orders put together straight into WhatsApp. I built it alone, from concept to deploy, with the thread geometry computed in plain JavaScript so scrolling doesn't stutter, plus SEO and analytics." },
+    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
     stack: ["Next.js", "React", "TypeScript", "Tailwind", "Framer Motion", "Lenis"],
     github: "https://github.com/joaobatis1a/vessa",
     demo: "https://vessa-atelie.vercel.app/",
     trailer: null,
     award: null,
-    mx: 300, my: 300,
+    island: "solo", logo: "/logos/projects/vessa.svg",
+    mx: 245, my: 440,
     color: palette(232, 195, 175, 250, 228, 215, "#e8c3af"),
   },
   {
     id: "nina",
     name: "Nina Brinquedos",
-    period: "Set 2026",
-    shortDesc: "Loja virtual de brinquedos com busca, filtros, carrinho, favoritos e checkout em etapas.",
-    fullDesc: "MVP de e-commerce para uma marca fictícia, feito do zero com foco em UX/UI: home com destaques, busca com sugestões, filtros por marca, preço e faixa etária, página de produto com galeria e avaliações, carrinho, favoritos, conta e checkout simulado em etapas, com formulários validados por React Hook Form e Zod. Projeto só de front-end, com dados simulados.",
-    role: "Desenvolvedor Front-end (solo)",
+    period: { pt: "Set 2026", en: "Sep 2026" },
+    shortDesc: { pt: "Loja virtual de brinquedos com busca, filtros, carrinho, favoritos e checkout em etapas.", en: "Toy store with search, filters, cart, favorites and a step-by-step checkout." },
+    fullDesc: { pt: "MVP de e-commerce para uma marca fictícia, feito do zero com foco em UX/UI: home com destaques, busca com sugestões, filtros por marca, preço e faixa etária, página de produto com galeria e avaliações, carrinho, favoritos, conta e checkout simulado em etapas, com formulários validados por React Hook Form e Zod. Projeto só de front-end, com dados simulados.", en: "E-commerce MVP for a fictional brand, built from scratch with a focus on UX/UI: home with highlights, search with suggestions, filters by brand, price and age range, product page with gallery and reviews, cart, favorites, account and a simulated step-by-step checkout, with forms validated by React Hook Form and Zod. Front-end only, with mock data." },
+    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
     stack: ["Next.js", "React", "TypeScript", "Tailwind", "React Hook Form", "Zod"],
     github: "https://github.com/joaobatis1a/ninabrinquedos",
     demo: "https://ninabrinquedos-mvp.vercel.app/",
     trailer: null,
     award: null,
-    mx: 480, my: 495,
+    island: "solo", logo: "/logos/projects/nina.svg",
+    mx: 555, my: 440,
     color: palette(139, 92, 246, 196, 181, 253, "#8b5cf6"),
   },
   {
     id: "ponte",
     name: "P.O.N.T.E",
-    period: "Fev 2026 – Jun 2026",
-    shortDesc: "Conecta jovens do Nordeste a oportunidades reais, com um assistente de IA que identifica habilidades a partir de conversas.",
-    fullDesc: "Plataforma de Oportunidades para Novos Talentos Emergentes: conecta jovens do Nordeste a vagas, cursos e eventos de empresas locais, com gamificação por XP e ranking e o Manguelito, um assistente de IA que identifica habilidades a partir de conversas. Fui co-líder e Scrum Master num time de cinco: conduzi os rituais ágeis e a frente de design e front-end, com prototipação no Figma, rotas, componentização e handoff para o time. O back-end roda em Python, FastAPI e MongoDB. Eleita a melhor proposta de software pela banca da UNIFAFIRE.",
-    role: "Co-líder & Scrum Master",
+    period: { pt: "Fev 2026 – Jun 2026", en: "Feb 2026 – Jun 2026" },
+    shortDesc: { pt: "Conecta jovens do Nordeste a oportunidades reais, com um assistente de IA que identifica habilidades a partir de conversas.", en: "Connects young people in Brazil's Northeast to real opportunities, with an AI assistant that identifies skills from conversations." },
+    fullDesc: { pt: "Plataforma de Oportunidades para Novos Talentos Emergentes: conecta jovens do Nordeste a vagas, cursos e eventos de empresas locais, com gamificação por XP e ranking e o Manguelito, um assistente de IA que identifica habilidades a partir de conversas. Fui co-líder e Scrum Master num time de cinco: conduzi os rituais ágeis e a frente de design e front-end, com prototipação no Figma, rotas, componentização e handoff para o time. O back-end roda em Python, FastAPI e MongoDB. Eleita a melhor proposta de software pela banca da UNIFAFIRE.", en: "Opportunity Platform for New Emerging Talent: it connects young people in Brazil's Northeast to jobs, courses and events from local companies, with XP and ranking gamification and Manguelito, an AI assistant that identifies skills from conversations. I was co-lead and Scrum Master on a team of five: I ran the agile ceremonies and led design and front end, with Figma prototyping, routing, componentization and handoff to the team. The back end runs on Python, FastAPI and MongoDB. Chosen as the best software proposal by the UNIFAFIRE panel." },
+    role: { pt: "Co-líder & Scrum Master", en: "Co-lead & Scrum Master" },
     stack: ["HTML", "CSS", "JavaScript", "Python", "FastAPI", "MongoDB", "Figma"],
     github: "https://github.com/joaobatis1a/ponte",
     demo: "https://ponte-demo.vercel.app/",
     trailer: null,
-    award: "🏆 1º Lugar",
-    mx: 600, my: 215,
+    award: { pt: "🏆 1º Lugar", en: "🏆 1st Place" },
+    island: "team", logo: "/logos/projects/ponte.png",
+    mx: 255, my: 205,
     color: {
       base: "rgba(249,115,22,0.95)",
       glow: "rgba(249,115,22,0.6)",
@@ -192,16 +205,17 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "benevo",
     name: "Benevo",
-    period: "Jul 2025 – Dez 2025",
-    shortDesc: "Sistema de gestão de doações para ONGs com controle de estoque, recebimento e distribuição de itens.",
-    fullDesc: "Sistema para ONGs controlarem estoque, recebimento e distribuição de itens aos beneficiários, com foco em transparência e menos burocracia. Fui co-líder e Scrum Master durante todos os sprints e liderei a frente de front-end, definindo a arquitetura de componentes e os padrões visuais das telas. HTML, CSS e JavaScript no front; Java e MongoDB no back. Ficou em 2º lugar na banca técnica da UNIFAFIRE.",
-    role: "Co-líder & Scrum Master",
+    period: { pt: "Jul 2025 – Dez 2025", en: "Jul 2025 – Dec 2025" },
+    shortDesc: { pt: "Sistema de gestão de doações para ONGs com controle de estoque, recebimento e distribuição de itens.", en: "Donation management system for NGOs with inventory control, intake and distribution of items." },
+    fullDesc: { pt: "Sistema para ONGs controlarem estoque, recebimento e distribuição de itens aos beneficiários, com foco em transparência e menos burocracia. Fui co-líder e Scrum Master durante todos os sprints e liderei a frente de front-end, definindo a arquitetura de componentes e os padrões visuais das telas. HTML, CSS e JavaScript no front; Java e MongoDB no back. Ficou em 2º lugar na banca técnica da UNIFAFIRE.", en: "A system for NGOs to manage inventory, intake and distribution of items to beneficiaries, focused on transparency and less red tape. I was co-lead and Scrum Master through every sprint and led the front end, defining the component architecture and the visual standards of the screens. HTML, CSS and JavaScript on the front; Java and MongoDB on the back. Took 2nd place at the UNIFAFIRE technical panel." },
+    role: { pt: "Co-líder & Scrum Master", en: "Co-lead & Scrum Master" },
     stack: ["HTML", "CSS", "JavaScript", "Java", "MongoDB"],
     github: "https://github.com/joaobatis1a/benevo",
     demo: "https://benevo-demo.vercel.app/",
     trailer: null,
-    award: "🥈 2º Lugar",
-    mx: 420, my: 275,
+    award: { pt: "🥈 2º Lugar", en: "🥈 2nd Place" },
+    island: "team", logo: "/logos/projects/benevo.svg",
+    mx: 545, my: 200,
     color: {
       base: "rgba(59,130,246,0.95)",
       glow: "rgba(59,130,246,0.6)",
@@ -216,16 +230,17 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "limpattack",
     name: "Limpattack",
-    period: "Fev 2025 – Jul 2025",
-    shortDesc: "Jogo educativo inspirado em Pokémon, para crianças de 6 a 10 anos. Foco em higiene e combate a bactérias.",
-    fullDesc: "Jogo educativo inspirado em Pokémon para crianças de 6 a 10 anos, com sprites, mapas interativos e mecânicas de RPG, que ensina hábitos de higiene e o combate às bactérias. Fui responsável pelas mecânicas de jogo e pela produção do trailer oficial, num time da UNIFAFIRE. Ficou em 1º lugar entre 8 equipes e foi aplicado com crianças. Python e Pygame.",
-    role: "Mecânicas de jogo & trailer",
+    period: { pt: "Fev 2025 – Jul 2025", en: "Feb 2025 – Jul 2025" },
+    shortDesc: { pt: "Jogo educativo inspirado em Pokémon, para crianças de 6 a 10 anos. Foco em higiene e combate a bactérias.", en: "Pokémon-inspired educational game for kids aged 6 to 10, focused on hygiene and fighting germs." },
+    fullDesc: { pt: "Jogo educativo inspirado em Pokémon para crianças de 6 a 10 anos, com sprites, mapas interativos e mecânicas de RPG, que ensina hábitos de higiene e o combate às bactérias. Fui responsável pelas mecânicas de jogo e pela produção do trailer oficial, num time da UNIFAFIRE. Ficou em 1º lugar entre 8 equipes e foi aplicado com crianças. Python e Pygame.", en: "Pokémon-inspired educational game for kids aged 6 to 10, with sprites, interactive maps and RPG mechanics, that teaches hygiene habits and fighting germs. I was responsible for the game mechanics and for producing the official trailer, on a UNIFAFIRE team. It took 1st place among 8 teams and was used with children. Python and Pygame." },
+    role: { pt: "Mecânicas de jogo & trailer", en: "Game mechanics & trailer" },
     stack: ["Python", "Pygame"],
     github: "https://github.com/joaobatis1a/limpattack",
     demo: "https://limpattack.vercel.app/",
     trailer: "/trailer_limpattack.mp4",
-    award: "🏆 1º Lugar",
-    mx: 210, my: 210,
+    award: { pt: "🏆 1º Lugar", en: "🏆 1st Place" },
+    island: "team", logo: "/logos/projects/limpattack.svg",
+    mx: 245, my: 430,
     color: {
       base: "rgba(251,191,36,0.95)",
       glow: "rgba(251,191,36,0.6)",
@@ -373,6 +388,7 @@ function LimpattackEffect() {
 
 // Benevo: pixel art crates being stacked and organized in a warehouse
 function BenevoEffect() {
+  const { t: tr } = useLang();
   const [t, setT] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
@@ -509,7 +525,7 @@ function BenevoEffect() {
       {/* Status label */}
       <rect x="70" y="6" width="80" height="13" rx="3" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" strokeWidth="0.5" />
       <text x="110" y="16" textAnchor="middle" fill="rgba(147,197,253,0.6)" fontSize="7" fontFamily="monospace" letterSpacing="0.5">
-        {carrying ? "TRANSPORTE EM CURSO" : placing ? "ARMAZENANDO..." : "AGUARDANDO CARGA"}
+        {carrying ? tr("TRANSPORTE EM CURSO", "IN TRANSIT") : placing ? tr("ARMAZENANDO...", "STORING...") : tr("AGUARDANDO CARGA", "AWAITING CARGO")}
       </text>
     </svg>
   );
@@ -611,6 +627,7 @@ function PonteEffect() {
 
 // Praxis: pixel knowledge graph — scattered doc-nodes wire up, a pulse runs the edges
 function PraxisEffect() {
+  const { t: tr } = useLang();
   const [t, setT] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
@@ -666,7 +683,7 @@ function PraxisEffect() {
 
       <rect x="62" y="4" width="96" height="12" rx="2" fill="rgba(20,184,166,0.08)" stroke="rgba(20,184,166,0.2)" strokeWidth="0.5" />
       <text x="110" y="13" textAnchor="middle" fill="rgba(153,246,228,0.6)" fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
-        CONECTANDO O CONHECIMENTO
+        {tr("CONECTANDO O CONHECIMENTO", "CONNECTING KNOWLEDGE")}
       </text>
     </svg>
   );
@@ -674,6 +691,7 @@ function PraxisEffect() {
 
 // Kairos: pixel barbershop — the pole spins, the scissors snip, the chair frees up
 function KairosEffect() {
+  const { t: tr } = useLang();
   const [t, setT] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   useEffect(() => {
@@ -749,7 +767,7 @@ function KairosEffect() {
 
       <rect x="64" y="4" width="92" height="12" rx="2" fill={`${G}0.08)`} stroke={`${G}0.2)`} strokeWidth="0.5" />
       <text x="110" y="13" textAnchor="middle" fill={`${GL}0.65)`} fontSize="6.5" fontFamily="monospace" letterSpacing="0.5">
-        {done ? "CADEIRA LIVRE" : "CORTE EM ANDAMENTO"}
+        {done ? tr("CADEIRA LIVRE", "CHAIR FREE") : tr("CORTE EM ANDAMENTO", "CUT IN PROGRESS")}
       </text>
     </svg>
   );
@@ -786,6 +804,7 @@ const SVG_STYLE = { position: "absolute" as const, inset: 0, width: "100%", heig
 
 // Confluência: bairros em pixel, colunas do mapa 3D subindo e um relato caindo no mapa
 function ConfluenciaEffect() {
+  const { t: tr } = useLang();
   const t = useClock();
   const Y = "rgba(245,184,0,";
   const YL = "rgba(254,240,138,";
@@ -794,7 +813,7 @@ function ConfluenciaEffect() {
   const cycle = 2.4;
   const phase = (t % cycle) / cycle;
   const pinY = 20 + Math.min(1, phase * 1.6) * 64;
-  const steps = ["RELATO NO MAPA", "CONSULTA ABERTA", "OBRA ENTREGUE"];
+  const steps = tr(["RELATO NO MAPA", "CONSULTA ABERTA", "OBRA ENTREGUE"], ["REPORT ON THE MAP", "CONSULTATION OPEN", "WORK DELIVERED"]);
   const step = steps[Math.floor(t / 2.4) % steps.length];
 
   return (
@@ -829,6 +848,7 @@ function ConfluenciaEffect() {
 
 // Nyxa: obras em pixel com preço ao vivo, o tempo real passando e muitos cliques virando um pedido só
 function NyxaEffect() {
+  const { t: tr } = useLang();
   const t = useClock();
   const C = "rgba(210,138,76,";
   const CL = "rgba(240,196,150,";
@@ -860,15 +880,16 @@ function NyxaEffect() {
         {Array.from({ length: clicks }, (_, i) => (
           <rect key={i} x={i * 5} y="0" width="3" height="3" fill={`${CL}0.8)`} />
         ))}
-        <text x="34" y="3" fill={`${CL}0.6)`} fontSize="6" fontFamily="monospace">{`${clicks} CLIQUE${clicks === 1 ? "" : "S"} · 1 PEDIDO`}</text>
+        <text x="34" y="3" fill={`${CL}0.6)`} fontSize="6" fontFamily="monospace">{tr(`${clicks} CLIQUE${clicks === 1 ? "" : "S"} · 1 PEDIDO`, `${clicks} CLICK${clicks === 1 ? "" : "S"} · 1 ORDER`)}</text>
       </g>
-      <EffectLabel text="PREÇO AO VIVO" color={C} light={CL} />
+      <EffectLabel text={tr("PREÇO AO VIVO", "LIVE PRICE")} color={C} light={CL} />
     </svg>
   );
 }
 
 // Cápsula: a cápsula abre em peças de feed, story e banner, e o checklist confere cada uma
 function CapsulaEffect() {
+  const { t: tr } = useLang();
   const t = useClock();
   const I = "rgba(99,102,241,";
   const IL = "rgba(169,174,255,";
@@ -919,13 +940,14 @@ function CapsulaEffect() {
           </g>
         );
       })}
-      <EffectLabel text={blocked ? "BLOQUEADO: REGRA DA ANVISA" : "CHECKLIST ANVISA OK"} color={I} light={IL} />
+      <EffectLabel text={blocked ? tr("BLOQUEADO: REGRA DA ANVISA", "BLOCKED: ANVISA RULE") : tr("CHECKLIST ANVISA OK", "ANVISA CHECKLIST OK")} color={I} light={IL} />
     </svg>
   );
 }
 
 // VESSA: um fio costura o card de ponta a ponta, com nós e a agulha na frente
 function VessaEffect() {
+  const { t: tr } = useLang();
   const t = useClock();
   const R = "rgba(232,195,175,";
   const T = "rgba(189,91,53,";
@@ -949,13 +971,14 @@ function VessaEffect() {
         <rect x="0" y="-1" width="10" height="2" fill={`${R}0.95)`} />
         <rect x="1" y="-1" width="2" height="1" fill="rgba(20,16,12,0.9)" />
       </g>
-      <EffectLabel text="COSTURANDO A PÁGINA" color={T} light={R} />
+      <EffectLabel text={tr("COSTURANDO A PÁGINA", "STITCHING THE PAGE")} color={T} light={R} />
     </svg>
   );
 }
 
 // Nina Brinquedos: brinquedos caindo no carrinho e a bola quicando
 function NinaEffect() {
+  const { t: tr } = useLang();
   const t = useClock();
   const V = "rgba(139,92,246,";
   const VL = "rgba(196,181,253,";
@@ -987,7 +1010,7 @@ function NinaEffect() {
         <rect x="6" y="20" width="4" height="4" fill={`${V}0.9)`} />
         <rect x="34" y="20" width="4" height="4" fill={`${V}0.9)`} />
       </g>
-      <EffectLabel text={`CARRINHO: ${landed} ${landed === 1 ? "ITEM" : "ITENS"}`} color={V} light={VL} />
+      <EffectLabel text={tr(`CARRINHO: ${landed} ${landed === 1 ? "ITEM" : "ITENS"}`, `CART: ${landed} ${landed === 1 ? "ITEM" : "ITEMS"}`)} color={V} light={VL} />
     </svg>
   );
 }
@@ -1026,6 +1049,7 @@ export function ProjectMotion({ id }: { id: string }) {
 function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
   project: UnlockedProject; svgX: number; svgY: number; svgW: number; svgH: number; visible: boolean;
 }) {
+  const { t, pick } = useLang();
   const c = project.color;
   const leftPct = (svgX / svgW) * 100;
   const topPct = (svgY / svgH) * 100;
@@ -1071,12 +1095,12 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: c.base, boxShadow: `0 0 7px ${c.glow}` }} />
               <span style={{ color: c.text, fontSize: "9px", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.7, fontFamily: "monospace" }}>
-                {project.period}
+                {pick(project.period)}
               </span>
             </div>
             {project.award && (
               <span style={{ fontSize: "9px", fontWeight: 700, padding: "1px 7px", borderRadius: "20px", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
-                {project.award}
+                {pick(project.award)}
               </span>
             )}
           </div>
@@ -1085,7 +1109,7 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
         <div style={{ padding: "10px 12px 12px", position: "relative" }}>
           <div style={{ color: "white", fontWeight: 800, fontSize: "15px", marginBottom: "6px" }}>{project.name}</div>
           <p style={{ color: "rgba(180,180,190,0.85)", fontSize: "10.5px", lineHeight: "1.55", marginBottom: "10px" }}>
-            {project.shortDesc}
+            {pick(project.shortDesc)}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "8px" }}>
             {project.stack.map(s => (
@@ -1094,10 +1118,10 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
           </div>
           <div style={{ fontSize: "9px", color: c.text, opacity: 0.45, textAlign: "center", borderTop: `1px solid ${c.solid}`, paddingTop: "7px", fontFamily: "monospace", letterSpacing: "1px" }}>
             {project.github && project.demo
-              ? "CLIQUE PARA VER CÓDIGO E DEMO"
+              ? t("CLIQUE PARA VER CÓDIGO E DEMO", "CLICK FOR CODE AND DEMO")
               : project.github
-              ? "CLIQUE PARA VER O CÓDIGO"
-              : "CLIQUE PARA SABER MAIS"}
+              ? t("CLIQUE PARA VER O CÓDIGO", "CLICK TO SEE THE CODE")
+              : t("CLIQUE PARA SABER MAIS", "CLICK TO LEARN MORE")}
           </div>
         </div>
       </div>
@@ -1110,6 +1134,7 @@ function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
 function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose: () => void }) {
   const [show, setShow] = useState(false);
   const [tab, setTab] = useState<"sobre" | "stack">("sobre");
+  const { t, pick } = useLang();
   const c = project.color;
   const Effect = CARD_EFFECTS[project.id];
   useEffect(() => { requestAnimationFrame(() => setShow(true)); }, []);
@@ -1166,34 +1191,34 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                 <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: c.base, boxShadow: `0 0 10px ${c.glow}` }} />
-                <span style={{ color: c.text, fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", opacity: 0.65, fontFamily: "monospace" }}>{project.period}</span>
+                <span style={{ color: c.text, fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", opacity: 0.65, fontFamily: "monospace" }}>{pick(project.period)}</span>
               </div>
               <h3 style={{ color: "white", fontWeight: 900, fontSize: "28px", letterSpacing: "-0.5px", lineHeight: 1.1, marginBottom: "8px" }}>{project.name}</h3>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {project.award && (
                   <span style={{ fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "20px", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
-                    {project.award}
+                    {pick(project.award)}
                   </span>
                 )}
                 <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(200,200,210,0.7)", fontFamily: "monospace" }}>
-                  {project.role}
+                  {pick(project.role)}
                 </span>
               </div>
             </div>
-            <button onClick={onClose} style={{ color: "rgba(120,120,130,0.7)", fontSize: "20px", background: "none", border: "none", cursor: "pointer", paddingTop: "2px", lineHeight: 1 }}>✕</button>
+            <button onClick={onClose} aria-label={t("Fechar", "Close")} style={{ color: "rgba(120,120,130,0.7)", fontSize: "20px", background: "none", border: "none", cursor: "pointer", paddingTop: "2px", lineHeight: 1 }}>✕</button>
           </div>
 
           {/* Tab switcher */}
           <div style={{ display: "flex", gap: "4px", marginTop: "18px" }}>
-            {(["sobre", "stack"] as const).map(t => (
-              <button key={t} onClick={() => setTab(t)} style={{
+            {(["sobre", "stack"] as const).map(tb => (
+              <button key={tb} onClick={() => setTab(tb)} style={{
                 padding: "6px 16px", borderRadius: "8px", fontSize: "11px", fontWeight: 700,
                 fontFamily: "monospace", letterSpacing: "1px", textTransform: "uppercase", border: "none", cursor: "pointer",
-                background: tab === t ? c.bg : "transparent",
-                color: tab === t ? c.text : "rgba(120,120,140,0.6)",
-                borderBottom: tab === t ? `2px solid ${c.base}` : "2px solid transparent",
+                background: tab === tb ? c.bg : "transparent",
+                color: tab === tb ? c.text : "rgba(120,120,140,0.6)",
+                borderBottom: tab === tb ? `2px solid ${c.base}` : "2px solid transparent",
                 transition: "all 0.2s ease",
-              }}>{t}</button>
+              }}>{tb === "sobre" ? t("sobre", "about") : "stack"}</button>
             ))}
           </div>
         </div>
@@ -1202,7 +1227,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
           {tab === "sobre" ? (
             <div>
               <p style={{ color: "rgba(200,200,210,0.9)", fontSize: "14px", lineHeight: "1.7", marginBottom: "20px" }}>
-                {project.fullDesc}
+                {pick(project.fullDesc)}
               </p>
 
               {/* Action buttons row — GitHub (if public), Demo, and Trailer (if exists) all together */}
@@ -1222,13 +1247,13 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
                   <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
-                  Ver Demo
+                  {t("Ver Demo", "Live demo")}
                 </a>
                 )}
 
                 {!project.github && !project.demo && (
                   <span style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.18)", color: "rgba(200,200,210,0.6)" }}>
-                    🚧 Ainda em planejamento, sem código publicado
+                    {t("🚧 Ainda em planejamento, sem código publicado", "🚧 Still in planning, no code published yet")}
                   </span>
                 )}
 
@@ -1285,7 +1310,7 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
             </div>
           ) : (
             <div>
-              <p style={{ color: "rgba(120,130,140,0.7)", fontSize: "11px", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "14px", textTransform: "uppercase" }}>Tecnologias utilizadas</p>
+              <p style={{ color: "rgba(120,130,140,0.7)", fontSize: "11px", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "14px", textTransform: "uppercase" }}>{t("Tecnologias utilizadas", "Tech stack")}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                 {project.stack.map((s, i) => (
                   <div key={s} style={{
@@ -1319,11 +1344,70 @@ function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose
   );
 }
 
-/* ── Map ── */
-// Largura do rótulo do marcador: cabe o nome inteiro (Poppins 600, 10px)
-const labelW = (name: string) => Math.max(60, name.length * 6.1 + 20);
+/* ── Arquipélago: duas ilhas, cada uma com cinco hologramas ── */
+const TEAM_PATH = `
+  M 130 300
+  C 110 240, 140 170, 210 140
+  C 270 112, 330 122, 382 100
+  C 440  76, 520  80, 580 110
+  C 640 140, 700 180, 705 250
+  C 710 310, 680 350, 690 400
+  C 700 450, 660 500, 600 515
+  C 540 530, 490 505, 430 522
+  C 370 538, 310 545, 250 520
+  C 190 495, 150 460, 140 410
+  C 132 370, 146 340, 130 300 Z
+`;
+
+const ISLANDS = {
+  solo: {
+    path: ISLAND_PATH,
+    name: { pt: "Ilha Solo", en: "Solo Island" },
+    sub: { pt: "feitos sozinho, do banco ao deploy", en: "built alone, from database to deploy" },
+    accent: "52,211,153",
+  },
+  team: {
+    path: TEAM_PATH,
+    name: { pt: "Ilha Coletiva", en: "Team Island" },
+    sub: { pt: "times, bancas e hackathon", en: "teams, panels and a hackathon" },
+    accent: "34,211,238",
+  },
+} as const;
+type IslandId = keyof typeof ISLANDS;
+const ISLAND_ORDER: IslandId[] = ["solo", "team"];
+
+/* Holograma: projetor no chão, feixe de luz na cor do projeto e a logo flutuando com scanlines */
+function Hologram({ p, idx, hovered }: { p: UnlockedProject; idx: number; hovered: boolean }) {
+  const c = p.color;
+  const x = p.mx, y = p.my;
+  const S = 1.45; // escala do holograma inteiro em volta do ponto do projeto
+  return (
+    <>
+      <circle cx={x} cy={y} r={52} fill="transparent" />
+      <g transform={`translate(${x} ${y}) scale(${S}) translate(${-x} ${-y})`}>
+      <ellipse cx={x} cy={y + 22} rx={24} ry={7} fill="none" stroke={c.ping} strokeWidth="1"
+        className="holo-ping" style={{ animationDelay: `${idx * 0.5}s` }} />
+      <path d={`M ${x - 12} ${y + 20} L ${x - 28} ${y - 28} L ${x + 28} ${y - 28} L ${x + 12} ${y + 20} Z`}
+        fill={`url(#beam-${p.id})`} className={`holo-beam${hovered ? " is-h" : ""}`} />
+      <ellipse cx={x} cy={y + 22} rx="16" ry="5" fill="rgba(4,10,6,0.95)" stroke={c.border} strokeWidth="1" />
+      <ellipse cx={x} cy={y + 21} rx="9" ry="2.6" fill={c.base} filter="url(#glow)" />
+      <g className="holo-float" style={{ animationDelay: `${-idx * 0.7}s` }}>
+        <g className={`holo-logo${hovered ? " is-h" : ""}`} style={{ animationDelay: `${idx * 0.9}s` }}>
+          <image href={p.logo} x={x - 19} y={y - 26} width="38" height="38" preserveAspectRatio="xMidYMid meet"
+            filter={`url(#holo-${p.id})`} mask="url(#scanMask)" />
+        </g>
+      </g>
+      </g>
+      <text x={x} y={y + 58} textAnchor="middle" fill={c.text} fontSize="12" fontWeight="600"
+        fontFamily="Poppins, sans-serif" stroke="rgba(2,8,4,0.85)" strokeWidth="3" paintOrder="stroke"
+        style={{ opacity: hovered ? 1 : 0.8, transition: "opacity 0.2s ease" }}>{p.name}</text>
+    </>
+  );
+}
 
 function IslandMap() {
+  const { t, pick } = useLang();
+  const [island, setIsland] = useState<IslandId>("solo");
   const [selectedUnlocked, setSelectedUnlocked] = useState<UnlockedProject | null>(null);
   const [hoveredUnlocked, setHoveredUnlocked] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -1336,23 +1420,52 @@ function IslandMap() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Mobile: zoom into island, crop outer water
+  const go = (id: IslandId) => {
+    if (id === island) return;
+    setHoveredUnlocked(null);
+    setIsland(id);
+    window.dispatchEvent(new CustomEvent("warp"));
+  };
+
+  const projects = UNLOCKED.filter(p => p.island === island);
+  const other: IslandId = island === "solo" ? "team" : "solo";
+  const isl = ISLANDS[island];
+
+  // Celular: aproxima a ilha e corta a água de fora
   const viewBox = isMobile ? "60 70 680 480" : `0 0 ${VW} ${VH}`;
 
   return (
     <div className="relative w-full" style={{ maxWidth: 800, margin: "0 auto" }}>
-      {/* Hover cards — desktop only */}
-      {!isMobile && UNLOCKED.map(p => (
+      {/* Seletor de mapa */}
+      <div className="arch-tabs" role="tablist" aria-label={t("Escolha a ilha", "Choose an island")}>
+        {ISLAND_ORDER.map(id => {
+          const it = ISLANDS[id];
+          const on = id === island;
+          const count = UNLOCKED.filter(p => p.island === id).length;
+          return (
+            <button key={id} type="button" role="tab" aria-selected={on} onClick={() => go(id)}
+              className={`arch-tab${on ? " is-on" : ""}`} style={{ "--acc": it.accent } as React.CSSProperties}>
+              <svg viewBox="60 40 680 530" width="46" height="36" aria-hidden="true">
+                <path d={it.path} fill={on ? `rgba(${it.accent},0.22)` : "rgba(255,255,255,0.06)"} stroke={`rgba(${it.accent},${on ? 0.9 : 0.35})`} strokeWidth="14" />
+              </svg>
+              <span className="arch-tab-text">
+                <b>{pick(it.name)}</b>
+                <small>{count} {t("projetos", "projects")} · {pick(it.sub)}</small>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Cartões de hover: só no desktop */}
+      {!isMobile && projects.map(p => (
         <UnlockedHoverCard key={p.id} project={p} svgX={p.mx} svgY={p.my} svgW={VW} svgH={VH} visible={hoveredUnlocked === p.id && selectedUnlocked === null} />
       ))}
 
       <svg
         viewBox={viewBox}
         className="w-full"
-        style={{
-          filter: "drop-shadow(0 0 40px rgba(34,197,94,0.08))",
-          minHeight: isMobile ? "340px" : undefined,
-        }}
+        style={{ filter: "drop-shadow(0 0 40px rgba(34,197,94,0.08))", minHeight: isMobile ? "340px" : undefined }}
       >
         <defs>
           <pattern id="waterGrid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -1364,36 +1477,55 @@ function IslandMap() {
             <stop offset="100%" stopColor="rgba(8,15,10,1)" />
           </radialGradient>
           <radialGradient id="islandGlow" cx="45%" cy="42%" r="55%">
-            <stop offset="0%" stopColor="rgba(34,197,94,0.06)" />
-            <stop offset="100%" stopColor="rgba(34,197,94,0)" />
+            <stop offset="0%" stopColor={`rgba(${isl.accent},0.07)`} />
+            <stop offset="100%" stopColor={`rgba(${isl.accent},0)`} />
           </radialGradient>
           <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-          <filter id="strongGlow"><feGaussianBlur stdDeviation="6" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          {/* Scanlines do holograma: duas linhas cheias, uma apagada */}
+          <pattern id="scanPat" width="6" height="3" patternUnits="userSpaceOnUse">
+            <rect width="6" height="2" fill="white" />
+            <rect y="2" width="6" height="1" fill="rgb(90,90,90)" />
+          </pattern>
+          <mask id="scanMask" maskUnits="userSpaceOnUse" x="0" y="0" width={VW} height={VH}>
+            <rect width={VW} height={VH} fill="url(#scanPat)" />
+          </mask>
+          {UNLOCKED.map(p => (
+            <g key={p.id}>
+              <linearGradient id={`beam-${p.id}`} x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stopColor={p.color.hex} stopOpacity="0.5" />
+                <stop offset="1" stopColor={p.color.hex} stopOpacity="0" />
+              </linearGradient>
+              <filter id={`holo-${p.id}`} x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b" />
+                <feFlood floodColor={p.color.hex} floodOpacity="0.9" />
+                <feComposite in2="b" operator="in" result="g" />
+                <feMerge><feMergeNode in="g" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </g>
+          ))}
         </defs>
 
         <rect width="800" height="600" fill="url(#waterGrid)" />
-        {[80,160,240,320,400,480,560].map((y, i) => (
+        {[80, 160, 240, 320, 400, 480, 560].map((y, i) => (
           <line key={i} x1="0" y1={y} x2="800" y2={y} stroke="rgba(6,182,212,0.04)" strokeWidth="1" strokeDasharray="20 60"
             style={{ animation: `shimmer ${3 + i * 0.4}s linear infinite`, animationDelay: `${i * 0.3}s` }} />
         ))}
 
-        <path d={ISLAND_PATH} fill="rgba(0,0,0,0.5)" transform="translate(6,8)" />
-        <path d={ISLAND_PATH} fill="url(#islandGrad)" />
-        <path d={ISLAND_PATH} fill="url(#islandGlow)" />
-        <path d={ISLAND_PATH} fill="none" stroke="rgba(34,197,94,0.25)" strokeWidth="1.5" />
-        <path d={ISLAND_PATH} fill="none" stroke="rgba(6,182,212,0.12)" strokeWidth="4" strokeDasharray="8 16" />
+        <g key={island} className="arch-enter">
+          <path d={isl.path} fill="rgba(0,0,0,0.5)" transform="translate(6,8)" />
+          <path d={isl.path} fill="url(#islandGrad)" />
+          <path d={isl.path} fill="url(#islandGlow)" />
+          {/* Curvas de nível: a própria costa, em escalas menores */}
+          {[0.82, 0.64, 0.46].map(k => (
+            <path key={k} d={isl.path} fill="none" stroke={`rgba(${isl.accent},0.07)`} strokeWidth={1 / k}
+              transform={`translate(400 310) scale(${k}) translate(-400 -310)`} />
+          ))}
+          <path d={isl.path} fill="none" stroke={`rgba(${isl.accent},0.3)`} strokeWidth="1.5" />
+          <path d={isl.path} fill="none" stroke="rgba(6,182,212,0.12)" strokeWidth="4" strokeDasharray="8 16" />
 
-        {["M 180 220 Q 290 195 400 210 Q 510 225 615 215","M 160 278 Q 280 258 400 270 Q 520 282 635 272","M 162 335 Q 285 318 405 328 Q 525 338 632 330","M 185 388 Q 300 375 415 383 Q 530 390 622 382","M 215 438 Q 330 428 440 434 Q 548 440 603 433"].map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="rgba(34,197,94,0.07)" strokeWidth="1" />
-        ))}
-
-        {/* Unlocked markers */}
-        {UNLOCKED.map((p, idx) => {
-          const c = p.color;
-          const isH = hoveredUnlocked === p.id;
-          return (
+          {projects.map((p, idx) => (
             <g key={p.id} style={{ cursor: "pointer", outline: "none" }}
-              role="button" tabIndex={0} aria-label={`${p.name}: ver detalhes do projeto`}
+              role="button" tabIndex={0} aria-label={`${p.name}: ${t("ver detalhes do projeto", "see project details")}`}
               onClick={() => setSelectedUnlocked(p)}
               onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedUnlocked(p); } }}
               onFocus={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
@@ -1401,41 +1533,87 @@ function IslandMap() {
               onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
               onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
             >
-              <circle cx={p.mx} cy={p.my} r={isH ? 30 : 22} fill="none" stroke={c.ping} strokeWidth="1" style={{ animation: `ping 2s ease-out infinite`, animationDelay: `${idx * 0.6}s`, transition: "r 0.3s ease" }} />
-              {isH && <circle cx={p.mx} cy={p.my} r={42} fill="none" stroke={c.ping} strokeWidth="0.5" style={{ animation: `ping 1.5s ease-out infinite` }} />}
-              <circle cx={p.mx} cy={p.my} r={isH ? 17 : 14} fill={c.bg} stroke={c.glow} strokeWidth={isH ? 2 : 1.5} filter="url(#glow)" style={{ transition: "all 0.25s ease" }} />
-              <circle cx={p.mx} cy={p.my} r={isH ? 6 : 5} fill={c.base} filter={isH ? "url(#strongGlow)" : "url(#glow)"} style={{ transition: "all 0.25s ease" }} />
-              <rect x={p.mx - labelW(p.name) / 2} y={p.my - 36} width={labelW(p.name)} height={18} rx={9} fill="rgba(6,12,6,0.88)" stroke={isH ? c.border : "rgba(34,197,94,0.2)"} strokeWidth="1" style={{ transition: "stroke 0.2s ease" }} />
-              <text x={p.mx} y={p.my - 27} textAnchor="middle" dominantBaseline="central" fill={c.text} fontSize="10" fontWeight="600" fontFamily="Poppins, sans-serif" letterSpacing="0.2">{p.name}</text>
-              <line x1={p.mx} y1={p.my - 18} x2={p.mx} y2={p.my - 14} stroke={c.border} strokeWidth="1" />
+              <Hologram p={p} idx={idx} hovered={hoveredUnlocked === p.id} />
             </g>
-          );
-        })}
+          ))}
+        </g>
 
-        <text x="400" y="582" textAnchor="middle" fill="rgba(34,197,94,0.3)" fontSize="11" fontFamily="monospace" letterSpacing="4" fontWeight="600">ILHA DOS PROJETOS</text>
+        {/* A outra ilha, pequena no canto: clicar viaja para ela */}
+        {!isMobile && (
+          <g className="arch-mini" role="button" tabIndex={0} onClick={() => go(other)}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(other); } }}
+            aria-label={`${t("Ir para", "Go to")} ${pick(ISLANDS[other].name)}`}>
+            <rect x="676" y="480" width="112" height="98" rx="10" fill="rgba(2,8,4,0.6)" stroke={`rgba(${ISLANDS[other].accent},0.25)`} />
+            <path d={ISLANDS[other].path} transform="translate(682 486) scale(0.125)" fill={`rgba(${ISLANDS[other].accent},0.12)`}
+              stroke={`rgba(${ISLANDS[other].accent},0.6)`} strokeWidth="10" />
+            <text x="732" y="568" textAnchor="middle" fontSize="8.5" fontFamily="Poppins, sans-serif" fontWeight="600"
+              fill={`rgba(${ISLANDS[other].accent},0.85)`}>{pick(ISLANDS[other].name)} →</text>
+          </g>
+        )}
+
+        <text x="400" y="582" textAnchor="middle" fill={`rgba(${isl.accent},0.35)`} fontSize="11" fontFamily="monospace" letterSpacing="4" fontWeight="600">
+          {pick(isl.name).toUpperCase()}
+        </text>
       </svg>
 
       {selectedUnlocked && <UnlockedPanel project={selectedUnlocked} onClose={() => setSelectedUnlocked(null)} />}
 
       <style>{`
-        @keyframes ping { 0% { transform-origin:center; transform:scale(1); opacity:0.8; } 100% { transform-origin:center; transform:scale(2.2); opacity:0; } }
         @keyframes shimmer { 0% { stroke-dashoffset:0; } 100% { stroke-dashoffset:-80; } }
+
+        .arch-tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+        .arch-tab {
+          display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 10px; border-radius: 14px;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer;
+          text-align: left; color: rgba(212,212,216,0.7); transition: all 0.25s ease;
+        }
+        .arch-tab:hover { border-color: rgba(var(--acc),0.4); color: #fff; }
+        .arch-tab.is-on {
+          background: rgba(var(--acc),0.08); border-color: rgba(var(--acc),0.6); color: #fff;
+          box-shadow: 0 0 24px -6px rgba(var(--acc),0.55);
+        }
+        .arch-tab-text { display: flex; flex-direction: column; line-height: 1.25; }
+        .arch-tab-text b { font-size: 14px; font-weight: 600; }
+        .arch-tab-text small { font-size: 10.5px; opacity: 0.65; }
+        .arch-tab.is-on .arch-tab-text b { color: rgb(var(--acc)); }
+
+        .arch-enter { animation: archIn 0.6s cubic-bezier(0.22,1,0.36,1); transform-box: view-box; transform-origin: 50% 50%; }
+        @keyframes archIn { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+        .holo-ping { animation: holoPing 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+        @keyframes holoPing { 0% { transform: scale(0.7); opacity: 0.9; } 100% { transform: scale(1.7); opacity: 0; } }
+        .holo-beam { opacity: 0.55; transition: opacity 0.3s ease; animation: beamPulse 3s ease-in-out infinite; }
+        .holo-beam.is-h { opacity: 1; }
+        @keyframes beamPulse { 50% { opacity: 0.8; } }
+        .holo-float { animation: holoFloat 3.4s ease-in-out infinite; transform-box: fill-box; }
+        @keyframes holoFloat { 50% { transform: translateY(-4px); } }
+        .holo-logo { transform-box: fill-box; transform-origin: center; opacity: 0.9;
+          transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease; animation: holoFlicker 6s steps(1) infinite; }
+        .holo-logo.is-h { transform: scale(1.22); opacity: 1; }
+        @keyframes holoFlicker { 0%, 100% { opacity: 0.9; } 91% { opacity: 0.55; } 92% { opacity: 0.95; } 94% { opacity: 0.4; } 95% { opacity: 0.9; } }
+        .arch-mini { cursor: pointer; opacity: 0.75; transition: opacity 0.2s ease; outline: none; }
+        .arch-mini:hover, .arch-mini:focus-visible { opacity: 1; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .arch-enter, .holo-ping, .holo-beam, .holo-float, .holo-logo { animation: none; }
+        }
       `}</style>
     </div>
   );
 }
 
 function Projects() {
+  const { t } = useLang();
   return (
     <section id="projects" className="relative min-h-screen flex flex-col items-center justify-center px-4 py-24">
 
-      <div className="relative z-10 text-center mb-12">
+      <div className="relative z-10 text-center mb-8">
         <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
-          <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Projetos{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
+          <span className="text-emerald-400/40 font-light">&lt;</span>{" "}{t("Projetos", "Projects")}{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
         </h2>
-        <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">// explore o território</p>
-        <p className="mt-2 text-sm text-zinc-500 hidden md:block">Passe o mouse nos marcadores para ver os detalhes</p>
-        <p className="mt-2 text-sm text-zinc-500 md:hidden">Toque nos marcadores para ver os detalhes</p>
+        <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">{t("// explore o arquipélago", "// explore the archipelago")}</p>
+        <p className="mt-2 text-sm text-zinc-500 hidden md:block">{t("Passe o mouse nos hologramas para ver os detalhes", "Hover over the holograms to see the details")}</p>
+        <p className="mt-2 text-sm text-zinc-500 md:hidden">{t("Toque nos hologramas para ver os detalhes", "Tap the holograms to see the details")}</p>
       </div>
       <div className="relative z-10 w-full max-w-3xl"><IslandMap /></div>
     </section>
