@@ -18,6 +18,8 @@ interface UnlockedProjectData {
   island: "solo" | "team";
   /** logo do projeto em public/logos/projects */
   logo: string;
+  /** placa escura atrás da logo: só para marcas transparentes que somem sobre o brilho (ex.: Praxis) */
+  plate?: boolean;
   mx: number;
   my: number;
   color: {
@@ -84,7 +86,7 @@ const UNLOCKED: UnlockedProjectData[] = [
     demo: "https://demo-praxis.vercel.app/",
     trailer: null,
     award: null,
-    island: "solo", logo: "/logos/projects/praxis.png",
+    island: "solo", logo: "/logos/projects/praxis.png", plate: true,
     mx: 535, my: 200,
     color: {
       base: "rgba(20,184,166,0.95)",
@@ -1373,9 +1375,9 @@ function Hologram({ p, idx, hovered }: { p: UnlockedProject; idx: number; hovere
         <g className={`holo-logo${hovered ? " is-h" : ""}`} style={{ animationDelay: `${idx * 0.9}s` }}>
           {/* Halo de luz: gradiente estático (o filtro de desfoque era refeito a cada quadro) */}
           <circle cx={x} cy={y - 7} r="30" fill={`url(#halo-${p.id})`} />
-          {/* Placa escura: garante contraste para qualquer logo, inclusive as azuis */}
-          <rect x={x - 21} y={y - 28} width="42" height="42" rx="10" fill="rgba(3,8,14,0.9)" stroke={c.border} strokeWidth="1" />
-          <image href={p.logo} x={x - 17} y={y - 24} width="34" height="34" preserveAspectRatio="xMidYMid meet"
+          {/* Placa escura só nas marcas transparentes que somem sobre o brilho (sem borda) */}
+          {p.plate && <rect x={x - 21} y={y - 28} width="42" height="42" rx="10" fill="rgba(3,8,14,0.92)" />}
+          <image href={p.logo} x={x - 19} y={y - 26} width="38" height="38" preserveAspectRatio="xMidYMid meet"
             mask="url(#scanMask)" />
         </g>
       </g>
@@ -1548,7 +1550,7 @@ function IslandMap() {
               onMouseLeave={() => setListHover(null)} onBlur={() => setListHover(null)}
               className="arch-item holo-blue">
               <span className="arch-item-head">
-                <img src={p.logo} alt="" width={30} height={30} loading="lazy" />
+                <img src={p.logo} alt="" width={30} height={30} loading="lazy" className={p.plate ? "has-plate" : undefined} />
                 <b className="holo-title">{p.name}</b>
                 {p.award && <em>{pick(p.award)}</em>}
               </span>
@@ -1604,8 +1606,8 @@ function IslandMap() {
         .arch-item:hover { transform: translateY(-2px); }
         .arch-item > * { position: relative; z-index: 1; }
         .arch-item-head { display: flex; align-items: center; gap: 8px; }
-        .arch-item-head img { width: 30px; height: 30px; padding: 3px; object-fit: contain; border-radius: 8px; flex-shrink: 0;
-          background: rgba(3,8,14,0.92); border: 1px solid rgba(0,149,255,0.35); }
+        .arch-item-head img { width: 30px; height: 30px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+        .arch-item-head img.has-plate { padding: 3px; background: rgba(3,8,14,0.92); }
         .arch-item-head b { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
         .arch-item-head em { margin-left: auto; font-style: normal; font-size: 9.5px; font-weight: 600; color: rgba(147,197,253,0.85); white-space: nowrap; }
         .arch-item small { font-size: 11px; line-height: 1.45;
