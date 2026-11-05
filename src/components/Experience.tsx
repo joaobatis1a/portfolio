@@ -410,33 +410,33 @@ export default function Experience() {
         }
 
         /* Ficha viva: tudo em transform/opacity (compostos), sem custo de layout */
-        .exp-float { animation: expFloat 7s ease-in-out infinite; }
+        .exp-float { animation: expFloat 10s ease-in-out infinite; }
         .exp-float:hover { animation-play-state: paused; }
-        @keyframes expFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes expFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
         .exp-live { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; border-radius: inherit; }
         /* feixe horizontal de ponta a ponta, em loop */
         .exp-live::before {
           content: ""; position: absolute; inset: 0;
-          background: linear-gradient(180deg, transparent 0, transparent 48.4%, rgba(34,211,238,0.10) 49.3%, rgba(74,222,128,0.5) 50%, rgba(34,211,238,0.10) 50.7%, transparent 51.6%, transparent 100%);
-          animation: expBeam 6.5s linear infinite;
+          background: linear-gradient(180deg, transparent 0, transparent 45%, rgba(34,211,238,0.025) 47.5%, rgba(74,222,128,0.11) 50%, rgba(34,211,238,0.025) 52.5%, transparent 55%, transparent 100%);
+          animation: expBeam 10s linear infinite;
         }
         @keyframes expBeam { from { transform: translateY(-50%); } to { transform: translateY(50%); } }
         /* brilho diagonal que atravessa a ficha de tempos em tempos */
         .exp-live::after {
           content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 26%;
-          background: linear-gradient(100deg, transparent, rgba(134,239,172,0.09), transparent);
+          background: linear-gradient(100deg, transparent, rgba(134,239,172,0.04), transparent);
           transform: translateX(-160%) skewX(-18deg);
-          animation: expSweep 9s ease-in-out 2s infinite;
+          animation: expSweep 14s ease-in-out 3s infinite;
         }
         @keyframes expSweep { 0% { transform: translateX(-160%) skewX(-18deg); } 40%, 100% { transform: translateX(520%) skewX(-18deg); } }
         /* a luz interna "respira" */
         .exp-live i {
           position: absolute; inset: 0; border-radius: inherit;
-          box-shadow: inset 0 0 46px rgba(34,197,94,0.16), inset 0 0 2px rgba(74,222,128,0.5);
-          animation: expBreath 4.5s ease-in-out infinite alternate;
+          box-shadow: inset 0 0 46px rgba(34,197,94,0.08), inset 0 0 2px rgba(74,222,128,0.25);
+          animation: expBreath 7s ease-in-out infinite alternate;
         }
-        @keyframes expBreath { from { opacity: 0.25; } to { opacity: 1; } }
+        @keyframes expBreath { from { opacity: 0.4; } to { opacity: 1; } }
         @media (prefers-reduced-motion: reduce) {
           .exp-float, .exp-live::before, .exp-live::after, .exp-live i { animation: none; }
           .exp-live::before, .exp-live::after { display: none; }
