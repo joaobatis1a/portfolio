@@ -296,7 +296,7 @@ export default function Frontista() {
                     <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Frontista{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
                 </h2>
                 <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">{t("// motions, bastidores e conteúdo", "// motion, behind the scenes & content")}</p>
-                <p className="mt-5 max-w-xl mx-auto text-sm leading-relaxed text-zinc-400">
+                <p className="mt-5 max-w-xl mx-auto text-sm leading-relaxed text-zinc-400 text-justify">
                     {t("O Frontista nasceu da fusão do meu sobrenome com o que eu faço: ", "Frontista blends my last name with what I do: ")}
                     <span className="text-emerald-400">{t("desenvolvimento front-end", "front-end development")}</span>.{" "}
                     {t("Lá eu documento minha evolução, mostro o processo dos projetos e explico programação para quem está começando.",
