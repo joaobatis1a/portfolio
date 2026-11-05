@@ -1543,9 +1543,9 @@ function IslandMap() {
 
       {/* Lista da ilha: o conteúdo fica visível sem precisar passar o mouse */}
       <ul key={island} className="arch-list">
-        {projects.map(p => (
+        {projects.map((p, i) => (
           <li key={p.id}>
-            <button type="button" onClick={() => setSelectedUnlocked(p)}
+            <button type="button" onClick={() => setSelectedUnlocked(p)} style={{ "--i": i } as React.CSSProperties}
               onMouseEnter={() => setListHover(p.id)} onFocus={() => setListHover(p.id)}
               onMouseLeave={() => setListHover(null)} onBlur={() => setListHover(null)}
               className="arch-item holo-blue">
