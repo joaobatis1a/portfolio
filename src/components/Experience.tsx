@@ -146,8 +146,8 @@ export default function Experience() {
 
   const dur  = tempoDesde(2025, 11);
   const CAPS = [
-    "Gestão Documental", "Notas de Empenho", "Lançamento de Receitas",
-    "Comunicação Interna", "Padronização", "Microsoft Excel", "Microsoft Word",
+    "Notas de Empenho", "Gestão Documental", "Comunicados e Circulares",
+    "Processos Internos", "Padronização", "Microsoft Excel", "Microsoft Word",
   ];
 
   return (
@@ -274,9 +274,10 @@ export default function Experience() {
                   SUMÁRIO OPERACIONAL
                 </div>
                 <p style={{ fontSize: 12, lineHeight: 1.75, color: "rgba(210,228,210,0.78)", margin: 0 }}>
-                  Primeiro contato real com rotina profissional: gestão documental, controle de receitas,
-                  comunicação institucional e padronização de processos. A mesma disciplina que hoje
-                  sustenta como estruturo sistemas e escrevo código.
+                  Elaboro e controlo notas de empenho, documentos e planilhas em Word e Excel, com foco em
+                  precisão e rastreabilidade, e distribuo comunicados e circulares para setores internos e lojas.
+                  Foi aqui que percebi a falta de padronização de documentos e procedimentos e criei o{" "}
+                  <span style={{ color: "rgba(74,222,128,0.9)" }}>Praxis</span>, que uso na rotina e apresentei ao setor.
                 </p>
               </div>
 

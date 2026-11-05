@@ -30,7 +30,7 @@ function Navbar() {
         const sections = document.querySelectorAll("section");
         const observer = new IntersectionObserver(
             entries => entries.forEach(e => { if (e.isIntersecting) setActive(linkFor(e.target.id)); }),
-            { threshold: 0.5 }
+            { rootMargin: "-45% 0px -50% 0px" }
         );
         sections.forEach(s => observer.observe(s));
         return () => observer.disconnect();
