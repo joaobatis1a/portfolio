@@ -51,7 +51,7 @@ function Hero() {
                 <h1 className="text-2xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent min-h-[1.4em]">
                     <TypeAnimation
                         sequence={[
-                            "JOÃO BATISTA DA SILVA NETO",
+                            "JOÃO BATISTA NETO",
                             2000,
                             "",
                             500,
@@ -90,7 +90,7 @@ function Hero() {
                     {/* Baixar Currículo — border glow no hover */}
                     <a
                         href="/batista-curriculo.pdf"
-                        download="Joao-Batista-Curriculo.pdf"
+                        download="Joao-Batista-Neto-Curriculo.pdf"
                         className="hero-btn-secondary flex items-center justify-center gap-2 px-7 py-3 rounded-full font-semibold text-sm text-white"
                         style={{
                             position: "relative",

@@ -50,7 +50,7 @@ const TIMELINE_NODES = [
       { icon: "🎓", text: "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)" },
       { icon: "🏆", text: "LimpAttack: 1º lugar no 1º período" },
       { icon: "🥈", text: "Benevo: 2º lugar no 2º período" },
-      { icon: "📜", text: "Certificado: Formação em Lógica de Programação com JavaScript (Dio)" },
+      { icon: "💼", text: "Jovem Aprendiz no Grupo ACLF, onde nasceu a ideia do Praxis" },
     ],
   },
   {
@@ -60,8 +60,11 @@ const TIMELINE_NODES = [
     glow: "rgba(236,72,153,0.6)",
     events: [
       { icon: "🏆", text: "P.O.N.T.E: 1º lugar no 3º período" },
+      { icon: "🚀", text: "Hacka Business da Avanade: selecionado, Cápsula como Product Owner" },
+      { icon: "🎓", text: "DIO Campus Expert, Turma 16, com apoio do Santander Universidades" },
+      { icon: "📜", text: "Certificado: Lógica de Programação com JavaScript (DIO)" },
+      { icon: "🗺️", text: "Confluência: líder do projeto final do 4º período, apresentação em dezembro" },
       { icon: "📡", text: "Marca Frontista: criador de conteúdo de front-end" },
-      { icon: "⚡", text: "4º período em andamento, com foco em projetos pessoais" },
     ],
   },
 ];

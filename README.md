@@ -1,6 +1,6 @@
 <div align="center">
 
-# João Batista — Portfólio
+# João Batista Neto · Portfólio
 
 **Desenvolvedor Front-End** · React · Next.js · TypeScript
 
@@ -111,7 +111,7 @@ src/
 
 ## 👤 Autor
 
-**João Batista da Silva Neto**
+**João Batista Neto**
 Desenvolvedor Front-End · Estudante de ADS — Centro Universitário UNIFAFIRE
 
 - GitHub: [@joaobatis1a](https://github.com/joaobatis1a)
