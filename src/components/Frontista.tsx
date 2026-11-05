@@ -68,6 +68,9 @@ function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
             {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} on={on} />}
             {tile.kind === "image" && <img src={tile.src} alt={tile.alt} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
             {tile.kind === "note" && <NoteTile tile={tile} />}
+            {tile.kind === "video" && (
+                <span className="ft-rec"><i />REC</span>
+            )}
             {tile.kind === "video" && tile.title && (
                 <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "24px 12px 10px", fontSize: 12, fontWeight: 600, color: "white",
                     background: "linear-gradient(transparent, rgba(0,0,0,0.75))" }}>{tile.title}</span>
@@ -219,6 +222,14 @@ export default function Frontista() {
                     transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
                 }
                 .ft-tile:hover { transform: scale(1.035); box-shadow: 0 0 28px rgba(34,197,94,0.18); z-index: 2; }
+                .ft-rec {
+                    position: absolute; top: 8px; left: 8px; z-index: 1;
+                    display: flex; align-items: center; gap: 5px; padding: 2px 7px; border-radius: 6px;
+                    font: 700 9px/1.4 monospace; letter-spacing: 1.5px; color: rgba(255,255,255,0.85);
+                    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+                }
+                .ft-rec i { width: 6px; height: 6px; border-radius: 50%; background: #f43f5e; animation: ftRec 1.2s ease-in-out infinite; }
+                @keyframes ftRec { 50% { opacity: 0.25; } }
                 .ft-note { font-size: 14px; line-height: 1.5; font-family: monospace; }
                 .ft-display { font-family: "Bebas Neue", sans-serif; font-size: 34px; line-height: 0.95; letter-spacing: 1px; }
                 @media (max-width: 640px) {
