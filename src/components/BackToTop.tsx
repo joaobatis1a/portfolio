@@ -1,7 +1,9 @@
+import { useLang } from "../i18n/context";
 import { useEffect, useState } from "react";
 
 /* ══ BOTÃO "VOLTAR AO TOPO" — nave minimalista, vista de cima ══ */
 function BackToTop() {
+    const { t } = useLang();
     const [visible, setVisible] = useState(false);
     const [hovering, setHovering] = useState(false);
 
@@ -25,7 +27,7 @@ function BackToTop() {
             onClick={handleClick}
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
-            aria-label="Voltar ao topo"
+            aria-label={t("Voltar ao topo", "Back to top")}
             className="backtotop-btn fixed bottom-6 right-5 z-50 sm:bottom-8 sm:right-8"
             style={{
                 opacity: visible ? 1 : 0,

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useLang } from "../i18n/context";
 
 // Logos inline para evitar bloqueio de hotlink
 const CLAUDE_LOGO = "/logos/claude.png";
@@ -6,7 +7,7 @@ const LOVABLE_LOGO = "/logos/lovable.png";
 
 const CATEGORIES = [
     {
-        title: "Languages",
+        title: { pt: "Linguagens", en: "Languages" },
         skills: [
             { name: "HTML5",      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" },
             { name: "CSS3",       icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" },
@@ -17,7 +18,7 @@ const CATEGORIES = [
         ],
     },
     {
-        title: "Frontend",
+        title: { pt: "Frontend", en: "Frontend" },
         skills: [
             { name: "React",    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
             { name: "Next.js",  icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original-wordmark.svg", white: true },
@@ -26,7 +27,7 @@ const CATEGORIES = [
         ],
     },
     {
-        title: "Prototipação",
+        title: { pt: "Prototipação", en: "Prototyping" },
         skills: [
             { name: "Figma",   icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" },
             { name: "V0",      icon: "https://avatars.githubusercontent.com/u/139895814?s=200&v=4" },
@@ -34,20 +35,20 @@ const CATEGORIES = [
         ],
     },
     {
-        title: "Backend",
+        title: { pt: "Backend", en: "Backend" },
         skills: [
             { name: "Supabase", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" },
         ],
     },
     {
-        title: "Databases",
+        title: { pt: "Bancos de dados", en: "Databases" },
         skills: [
             { name: "PostgreSQL", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
             { name: "MySQL",    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" },
         ],
     },
     {
-        title: "Deploy & Tools",
+        title: { pt: "Deploy & Ferramentas", en: "Deploy & Tools" },
         skills: [
             { name: "Git",     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
             { name: "GitHub",  icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg", white: true },
@@ -58,13 +59,13 @@ const CATEGORIES = [
         ],
     },
     {
-        title: "Messaging & APIs",
+        title: { pt: "Mensageria & APIs", en: "Messaging & APIs" },
         skills: [
             { name: "Resend", icon: "https://avatars.githubusercontent.com/u/109384852?s=200&v=4" },
         ],
     },
     {
-        title: "IA & Produtividade",
+        title: { pt: "IA & Produtividade", en: "AI & Productivity" },
         skills: [
             { name: "Claude",  icon: CLAUDE_LOGO },
             { name: "ChatGPT", icon: "/logos/chatgpt.png" },
@@ -80,6 +81,7 @@ function HoloCard({ category, active, position }: {
     active: boolean;
     position: number;
 }) {
+    const { pick } = useLang();
     const cardRef = useRef<HTMLDivElement>(null);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [hovered, setHovered] = useState(false);
@@ -173,7 +175,7 @@ function HoloCard({ category, active, position }: {
                     <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(0,149,255,0.9)]" />
                     <h3 className="text-base font-bold tracking-widest uppercase"
                         style={{ color: "rgba(120,210,255,0.95)", textShadow: "0 0 12px rgba(0,180,255,0.7)" }}>
-                        {category.title}
+                        {pick(category.title)}
                     </h3>
                     <div className="flex-1 h-px bg-gradient-to-r from-blue-500/50 to-transparent" />
                 </div>
@@ -207,6 +209,7 @@ function HoloCard({ category, active, position }: {
 
 
 function Skills() {
+    const { t, pick } = useLang();
     const [current, setCurrent] = useState(0);
     const [paused, setPaused] = useState(false);
     const [glitchTab, setGlitchTab] = useState<number | null>(null);
@@ -250,10 +253,10 @@ function Skills() {
                         animation: "holoGlow 3s ease-in-out infinite",
                     }}>
                     <span className="text-blue-500/40 font-light">&lt;</span>
-                    {" "}Skills{" "}
+                    {" "}{t("Habilidades", "Skills")}{" "}
                     <span className="text-blue-500/40 font-light">/&gt;</span>
                 </h2>
-                <p className="mt-2 text-xs tracking-widest text-blue-400/50 uppercase">// transmission received</p>
+                <p className="mt-2 text-xs tracking-widest text-blue-400/50 uppercase">{t("// transmissão recebida", "// transmission received")}</p>
             </div>
 
             {/* Tabs */}
@@ -263,7 +266,7 @@ function Skills() {
                     const isGlitching = glitchTab === i;
                     return (
                         <button
-                            key={cat.title}
+                            key={cat.title.en}
                             onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 8000); }}
                             className="relative px-4 py-2 text-xs font-semibold tracking-widest uppercase overflow-hidden transition-all duration-300"
                             style={{
@@ -297,7 +300,7 @@ function Skills() {
                                         animation: "glitchFlash 0.22s ease-out forwards",
                                     }} />
                             )}
-                            {cat.title}
+                            {pick(cat.title)}
                         </button>
                     );
                 })}
@@ -312,7 +315,7 @@ function Skills() {
             >
                 {CATEGORIES.map((cat, i) => (
                     <HoloCard
-                        key={cat.title}
+                        key={cat.title.en}
                         category={cat}
                         active={i === current}
                         position={getPosition(i)}

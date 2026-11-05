@@ -1,7 +1,9 @@
 import { TypeAnimation } from "react-type-animation";
 import { Link } from "react-scroll";
+import { useLang } from "../i18n/context";
 
 function Hero() {
+    const { lang, t } = useLang();
     const fireWarp = () => window.dispatchEvent(new CustomEvent("warp"));
 
     return (
@@ -45,17 +47,18 @@ function Hero() {
             <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
                 <p className="relative rounded-full px-4 py-2 text-sm text-green-300 ring-1 ring-cyan-500/60"
                     style={{ background: "rgba(6,182,212,0.08)" }}>
-                    SEJA BEM-VINDO(A)!
+                    {t("SEJA BEM-VINDO(A)!", "WELCOME!")}
                 </p>
 
                 <h1 className="text-2xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent min-h-[1.4em]">
                     <TypeAnimation
+                        key={lang}
                         sequence={[
                             "JOÃO BATISTA NETO",
                             2000,
                             "",
                             500,
-                            "DESENVOLVEDOR FRONT-END",
+                            t("DESENVOLVEDOR FRONT-END", "FRONT-END DEVELOPER"),
                             2000,
                         ]}
                         repeat={Infinity}
@@ -84,7 +87,7 @@ function Hero() {
                         <svg className="w-4 h-4 relative z-10 hero-btn-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                        <span className="relative z-10">Ver Projetos</span>
+                        <span className="relative z-10">{t("Ver Projetos", "See Projects")}</span>
                     </Link>
 
                     {/* Baixar Currículo — border glow no hover */}
@@ -102,7 +105,7 @@ function Hero() {
                         <svg className="w-4 h-4 relative z-10 hero-btn-dl" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        <span className="relative z-10">Baixar Currículo</span>
+                        <span className="relative z-10">{t("Baixar Currículo", "Download Résumé (PT)")}</span>
                     </a>
                 </div>
 
@@ -124,7 +127,7 @@ function Hero() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-zinc-400 hover:text-cyan-300 transition-colors duration-300"
-                        title="Enviar email"
+                        title={t("Enviar email", "Send email")}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
