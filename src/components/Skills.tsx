@@ -273,7 +273,7 @@ function Skills() {
                                 textShadow: isActive ? "0 0 10px rgba(0,200,255,0.8)" : "none",
                                 boxShadow: isActive ? "0 0 18px rgba(0,149,255,0.35), inset 0 0 12px rgba(0,100,255,0.12)" : "none",
                                 borderRadius: "9999px",
-                                transform: isGlitching ? `translateX(${Math.random() > 0.5 ? 3 : -3}px)` : "translateX(0)",
+                                transform: isGlitching ? `translateX(${i % 2 ? 3 : -3}px)` : "translateX(0)",
                                 transition: isGlitching ? "transform 0.05s" : "all 0.3s",
                                 filter: isGlitching ? "brightness(1.8) saturate(2)" : "none",
                             }}

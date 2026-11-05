@@ -395,12 +395,14 @@ function NeuralTimeline({
    PAINEL DE EVENTOS DO ANO
 ══════════════════════════════════════════════════════════ */
 function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; visible: boolean }) {
-  const [rendered, setRendered] = useState<typeof TIMELINE_NODES[0] | null>(null);
-  const [animKey, setAnimKey] = useState(0);
-
-  useEffect(() => {
+  // Guarda o último ano aberto e reinicia a animação quando ele muda (ajuste durante o render, sem efeito)
+  const [rendered, setRendered] = useState<typeof TIMELINE_NODES[0] | null>(node);
+  const [animKey, setAnimKey] = useState(node ? 1 : 0);
+  const [prevNode, setPrevNode] = useState(node);
+  if (node !== prevNode) {
+    setPrevNode(node);
     if (node) { setRendered(node); setAnimKey(k => k + 1); }
-  }, [node]);
+  }
 
   if (!rendered) return (
     <div style={{

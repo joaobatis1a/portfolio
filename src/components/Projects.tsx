@@ -93,7 +93,7 @@ const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "confluencia",
     name: "Confluência",
-    period: "Ago 2026 – presente",
+    period: "Out 2026 – Nov 2026",
     shortDesc: "Plataforma cívica do Recife: o cidadão relata problemas num mapa 3D, vota nas soluções e acompanha a obra.",
     fullDesc: "Fecha o ciclo entre o problema e a obra: o cidadão relata no mapa, o relato ganha peso pelos apoios, o órgão público responde em público, transforma o relato em projeto, abre consulta com voto secreto e comprovante verificável e publica a obra numa linha do tempo com prazos. Fui o líder do time de três: coordenei as entregas semanais, revisei os pull requests, criei a base do projeto e o Feed com o mapa 3D (MapLibre GL e deck.gl) e redesenhei landing, login, perfil e projetos. Apresentação à banca em dezembro de 2026.",
     role: "Líder da equipe (time de 3)",
@@ -1004,6 +1004,23 @@ const CARD_EFFECTS: Record<string, React.FC> = {
   vessa: VessaEffect,
   nina: NinaEffect,
 };
+
+/* Animação de um projeto como tile solto (usada no carrossel do Frontista) */
+export function ProjectMotion({ id }: { id: string }) {
+  const Effect = CARD_EFFECTS[id];
+  const p = UNLOCKED.find(u => u.id === id);
+  if (!Effect || !p) return null;
+  const c = p.color;
+  return (
+    <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 45%, ${c.bg}, rgba(3,7,5,0.97) 78%)` }}>
+      <Effect />
+      <div style={{ position: "absolute", left: 12, right: 12, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+        <span style={{ color: c.text, fontWeight: 600, fontSize: 13 }}>{p.name}</span>
+        <span style={{ color: c.text, opacity: 0.5, fontSize: 9, fontFamily: "monospace", letterSpacing: 1, whiteSpace: "nowrap" }}>MOTION</span>
+      </div>
+    </div>
+  );
+}
 
 /* ── Hover preview card for UNLOCKED ── */
 function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
