@@ -110,11 +110,11 @@ function Navbar() {
             <div className="fixed top-4 left-0 w-full z-50 flex justify-center"
                 style={{ transform: hidden && !open ? "translateY(-150%)" : "none", transition: "transform 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
                 <nav
-                    className="relative overflow-hidden rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10"
+                    className={`relative overflow-hidden rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10${active === "frontista" ? " nav-noblur" : ""}`}
                     style={{
                         width: scrolled ? "min(92%, 1040px)" : "min(95%, 1152px)",
                         padding: scrolled ? "9px 0" : "15px 0",
-                        background: scrolled ? "rgba(14,16,18,0.9)" : "rgba(24,24,27,0.7)",
+                        background: active === "frontista" ? "rgba(12,14,16,0.95)" : scrolled ? "rgba(14,16,18,0.9)" : "rgba(24,24,27,0.7)",
                         transition: "width 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.4s ease, background 0.4s ease",
                     }}
                 >
@@ -127,7 +127,6 @@ function Navbar() {
                             className="nav-brand cursor-pointer"
                         >
                             <span className={`nav-full nav-grad${scrolled ? " is-off" : ""}`}>JOÃO BATISTA NETO</span>
-                            <span className={`nav-short nav-grad${scrolled ? " is-on" : ""}`} aria-hidden="true">FRONT</span>
                             <span className={`nav-path${scrolled && path ? " is-on" : ""}`} aria-hidden="true">
                                 <span key={path} className="nav-path-txt">~/{path}</span><i className="nav-caret" />
                             </span>
@@ -271,24 +270,25 @@ function Navbar() {
             </div>
 
             <style>{`
+                /* Sobre o carrossel do Frontista o desfoque de fundo era refeito a cada quadro: desligado ali */
+                .nav-noblur { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
                 .nav-brand { display: inline-flex; align-items: baseline; white-space: nowrap; font-weight: 700; letter-spacing: 0.3px; }
                 .nav-grad {
                     background: linear-gradient(90deg, #34d399, #4ade80, #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent;
                     transition: font-size 0.4s ease;
                 }
-                .nav-full, .nav-short { display: inline-block; overflow: hidden; vertical-align: bottom; font-size: 19px;
+                .nav-full { display: inline-block; overflow: hidden; vertical-align: bottom; font-size: 19px;
                     transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease; }
                 .nav-full { max-width: 12em; }
                 .nav-full.is-off { max-width: 0; opacity: 0; }
-                .nav-short { max-width: 0; opacity: 0; font-size: 17px; letter-spacing: 1.5px; }
-                .nav-short.is-on { max-width: 4em; opacity: 1; }
+
                 .nav-path { display: inline-flex; align-items: center; max-width: 0; opacity: 0; overflow: hidden; margin-left: 0;
-                    font: 500 12px/1 monospace; color: rgba(103,232,249,0.8);
+                    font: 600 14px/1 monospace; letter-spacing: 0.3px; color: rgba(103,232,249,0.95);
                     transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease, margin 0.4s ease; }
-                .nav-path.is-on { max-width: 12em; opacity: 1; margin-left: 10px; }
+                .nav-path.is-on { max-width: 14em; opacity: 1; margin-left: 0; }
                 .nav-path-txt { display: inline-block; animation: navType 0.5s steps(14) both; }
                 @keyframes navType { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-                .nav-caret { display: inline-block; width: 6px; height: 12px; margin-left: 2px; background: rgba(103,232,249,0.85); animation: navBlink 1s steps(1) infinite; }
+                .nav-caret { display: inline-block; width: 7px; height: 14px; margin-left: 2px; background: rgba(103,232,249,0.85); animation: navBlink 1s steps(1) infinite; }
                 @keyframes navBlink { 50% { opacity: 0; } }
 
                 .nav-ind {
