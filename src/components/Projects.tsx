@@ -180,6 +180,22 @@ const UNLOCKED: UnlockedProjectData[] = [
     color: palette(139, 92, 246, 196, 181, 253, "#8b5cf6"),
   },
   {
+    id: "driblou",
+    name: "Driblou Caiu",
+    period: { pt: "Ago 2026 – Nov 2026", en: "Aug 2026 – Nov 2026" },
+    shortDesc: { pt: "Site do meu clube de Pro Clubs do EA FC 26, com identidade de futebol de várzea e um painel admin para atualizar jogos e escalação.", en: "Site for my EA FC 26 Pro Clubs team, with a neighborhood-football identity and an admin panel to update matches and lineup." },
+    fullDesc: { pt: "Site do meu clube de Pro Clubs do EA FC 26, com identidade visual de futebol de várzea (muro caiado, placar de chapa, súmula datilografada). Mostra números do time, esquema tático com 11 slots, elenco com ficha de atributos, próximo jogo com contagem regressiva, súmula de resultados, tabela da liga e artilharia calculadas a partir das partidas. O painel /admin, protegido por senha, registra partidas, monta a escalação arrastando os jogadores no campo e gerencia elenco e tabela, com dados em Redis (Upstash). A base inicial foi gerada com Lovable; a nova identidade visual, o backend, o painel e a escalação são trabalho meu.", en: "Site for my EA FC 26 Pro Clubs team, with a neighborhood-football visual identity (whitewashed wall, tin scoreboard, typewritten match sheet). It shows team numbers, a tactical formation with 11 slots, a squad with attribute cards, next match with countdown, a match sheet with results, and league table and top scorers calculated from the matches. The password-protected /admin panel records matches, builds the lineup by dragging players on the pitch and manages squad and table, with data in Redis (Upstash). The initial base was generated with Lovable; the new visual identity, the backend, the panel and the lineup editor are my work." },
+    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
+    stack: ["React", "TanStack Start", "TypeScript", "Tailwind", "Framer Motion", "Redis"],
+    github: "https://github.com/joaobatis1a/dribloucaiu-landing",
+    demo: "https://dribloucaiu-landing.vercel.app/",
+    trailer: null,
+    award: null,
+    island: "solo", logo: "/logos/projects/driblou-caiu.png",
+    mx: 395, my: 170,
+    color: palette(220, 38, 38, 254, 202, 202, "#dc2626"),
+  },
+  {
     id: "ponte",
     name: "P.O.N.T.E",
     period: { pt: "Fev 2026 – Jun 2026", en: "Feb 2026 – Jun 2026" },
@@ -994,6 +1010,44 @@ function NinaEffect() {
   );
 }
 
+// Driblou Caiu: bola em arco rumo ao gol e placar subindo a cada gol
+function DriblouEffect() {
+  const { t: tr } = useLang();
+  const t = useClock();
+  const R = "rgba(220,38,38,";
+  const RL = "rgba(254,202,202,";
+  const cycle = 3;
+  const p = (t % cycle) / cycle;
+  const goals = Math.floor(t / cycle) % 10;
+  const k = Math.min(1, p / 0.75);
+  const bx = 24 + k * 142;
+  const by = 100 - 58 * Math.sin(k * Math.PI);
+  const scored = p > 0.75;
+
+  return (
+    <svg style={SVG_STYLE} viewBox="0 0 220 140" shapeRendering="crispEdges">
+      <line x1="0" y1="112" x2="220" y2="112" stroke={`${RL}0.25)`} strokeWidth="1" />
+      <rect x="20" y="24" width="1" height="88" fill={`${RL}0.12)`} />
+      <rect x="110" y="24" width="1" height="88" fill={`${RL}0.12)`} />
+      <g transform="translate(172,62)">
+        <rect x="0" y="0" width="34" height="2" fill={`${RL}0.9)`} />
+        <rect x="0" y="2" width="2" height="48" fill={`${RL}0.9)`} />
+        {Array.from({ length: 6 }, (_, i) => (
+          <rect key={i} x="4" y={4 + i * 8} width="28" height="1" fill={`${RL}${scored ? 0.55 : 0.2})`} />
+        ))}
+        {Array.from({ length: 5 }, (_, i) => (
+          <rect key={i} x={6 + i * 6} y="2" width="1" height="46" fill={`${RL}${scored ? 0.55 : 0.2})`} />
+        ))}
+      </g>
+      {!scored && <rect x={bx - 4} y={by - 4} width="9" height="9" fill="rgba(255,255,255,0.92)" />}
+      {!scored && <rect x={bx - 1} y={by - 1} width="3" height="3" fill="rgba(20,16,12,0.9)" />}
+      {!scored && <rect x={bx - 4} y="111" width="9" height="1" fill="rgba(0,0,0,0.4)" />}
+      {scored && <rect x="186" y="82" width="9" height="9" fill="rgba(255,255,255,0.92)" />}
+      <EffectLabel text={tr(`GOLS: ${goals}${scored ? " ⚽" : ""}`, `GOALS: ${goals}${scored ? " ⚽" : ""}`)} color={R} light={RL} />
+    </svg>
+  );
+}
+
 const CARD_EFFECTS: Record<string, React.FC> = {
   limpattack: LimpattackEffect,
   benevo: BenevoEffect,
@@ -1005,6 +1059,7 @@ const CARD_EFFECTS: Record<string, React.FC> = {
   capsula: CapsulaEffect,
   vessa: VessaEffect,
   nina: NinaEffect,
+  driblou: DriblouEffect,
 };
 
 /* Animação de um projeto como tile solto (usada no carrossel do Frontista) */

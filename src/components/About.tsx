@@ -8,7 +8,7 @@ const ITEMS_BY_LANG = {
         { key: "local    ", value: "Paulista, PE 📍" },
         { key: "curso    ", value: "ADS na UNIFAFIRE" },
         { key: "foco     ", value: "Front-End · React e Next.js 💻" },
-        { key: "projetos ", value: "10 no ar · 3 premiados 🏆" },
+        { key: "projetos ", value: "11 no ar · 3 premiados 🏆" },
     ],
     en: [
         { key: "name     ", value: "João Batista Neto" },
@@ -16,7 +16,7 @@ const ITEMS_BY_LANG = {
         { key: "location ", value: "Paulista, Brazil 📍" },
         { key: "degree   ", value: "Systems Analysis & Dev · UNIFAFIRE" },
         { key: "focus    ", value: "Front-End · React & Next.js 💻" },
-        { key: "projects ", value: "10 live · 3 award-winning 🏆" },
+        { key: "projects ", value: "11 live · 3 award-winning 🏆" },
     ],
 };
 const ITEMS = ITEMS_BY_LANG.pt;
