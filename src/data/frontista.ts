@@ -97,7 +97,7 @@ export const FRONTISTA_ROWS: FrontistaRow[] = [
       { kind: "video", src: V + "vessa.webm", poster: V + "vessa.jpg", ratio: "9/16", title: "VESSA", href: "https://vessa-atelie.vercel.app/" },
       { kind: "image", src: V + "foto-visita-mv.jpg", alt: { pt: "Recepção da MV, healthtech, com estudantes aguardando", en: "MV healthtech lobby with students waiting" }, ratio: "3/4", title: "MV · healthtech" },
       { kind: "note", text: { pt: "aprendendo\nem público", en: "learning\nin public" }, tag: "@frontista", ratio: "1/1", accent: "green", display: true },
-      { kind: "video", src: V + "nina.webm", poster: V + "nina.jpg", ratio: "9/16", title: "Nina Brinquedos", href: "https://ninabrinquedos-mvp.vercel.app/" },
+      { kind: "video", src: V + "nina.webm", poster: V + "nina.jpg", ratio: "9/16", title: "Nina Brinquedos", href: "https://ninabrinquedos.vercel.app/" },
       { kind: "image", src: V + "foto-evento-palco.jpg", alt: { pt: "Palco de evento de tecnologia com luz roxa e apresentador ao microfone", en: "Tech event stage with purple lights and a presenter at the mic" }, ratio: "3/4" },
       { kind: "image", src: V + "foto-mesa-aclf.jpg", alt: { pt: "Mesa de trabalho no Grupo ACLF com desenhos de símbolos de heróis", en: "Work desk at Grupo ACLF with hand-drawn hero symbols" }, ratio: "3/4", title: "Grupo ACLF" },
       { kind: "note", text: { pt: "> código explicado sem frescura", en: "> code explained, no fluff" }, tag: { pt: "conteúdo", en: "content" }, ratio: "4/5", accent: "cyan" },
