@@ -58,6 +58,9 @@ const PIX: Record<string, string[]> = {
 };
 const PC: Record<string, string> = { y: "#fde047", o: "#a16207", r: "#ef4444", b: "#3b82f6", w: "#e5e7eb", g: "#4ade80", c: "#22d3ee", p: "#c4b5fd" };
 
+const MAP_POS: [number, number][] = [[8, 70], [29, 28], [50, 72], [71, 30], [92, 66]];
+const MAP_PATH = MAP_POS.map((p, i) => `${i ? "L" : "M"}${p[0]} ${p[1] + 8}`).join(" ");
+
 const unacc = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 function Pix({ name, color }: { name: string; color?: string }) {
@@ -175,18 +178,17 @@ function Game() {
                 <span className="text-cyan-300">★ {got}/{achieved}</span>
             </div>
 
-            {/* mapa de mundos */}
-            <div className="relative z-10 mx-4 mt-4 grid grid-cols-5 gap-2 max-[640px]:grid-cols-3 max-[640px]:gap-y-6">
+            {/* mapa de mundos: zigue-zague ligado por trilha tracejada (como no modo jogo aprovado) */}
+            <div className="wmap relative z-10 mx-6 mt-2.5 h-[250px]">
+                <svg className="path absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <path d={MAP_PATH} vectorEffect="non-scaling-stroke" />
+                </svg>
                 {YEARS.map((y, i) => (
                     <button key={y.y} type="button" onClick={() => go(i)} aria-current={i === cur}
-                        className="group flex flex-col items-center gap-2 text-center">
-                        <span className={`grid h-14 w-16 place-items-center text-base text-[#0b0a1f] transition-transform max-[640px]:h-12 max-[640px]:w-14 ${i === cur ? "animate-[bob_.8s_steps(2)_infinite]" : "group-hover:-translate-y-1"}`}
-                            style={{ background: y.c, boxShadow: "inset -6px -6px 0 rgba(0,0,0,.28), inset 6px 6px 0 rgba(255,255,255,.25), 0 6px 0 #000" }}>
-                            {i + 1}
-                        </span>
-                        <span className="text-[9px] leading-relaxed text-indigo-200">
-                            <b className="block text-[11px] font-normal text-white">{y.y}</b>{unacc(y.l.toUpperCase())}
-                        </span>
+                        className="wn" style={{ left: `${MAP_POS[i][0]}%`, top: `calc(${MAP_POS[i][1]}% - 26px)`, ["--c" as string]: y.c } as React.CSSProperties}>
+                        <span className="cur" />
+                        <span className="plt">{i + 1}</span>
+                        <span className="nm"><b>{y.y}</b>{unacc(y.l.toUpperCase())}</span>
                     </button>
                 ))}
             </div>
@@ -303,6 +305,23 @@ export default function Training() {
                 @keyframes toastIn { from { transform: translateX(calc(100% + 40px)); } to { transform: none; } }
                 @keyframes lvUp { 0% { opacity: 0; transform: translate(-50%, -20%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 75% { opacity: 1; transform: translate(-50%, -80%); } 100% { opacity: 0; transform: translate(-50%, -110%); } }
                 @keyframes bob { 50% { transform: translateY(-6px); } }
+                .wn { position: absolute; width: 86px; margin-left: -43px; display: grid; justify-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; color: #fff; font: inherit; }
+                .wn .plt { position: relative; width: 64px; height: 52px; display: grid; place-items: center; background: var(--c); box-shadow: inset -6px -6px 0 rgba(0,0,0,.28), inset 6px 6px 0 rgba(255,255,255,.25), 0 6px 0 #000; font-size: 15px; color: #0b0a1f; transition: transform .15s steps(2); }
+                .wn:hover .plt { transform: translateY(-3px); }
+                .wn[aria-current="true"] .plt { animation: bob .8s steps(2) infinite; }
+                .wn .cur { position: absolute; top: -30px; width: 16px; height: 14px; opacity: 0; background: #fde047; clip-path: polygon(0 0,100% 0,50% 100%); }
+                .wn[aria-current="true"] .cur { opacity: 1; animation: bob .5s steps(2) infinite; }
+                .wn .nm { font-size: 9px; line-height: 1.5; text-align: center; color: #c7d2fe; }
+                .wn .nm b { display: block; font-size: 11px; color: #fff; font-weight: 400; }
+                .wmap svg.path path { fill: none; stroke: #6366f1; stroke-width: 4; stroke-dasharray: 4 10; stroke-linecap: square; animation: march 1s steps(7) infinite; }
+                @keyframes march { to { stroke-dashoffset: -14px; } }
+                @media (max-width: 640px) {
+                    .wmap { height: auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 46px; padding-top: 34px; margin: 16px 6px 0; }
+                    .wmap svg.path { display: none; }
+                    .wn { position: relative; left: auto !important; top: auto !important; margin: 0 auto; grid-column: span 2; width: auto; }
+                    .wn:nth-of-type(4) { grid-column: 2 / span 2; }
+                    .wn .plt { width: 56px; height: 46px; }
+                }
                 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
             `}</style>
         </section>
