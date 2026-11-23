@@ -23,7 +23,9 @@ export type FrontistaTile =
   | { kind: "motion"; project: string; ratio: Ratio }
   | { kind: "video"; src: string; poster?: string; ratio: Ratio; title?: Text; href?: string }
   | { kind: "image"; src: string; alt: Text; ratio: Ratio; title?: Text; href?: string }
-  | { kind: "note"; text: Text; tag?: Text; ratio: Ratio; accent?: Accent; display?: boolean };
+  | { kind: "note"; text: Text; tag?: Text; ratio: Ratio; accent?: Accent; display?: boolean }
+  /** cartão com a logo do projeto dentro, flutuando */
+  | { kind: "logo"; project: "praxis" | "ponte" | "benevo" | "limpattack"; ratio: Ratio };
 
 export interface FrontistaRow {
   /** 1 = anda para a esquerda, -1 = para a direita */
@@ -45,6 +47,7 @@ export const FRONTISTA_ROWS: FrontistaRow[] = [
       { kind: "note", text: "front\n+ batista", tag: "@frontista", ratio: "1/1", accent: "green", display: true },
       { kind: "video", src: V + "joao-fala.webm", poster: V + "joao-fala.jpg", ratio: "9/16", title: "@frontista" },
       { kind: "motion", project: "praxis", ratio: "4/5" },
+      { kind: "logo", project: "ponte", ratio: "1/1" },
       { kind: "note", text: { pt: "Programação não precisa ser difícil de entender. Só precisa ser bem explicada.", en: "Programming doesn't have to be hard to understand. It just has to be well explained." }, tag: "manifesto", ratio: "3/4", accent: "cyan" },
       { kind: "image", src: V + "foto-porto-digital.jpg", alt: { pt: "Letreiro do Porto Digital, em Recife", en: "Porto Digital sign in Recife" }, ratio: "3/4", title: "Porto Digital · Recife" },
       { kind: "motion", project: "confluencia", ratio: "16/9" },
@@ -57,11 +60,12 @@ export const FRONTISTA_ROWS: FrontistaRow[] = [
       { kind: "motion", project: "nyxa", ratio: "1/1" },
       { kind: "note", text: { pt: "> levar código para quem não veio da área", en: "> bring code to people outside tech" }, tag: { pt: "missão 02", en: "mission 02" }, ratio: "16/9", accent: "pink" },
       { kind: "video", src: V + "praxis.webm", poster: V + "praxis.jpg", ratio: "16/9", title: "Praxis", href: "https://demo-praxis.vercel.app/" },
+      { kind: "logo", project: "benevo", ratio: "4/5" },
       { kind: "image", src: V + "foto-espelho.jpg", alt: { pt: "João em uma foto no espelho", en: "João in a mirror photo" }, ratio: "3/4" },
       { kind: "motion", project: "capsula", ratio: "4/5" },
       { kind: "image", src: V + "foto-ponte-stand.jpg", alt: { pt: "Estande do P.O.N.T.E. com notebook e cartaz do projeto", en: "P.O.N.T.E. booth with a laptop and the project poster" }, ratio: "3/4", title: "P.O.N.T.E." },
       { kind: "motion", project: "vessa", ratio: "16/9" },
-      { kind: "note", text: { pt: "transmissão\nem andamento", en: "broadcast\nin progress" }, tag: { pt: "● ao vivo", en: "● live" }, ratio: "1/1", accent: "cyan", display: true },
+      { kind: "note", text: { pt: "um projeto\npor vez", en: "one project\nat a time" }, tag: { pt: "● acompanhe", en: "● follow along" }, ratio: "1/1", accent: "cyan", display: true },
       { kind: "motion", project: "nina", ratio: "3/4" },
     ],
   },
@@ -76,6 +80,7 @@ export const FRONTISTA_ROWS: FrontistaRow[] = [
       { kind: "image", src: V + "foto-hacka-business.jpg", alt: { pt: "Telão do Hacka Business com a frase Experimente, aprenda, construa", en: "Hacka Business screen reading Experiment, learn, build" }, ratio: "3/4", title: "Hacka Business · Avanade" },
       { kind: "note", text: { pt: "> tornar o aprendizado leve e acessível", en: "> make learning light and accessible" }, tag: { pt: "missão 04", en: "mission 04" }, ratio: "1/1", accent: "pink" },
       { kind: "motion", project: "limpattack", ratio: "16/9" },
+      { kind: "logo", project: "limpattack", ratio: "1/1" },
       { kind: "note", text: { pt: "bastidores,\nprocesso e\nprojetos", en: "behind the\nscenes, process\n& projects" }, tag: "reels · tiktok", ratio: "3/4", accent: "cyan", display: true },
     ],
   },
@@ -83,11 +88,12 @@ export const FRONTISTA_ROWS: FrontistaRow[] = [
     dir: -1, speed: 44, height: [220, 150],
     tiles: [
       { kind: "video", src: V + "bastidores-notebook.webm", poster: V + "bastidores-notebook.jpg", ratio: "9/16", title: { pt: "Bastidores", en: "Behind the scenes" } },
-      { kind: "note", text: { pt: "projetos\nrodando de\nverdade", en: "projects\nrunning\nfor real" }, tag: "● rec", ratio: "1/1", accent: "pink", display: true },
+      { kind: "note", text: { pt: "projetos\nno ar", en: "projects\nlive" }, tag: "● rec", ratio: "1/1", accent: "pink", display: true },
       { kind: "video", src: V + "confluencia.webm", poster: V + "confluencia.jpg", ratio: "16/9", title: "Confluência", href: "https://confluencia-liart.vercel.app/" },
       { kind: "image", src: V + "foto-aula.jpg", alt: { pt: "Sala de aula com o professor explicando o modelo OSI", en: "Classroom with the teacher explaining the OSI model" }, ratio: "9/16", title: { pt: "Em aula", en: "In class" } },
       { kind: "note", text: { pt: "> do Figma ao deploy", en: "> from Figma to deploy" }, tag: { pt: "processo", en: "process" }, ratio: "4/5", accent: "green" },
       { kind: "video", src: V + "capsula.webm", poster: V + "capsula.jpg", ratio: "16/9", title: "Cápsula", href: "https://capsula-mvp.vercel.app/" },
+      { kind: "logo", project: "praxis", ratio: "4/5" },
       { kind: "image", src: V + "foto-selfie.jpg", alt: { pt: "João em uma selfie no espelho", en: "João taking a mirror selfie" }, ratio: "9/16" },
     ],
   },

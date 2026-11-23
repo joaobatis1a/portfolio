@@ -690,11 +690,7 @@ export default function Training() {
             {" "}{t("Formação", "Education")}{" "}
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
-          <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            {t("// cada nó é um capítulo", "// every node is a chapter")}
-          </p>
-          <p className="mt-2 text-sm text-zinc-500 hidden md:block">{t("Passe o mouse nos marcadores · Cada ano guarda uma história", "Hover over the markers · Every year holds a story")}</p>
-          <p className="mt-2 text-sm text-zinc-500 md:hidden">{t("Toque nos marcadores · Cada ano guarda uma história", "Tap the markers · Every year holds a story")}</p>
+          <p className="mt-4 mx-auto max-w-xl text-sm leading-relaxed text-zinc-400">{t("Cursos, certificados e a trajetória que me trouxe até aqui.", "Courses, certificates and the path that brought me here.")}</p>
         </div>
 
         {/* ══════════════════════════════════

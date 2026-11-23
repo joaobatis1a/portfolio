@@ -182,9 +182,7 @@ export default function Experience() {
             {" "}{t("Experiência", "Experience")}{" "}
             <span className="text-emerald-400/40 font-light">/&gt;</span>
           </h2>
-          <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            {t("// primeira missão profissional", "// first professional mission")}
-          </p>
+          <p className="mt-4 mx-auto max-w-xl text-sm leading-relaxed text-zinc-400">{t("Da teoria à rotina de trabalho.", "From theory to everyday work.")}</p>
         </div>
 
         {/* ── Ficha de missão ── */}

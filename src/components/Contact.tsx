@@ -41,7 +41,7 @@ function ContactCard({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="contact-card group relative flex flex-col gap-4 rounded-2xl p-7 text-left"
+            className="contact-card group relative flex flex-col gap-3 rounded-2xl p-5 text-left"
             style={{
                 background: "rgba(255,255,255,0.02)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -53,15 +53,15 @@ function ContactCard({
             />
 
             <div
-                className="relative flex h-12 w-12 items-center justify-center rounded-xl"
-                style={{ background: accents.iconBg }}
+                className="relative flex h-10 w-10 items-center justify-center rounded-xl"
+                style={{ background: accents.iconBg, boxShadow: `inset 0 0 0 1px ${accents.ring}` }}
             >
                 <span className={accents.text}>{icon}</span>
             </div>
 
             <div className="relative flex flex-col gap-1.5">
-                <h3 className="text-lg font-semibold text-white">{title}</h3>
-                <p className="text-sm leading-relaxed text-zinc-400">{desc}</p>
+                <h3 className="text-base font-semibold text-white">{title}</h3>
+                <p className="text-[13px] leading-relaxed text-zinc-400">{desc}</p>
             </div>
 
             <span
@@ -89,7 +89,7 @@ function FeaturedEmailCard({ href }: { href: string }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="featured-card group relative flex flex-col items-start gap-5 overflow-hidden rounded-3xl p-8 text-left sm:col-span-2 sm:flex-row sm:items-center sm:gap-8 sm:p-10"
+            className="featured-card group relative flex h-full flex-col items-start justify-between gap-6 overflow-hidden rounded-3xl p-8 text-left sm:col-span-3 sm:p-9"
             style={{
                 background: "linear-gradient(135deg, rgba(52,211,153,0.08), rgba(34,211,238,0.06))",
                 border: "1px solid rgba(52,211,153,0.3)",
@@ -109,19 +109,19 @@ function FeaturedEmailCard({ href }: { href: string }) {
                 </svg>
             </div>
 
-            <div className="relative flex flex-1 flex-col gap-2">
+            <div className="relative flex flex-col gap-2">
                 <span className="text-xs font-medium uppercase tracking-widest text-emerald-400/70">
                     {t("Canal principal", "Main channel")}
                 </span>
-                <h3 className="text-2xl font-bold text-white">E-mail</h3>
-                <p className="text-sm leading-relaxed text-zinc-300 sm:max-w-md">
+                <h3 className="text-3xl font-bold text-white">E-mail</h3>
+                <p className="text-sm leading-relaxed text-zinc-300">
                     {t("A forma mais rápida de falar comigo, seja pra orçamento, dúvida ou oportunidade. Respondo em até 24h.",
                        "The fastest way to reach me, whether it's a quote, a question or an opportunity. I reply within 24h.")}
                 </p>
             </div>
 
             <span
-                className="featured-card-cta relative mt-2 inline-flex shrink-0 items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black sm:mt-0"
+                className="featured-card-cta relative inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black"
                 style={{ background: "linear-gradient(135deg, #34d399, #22d3ee)" }}
             >
                 <span className="relative z-10">{t("Enviar e-mail", "Send email")}</span>
@@ -168,29 +168,25 @@ function Contact() {
             />
 
             <div className="relative z-10 w-full max-w-3xl text-center">
-                <p className="text-xs tracking-widest text-emerald-500/40 uppercase">
-                    {t("// vamos construir algo juntos", "// let's build something together")}
-                </p>
-                <h2 className="mt-3 text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
+                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
                     <span className="text-emerald-400/40 font-light">&lt;</span>
                     {" "}{t("Contato", "Contact")}{" "}
                     <span className="text-emerald-400/40 font-light">/&gt;</span>
                 </h2>
 
-                <p className="mx-auto mt-6 max-w-xl text-sm md:text-base leading-relaxed text-zinc-400">
-                    {t("Estou aberto a oportunidades e networking, e também desenvolvo", "I'm open to opportunities and networking, and I also build")}{" "}
-                    <span className="text-zinc-200">{t("sites e soluções web sob orçamento", "websites and web solutions on request")}</span>.{" "}
-                    {t("Toda mensagem tem resposta.", "Every message gets a reply.")}
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">
+                    {t("Aberto a oportunidades, networking e sites sob orçamento. Toda mensagem tem resposta.", "Open to opportunities, networking and custom websites. Every message gets a reply.")}
                 </p>
             </div>
 
             {/* Cards de contato */}
             <div
                 onMouseMove={handleMouseMove}
-                className="relative z-10 mt-14 grid w-full max-w-3xl grid-cols-1 gap-5 sm:grid-cols-2"
+                className="relative z-10 mt-14 grid w-full max-w-3xl grid-cols-1 gap-5 sm:grid-cols-5"
             >
                 <FeaturedEmailCard href={emailHref} />
 
+                <div className="flex flex-col gap-5 sm:col-span-2">
                 <ContactCard
                     accent="emerald"
                     href="https://github.com/joaobatis1a"
@@ -215,6 +211,7 @@ function Contact() {
                         </svg>
                     }
                 />
+                </div>
             </div>
 
             <style>{`
