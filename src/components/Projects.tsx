@@ -1,281 +1,7 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties } from "react";
+import "./Projects.css";
+import { UNLOCKED } from "../data/projects";
 import { useLang, type L10n } from "../i18n/context";
-
-/* ── Data ── */
-interface UnlockedProjectData {
-  id: string;
-  name: string;
-  period: L10n;
-  shortDesc: L10n;
-  fullDesc: L10n;
-  role: L10n;
-  stack: string[];
-  github: string | null;
-  demo: string | null;
-  trailer: string | null;
-  award: L10n | null;
-  /** ilha do arquipélago: projetos solo ou em equipe */
-  island: "solo" | "team";
-  /** logo do projeto em public/logos/projects */
-  logo: string;
-  /** placa escura atrás da logo: só para marcas transparentes que somem sobre o brilho (ex.: Praxis) */
-  plate?: boolean;
-  mx: number;
-  my: number;
-  color: {
-    base: string;
-    glow: string;
-    bg: string;
-    border: string;
-    text: string;
-    ping: string;
-    hex: string;
-    solid: string;
-  };
-}
-
-/* Paleta no formato usado pelos marcadores, a partir de uma cor base (r, g, b) e de uma cor clara para o texto. */
-function palette(r: number, g: number, b: number, tr: number, tg: number, tb: number, hex: string) {
-  return {
-    base: `rgba(${r},${g},${b},0.95)`,
-    glow: `rgba(${r},${g},${b},0.6)`,
-    bg: `rgba(${r},${g},${b},0.12)`,
-    border: `rgba(${r},${g},${b},0.4)`,
-    text: `rgba(${tr},${tg},${tb},0.95)`,
-    ping: `rgba(${r},${g},${b},0.3)`,
-    hex,
-    solid: `rgba(${r},${g},${b},0.08)`,
-  };
-}
-
-const UNLOCKED: UnlockedProjectData[] = [
-  {
-    id: "kairos",
-    name: "Kairos",
-    period: { pt: "Jun 2026 – Set 2026", en: "Jun 2026 – Sep 2026" },
-    shortDesc: { pt: "Agendamento pra barbearias: o cliente marca sozinho pelo link e o dono vê agenda, equipe e faturamento num painel.", en: "Booking for barbershops: clients book on their own through a link and the owner tracks schedule, team and revenue in one dashboard." },
-    fullDesc: { pt: "Cada barbearia ganha um link próprio pra botar na bio. O cliente escolhe serviço, barbeiro e horário sozinho, e o dono acompanha agenda, equipe e faturamento num painel só. Fiz sozinho, do banco ao deploy, em Next.js e Supabase: cada barbearia fica isolada no Postgres com Row Level Security, a agenda atualiza em tempo real, o app instala como PWA e os e-mails de confirmação e lembrete saem automáticos pela Resend.", en: "Each barbershop gets its own link to put in its bio. Clients pick the service, barber and time on their own, and the owner tracks schedule, team and revenue in a single dashboard. I built it alone, from database to deploy, with Next.js and Supabase: each shop is isolated in Postgres with Row Level Security, the schedule updates in real time, the app installs as a PWA and confirmation and reminder emails go out automatically through Resend." },
-    role: { pt: "Desenvolvedor Full-stack (solo)", en: "Full-stack Developer (solo)" },
-    stack: ["Next.js", "React", "TypeScript", "Tailwind", "Supabase", "Resend"],
-    github: "https://github.com/joaobatis1a/kairos",
-    demo: "https://kairos-demo-rouge.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "solo", logo: "/logos/projects/kairos.svg",
-    mx: 250, my: 215,
-    color: {
-      base: "rgba(244,63,94,0.95)",
-      glow: "rgba(244,63,94,0.6)",
-      bg: "rgba(244,63,94,0.12)",
-      border: "rgba(251,113,133,0.4)",
-      text: "rgba(253,164,175,0.95)",
-      ping: "rgba(244,63,94,0.3)",
-      hex: "#f43f5e",
-      solid: "rgba(244,63,94,0.08)",
-    },
-  },
-  {
-    id: "praxis",
-    name: "Praxis",
-    period: { pt: "Mai 2026 – Jul 2026", en: "May 2026 – Jul 2026" },
-    shortDesc: { pt: "Gestão do conhecimento: documentos, procedimentos e avisos da equipe num lugar só. Nasceu no meu trabalho.", en: "Knowledge management: a team's documents, procedures and announcements in one place. Born at my job." },
-    fullDesc: { pt: "Nasceu de um problema que vi no meu trabalho no Grupo ACLF: documentos e procedimentos espalhados e sem padrão. Juntei tudo num lugar só: documentos versionados, procedimentos com checklist e responsável, avisos internos e suporte, com acesso por cargo. Fiz sozinho, do banco à tela: modelei o Postgres no Supabase com Row Level Security e montei o front em React, com design system próprio e tema claro e escuro. Uso na minha rotina e apresentei a proposta ao setor.", en: "It came from a problem I saw at my job at Grupo ACLF: documents and procedures scattered with no standard. I brought it all into one place: versioned documents, procedures with checklists and owners, internal announcements and support, with role-based access. I built it alone, from database to UI: I modeled Postgres on Supabase with Row Level Security and built the front end in React, with its own design system and light and dark themes. I use it in my daily routine and presented the proposal to my department." },
-    role: { pt: "Desenvolvedor Full-stack (solo)", en: "Full-stack Developer (solo)" },
-    stack: ["React", "TypeScript", "Tailwind", "Supabase", "Vite"],
-    github: "https://github.com/joaobatis1a/praxis",
-    demo: "https://demo-praxis.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "solo", logo: "/logos/projects/praxis.png", plate: true,
-    mx: 535, my: 200,
-    color: {
-      base: "rgba(20,184,166,0.95)",
-      glow: "rgba(20,184,166,0.6)",
-      bg: "rgba(20,184,166,0.12)",
-      border: "rgba(45,212,191,0.4)",
-      text: "rgba(153,246,228,0.95)",
-      ping: "rgba(20,184,166,0.3)",
-      hex: "#14b8a6",
-      solid: "rgba(20,184,166,0.08)",
-    },
-  },
-  {
-    id: "confluencia",
-    name: "Confluência",
-    period: { pt: "Out 2026 – Nov 2026", en: "Oct 2026 – Nov 2026" },
-    shortDesc: { pt: "Plataforma cívica do Recife: o cidadão relata problemas num mapa 3D, vota nas soluções e acompanha a obra.", en: "Civic platform for Recife: citizens report problems on a 3D map, vote on solutions and follow the public works." },
-    fullDesc: { pt: "Fecha o ciclo entre o problema e a obra: o cidadão relata no mapa, o relato ganha peso pelos apoios, o órgão público responde em público, transforma o relato em projeto, abre consulta com voto secreto e comprovante verificável e publica a obra numa linha do tempo com prazos. Fui o líder do time de três: coordenei as entregas semanais, revisei os pull requests, criei a base do projeto e o Feed com o mapa 3D (MapLibre GL e deck.gl) e redesenhei landing, login, perfil e projetos. Apresentação à banca em dezembro de 2026.", en: "It closes the loop between a problem and the public work: citizens report on the map, reports gain weight through support, the public agency responds publicly, turns the report into a project, opens a consultation with a secret ballot and a verifiable receipt, and publishes the work on a timeline with deadlines. I led the team of three: I coordinated the weekly deliveries, reviewed pull requests, created the project foundation and the Feed with the 3D map (MapLibre GL and deck.gl), and redesigned landing, login, profile and projects. Presentation to the panel in December 2026." },
-    role: { pt: "Líder da equipe (time de 3)", en: "Team lead (team of 3)" },
-    stack: ["React", "TypeScript", "Vite", "Tailwind", "MapLibre GL", "deck.gl", "Supabase"],
-    github: "https://github.com/joaobatis1a/confluencia",
-    demo: "https://confluencia-liart.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "team", logo: "/logos/projects/confluencia.png",
-    mx: 400, my: 320,
-    color: palette(245, 184, 0, 254, 240, 138, "#f5b800"),
-  },
-  {
-    id: "nyxa",
-    name: "Nyxa",
-    period: { pt: "Out 2026", en: "Oct 2026" },
-    shortDesc: { pt: "Marketplace de NFTs com preço e estoque em tempo real e uma compra que não quebra com rede lenta ou clique repetido.", en: "NFT marketplace with real-time price and stock and a checkout that doesn't break on a slow network or repeated clicks." },
-    fullDesc: { pt: "Marketplace de arte digital com catálogo, favoritos, carrinho, checkout e conta. Preço e estoque mudam em tempo real pelo Socket.IO, e o pedido é idempotente: clique repetido ou resposta perdida nunca criam duas compras. A API e o tempo real são simulados com MSW, com 16 cenários de falha num painel dentro do app. Defini os requisitos e a arquitetura (cache com TanStack Query e reconciliação do tempo real) e rodei e depurei os 41 testes E2E e a auditoria Lighthouse. Projeto pessoal, com marca fictícia.", en: "Digital art marketplace with catalog, favorites, cart, checkout and account. Price and stock change in real time via Socket.IO, and orders are idempotent: a repeated click or a lost response never creates two purchases. The API and real-time layer are mocked with MSW, with 16 failure scenarios in an in-app panel. I defined the requirements and architecture (caching with TanStack Query and real-time reconciliation) and ran and debugged the 41 E2E tests and the Lighthouse audit. Personal project with a fictional brand." },
-    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
-    stack: ["React", "TypeScript", "TanStack Query", "Socket.IO", "MSW", "Tailwind"],
-    github: "https://github.com/joaobatis1a/nyxa",
-    demo: "https://nyxa-nft-marketplace.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "solo", logo: "/logos/projects/nyxa.svg",
-    mx: 395, my: 335,
-    color: palette(210, 138, 76, 240, 196, 150, "#d28a4c"),
-  },
-  {
-    id: "capsula",
-    name: "Cápsula",
-    period: { pt: "Out 2026", en: "Oct 2026" },
-    shortDesc: { pt: "Estúdio criativo com IA para marketing de farmácia, criado no Hacka Business da Avanade.", en: "AI creative studio for pharmacy marketing, built at Avanade's Hacka Business." },
-    fullDesc: { pt: "Transforma o briefing de uma campanha em peças para feed, story e banner. Antes de escrever, consulta o que já funcionou, o que está em alta e a sazonalidade da saúde. Cada peça mostra de onde veio cada ideia e passa por um checklist baseado na RDC 96/2008 da Anvisa, que bloqueia o que não pode ir ao ar e explica o motivo; nada é publicado sem aprovação humana. Fui Product Owner e principal desenvolvedor num time de três, com geração via Gemini e RAG e contratos validados com Zod no navegador e no servidor.", en: "It turns a campaign brief into pieces for feed, story and banner. Before writing, it checks what has worked before, what's trending and health seasonality. Each piece shows where every idea came from and goes through a checklist based on Anvisa's RDC 96/2008, which blocks what can't go live and explains why; nothing is published without human approval. I was Product Owner and lead developer on a team of three, with generation via Gemini and RAG and contracts validated with Zod on the client and the server." },
-    role: { pt: "Product Owner & dev principal (time de 3)", en: "Product Owner & lead dev (team of 3)" },
-    stack: ["Next.js", "React", "TypeScript", "Zod", "Gemini"],
-    github: "https://github.com/joaobatis1a/capsula",
-    demo: "https://capsula-mvp.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "team", logo: "/logos/projects/capsula.svg",
-    mx: 560, my: 440,
-    color: palette(99, 102, 241, 169, 174, 255, "#4c4fe8"),
-  },
-  {
-    id: "vessa",
-    name: "VESSA",
-    period: { pt: "Out 2026", en: "Oct 2026" },
-    shortDesc: { pt: "Landing page de moda costurada por um fio animado que acompanha a rolagem do início ao fim.", en: "Fashion landing page stitched together by an animated thread that follows the scroll from start to finish." },
-    fullDesc: { pt: "Landing page editorial para uma marca de roupas fictícia: um fio animado nasce no logo, acompanha a rolagem com curvas e nós e termina amarrado no rodapé. Tem cenas presas ao scroll, galeria horizontal, menu com revelação circular e pedido montado direto no WhatsApp. Fiz sozinho, do conceito ao deploy, com a geometria do fio calculada em JavaScript puro para a rolagem não travar, além de SEO e analytics.", en: "Editorial landing page for a fictional clothing brand: an animated thread is born in the logo, follows the scroll with curves and knots and ends tied at the footer. It has scroll-pinned scenes, a horizontal gallery, a menu with a circular reveal and orders put together straight into WhatsApp. I built it alone, from concept to deploy, with the thread geometry computed in plain JavaScript so scrolling doesn't stutter, plus SEO and analytics." },
-    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
-    stack: ["Next.js", "React", "TypeScript", "Tailwind", "Framer Motion", "Lenis"],
-    github: "https://github.com/joaobatis1a/vessa",
-    demo: "https://vessa-atelie.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "solo", logo: "/logos/projects/vessa.svg",
-    mx: 245, my: 440,
-    color: palette(232, 195, 175, 250, 228, 215, "#e8c3af"),
-  },
-  {
-    id: "nina",
-    name: "Nina Brinquedos",
-    period: { pt: "Set 2026", en: "Sep 2026" },
-    shortDesc: { pt: "Loja virtual de brinquedos com busca, filtros, carrinho, favoritos e checkout em etapas.", en: "Toy store with search, filters, cart, favorites and a step-by-step checkout." },
-    fullDesc: { pt: "MVP de e-commerce para uma marca fictícia, feito do zero com foco em UX/UI: home com destaques, busca com sugestões, filtros por marca, preço e faixa etária, página de produto com galeria e avaliações, carrinho, favoritos, conta e checkout simulado em etapas, com formulários validados por React Hook Form e Zod. Projeto só de front-end, com dados simulados.", en: "E-commerce MVP for a fictional brand, built from scratch with a focus on UX/UI: home with highlights, search with suggestions, filters by brand, price and age range, product page with gallery and reviews, cart, favorites, account and a simulated step-by-step checkout, with forms validated by React Hook Form and Zod. Front-end only, with mock data." },
-    role: { pt: "Desenvolvedor Front-end (solo)", en: "Front-end Developer (solo)" },
-    stack: ["Next.js", "React", "TypeScript", "Tailwind", "React Hook Form", "Zod"],
-    github: "https://github.com/joaobatis1a/ninabrinquedos",
-    demo: "https://ninabrinquedos-mvp.vercel.app/",
-    trailer: null,
-    award: null,
-    island: "solo", logo: "/logos/projects/nina.svg",
-    mx: 555, my: 440,
-    color: palette(139, 92, 246, 196, 181, 253, "#8b5cf6"),
-  },
-  {
-    id: "ponte",
-    name: "P.O.N.T.E",
-    period: { pt: "Fev 2026 – Jun 2026", en: "Feb 2026 – Jun 2026" },
-    shortDesc: { pt: "Conecta jovens do Nordeste a oportunidades reais, com um assistente de IA que identifica habilidades a partir de conversas.", en: "Connects young people in Brazil's Northeast to real opportunities, with an AI assistant that identifies skills from conversations." },
-    fullDesc: { pt: "Plataforma de Oportunidades para Novos Talentos Emergentes: conecta jovens do Nordeste a vagas, cursos e eventos de empresas locais, com gamificação por XP e ranking e o Manguelito, um assistente de IA que identifica habilidades a partir de conversas. Fui co-líder e Scrum Master num time de cinco: conduzi os rituais ágeis e a frente de design e front-end, com prototipação no Figma, rotas, componentização e handoff para o time. O back-end roda em Python, FastAPI e MongoDB. Eleita a melhor proposta de software pela banca da UNIFAFIRE.", en: "Opportunity Platform for New Emerging Talent: it connects young people in Brazil's Northeast to jobs, courses and events from local companies, with XP and ranking gamification and Manguelito, an AI assistant that identifies skills from conversations. I was co-lead and Scrum Master on a team of five: I ran the agile ceremonies and led design and front end, with Figma prototyping, routing, componentization and handoff to the team. The back end runs on Python, FastAPI and MongoDB. Chosen as the best software proposal by the UNIFAFIRE panel." },
-    role: { pt: "Co-líder & Scrum Master", en: "Co-lead & Scrum Master" },
-    stack: ["HTML", "CSS", "JavaScript", "Python", "FastAPI", "MongoDB", "Figma"],
-    github: "https://github.com/joaobatis1a/ponte",
-    demo: "https://ponte-demo.vercel.app/",
-    trailer: null,
-    award: { pt: "🏆 1º Lugar", en: "🏆 1st Place" },
-    island: "team", logo: "/logos/projects/ponte.png",
-    mx: 255, my: 205,
-    color: {
-      base: "rgba(249,115,22,0.95)",
-      glow: "rgba(249,115,22,0.6)",
-      bg: "rgba(249,115,22,0.12)",
-      border: "rgba(249,115,22,0.35)",
-      text: "rgba(253,186,116,0.95)",
-      ping: "rgba(249,115,22,0.3)",
-      hex: "#f97316",
-      solid: "rgba(249,115,22,0.08)",
-    },
-  },
-  {
-    id: "benevo",
-    name: "Benevo",
-    period: { pt: "Jul 2025 – Dez 2025", en: "Jul 2025 – Dec 2025" },
-    shortDesc: { pt: "Sistema de gestão de doações para ONGs com controle de estoque, recebimento e distribuição de itens.", en: "Donation management system for NGOs with inventory control, intake and distribution of items." },
-    fullDesc: { pt: "Sistema para ONGs controlarem estoque, recebimento e distribuição de itens aos beneficiários, com foco em transparência e menos burocracia. Fui co-líder e Scrum Master durante todos os sprints e liderei a frente de front-end, definindo a arquitetura de componentes e os padrões visuais das telas. HTML, CSS e JavaScript no front; Java e MongoDB no back. Ficou em 2º lugar na banca técnica da UNIFAFIRE.", en: "A system for NGOs to manage inventory, intake and distribution of items to beneficiaries, focused on transparency and less red tape. I was co-lead and Scrum Master through every sprint and led the front end, defining the component architecture and the visual standards of the screens. HTML, CSS and JavaScript on the front; Java and MongoDB on the back. Took 2nd place at the UNIFAFIRE technical panel." },
-    role: { pt: "Co-líder & Scrum Master", en: "Co-lead & Scrum Master" },
-    stack: ["HTML", "CSS", "JavaScript", "Java", "MongoDB"],
-    github: "https://github.com/joaobatis1a/benevo",
-    demo: "https://benevo-demo.vercel.app/",
-    trailer: null,
-    award: { pt: "🥈 2º Lugar", en: "🥈 2nd Place" },
-    island: "team", logo: "/logos/projects/benevo.svg",
-    mx: 545, my: 200,
-    color: {
-      base: "rgba(59,130,246,0.95)",
-      glow: "rgba(59,130,246,0.6)",
-      bg: "rgba(59,130,246,0.12)",
-      border: "rgba(59,130,246,0.35)",
-      text: "rgba(147,197,253,0.95)",
-      ping: "rgba(59,130,246,0.3)",
-      hex: "#3b82f6",
-      solid: "rgba(59,130,246,0.08)",
-    },
-  },
-  {
-    id: "limpattack",
-    name: "Limpattack",
-    period: { pt: "Fev 2025 – Jul 2025", en: "Feb 2025 – Jul 2025" },
-    shortDesc: { pt: "Jogo educativo inspirado em Pokémon, para crianças de 6 a 10 anos. Foco em higiene e combate a bactérias.", en: "Pokémon-inspired educational game for kids aged 6 to 10, focused on hygiene and fighting germs." },
-    fullDesc: { pt: "Jogo educativo inspirado em Pokémon para crianças de 6 a 10 anos, com sprites, mapas interativos e mecânicas de RPG, que ensina hábitos de higiene e o combate às bactérias. Fui responsável pelas mecânicas de jogo e pela produção do trailer oficial, num time da UNIFAFIRE. Ficou em 1º lugar entre 8 equipes e foi aplicado com crianças. Python e Pygame.", en: "Pokémon-inspired educational game for kids aged 6 to 10, with sprites, interactive maps and RPG mechanics, that teaches hygiene habits and fighting germs. I was responsible for the game mechanics and for producing the official trailer, on a UNIFAFIRE team. It took 1st place among 8 teams and was used with children. Python and Pygame." },
-    role: { pt: "Mecânicas de jogo & trailer", en: "Game mechanics & trailer" },
-    stack: ["Python", "Pygame"],
-    github: "https://github.com/joaobatis1a/limpattack",
-    demo: "https://limpattack.vercel.app/",
-    trailer: "/trailer_limpattack.mp4",
-    award: { pt: "🏆 1º Lugar", en: "🏆 1st Place" },
-    island: "team", logo: "/logos/projects/limpattack.png",
-    mx: 245, my: 430,
-    color: {
-      base: "rgba(251,191,36,0.95)",
-      glow: "rgba(251,191,36,0.6)",
-      bg: "rgba(251,191,36,0.12)",
-      border: "rgba(251,191,36,0.35)",
-      text: "rgba(253,230,138,0.95)",
-      ping: "rgba(251,191,36,0.3)",
-      hex: "#FBbf24",
-      solid: "rgba(251,191,36,0.08)",
-    },
-  },
-];
-
-type UnlockedProject = UnlockedProjectData;
-
-const ISLAND_PATH = `
-  M 110 330
-  C  75 280,  65 220,  95 175
-  C 120 138, 165 115, 215 100
-  C 260  87, 295  70, 350  62
-  C 400  55, 445  46, 495  58
-  C 545  70, 575  92, 610 112
-  C 648 133, 675 155, 698 182
-  C 725 212, 730 246, 724 278
-  C 718 308, 700 332, 688 358
-  C 670 392, 664 420, 644 448
-  C 620 480, 590 500, 556 516
-  C 520 532, 482 540, 448 546
-  C 410 552, 372 554, 334 549
-  C 292 543, 252 526, 220 508
-  C 184 488, 156 462, 138 432
-  C 118 400, 116 368, 110 330 Z
-`;
 
 /* ── Per-project card effects ── */
 
@@ -994,6 +720,44 @@ function NinaEffect() {
   );
 }
 
+// Driblou Caiu: o drible, a queda do marcador e o gol (cena em pixel, gerada como SVG a cada quadro)
+function DriblouEffect() {
+  const { t: tr } = useLang();
+  const t = useClock();
+  const f = (n: number) => Math.round(n * 100) / 100;
+  const sin = Math.sin, abs = Math.abs;
+  const r = (x: number, y: number, w: number, h: number, c: string, o?: number) =>
+    `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="${c}"${o === undefined ? "" : ` opacity="${f(o)}"`}/>`;
+  const ln = (x1: number, y1: number, x2: number, y2: number, c: string, w = 1) =>
+    `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${c}" stroke-width="${w}"/>`;
+  const R = "rgba(220,38,38,", Y = "rgba(250,204,21,", W = "rgba(255,255,255,";
+  const SK = "rgba(232,202,172,0.95)", DK = "rgba(24,24,24,0.95)";
+  const cy = 4.4, p = (t % cy) / cy, run = Math.min(1, p / 0.78), ax = 20 + run * 146, lp = t * 9, sw = sin(lp) > 0;
+  const bob = p < 0.78 ? abs(sin(lp)) * 1.4 : 0;
+  const fk = Math.min(1, Math.max(0, (p - 0.4) / 0.1));
+  const dodge = p > 0.3 && p < 0.48 ? -7 * sin(((p - 0.3) / 0.18) * Math.PI) : 0;
+  const goal = p > 0.8, k = goal ? Math.min(1, (p - 0.8) / 0.14) : 0;
+  let s = "";
+  for (let i = 0; i < 11; i++) s += r(i * 20, 112, 20, 10, i % 2 ? "rgba(34,197,94,0.11)" : "rgba(34,197,94,0.05)");
+  s += ln(0, 112, 220, 112, W + "0.32)") + ln(96, 112, 96, 122, W + "0.2)");
+  [[20, 20], [58, 12], [128, 16], [176, 26], [98, 26]].forEach(([x, y], i) => { s += r(x, y, 2, 2, Y + "0.5)", 0.25 + 0.5 * abs(sin(t * 1.1 + i))); });
+  s += r(196, 68, 3, 44, W + "0.9)") + r(196, 68, 24, 3, W + "0.9)");
+  for (let i = 0; i < 4; i++) s += r(202 + i * 5, 71, 1, 41, W + "0.18)");
+  for (let j = 0; j < 5; j++) s += r(199, 77 + j * 7, 21, 1, W + "0.18)");
+  if (k >= 1) s += r(199, 71, 21, 41, Y + f(0.28 * abs(sin(t * 10))) + ")");
+  s += `<g transform="translate(112,112) rotate(${f(fk * 86)})">${r(-4, -30, 8, 7, SK)}${r(-4, -32, 8, 3, DK)}${r(-5, -23, 10, 11, W + "0.92)")}${r(-4, -12, 3, 9, DK)}${r(1, -12, 3, 9, DK)}${r(-5, -3, 4, 3, W + "0.9)")}${r(1, -3, 4, 3, W + "0.9)")}</g>`;
+  if (fk >= 1) [[126, 96], [134, 88], [120, 86]].forEach(([x, y], i) => { s += `<g opacity="${f(0.45 + 0.45 * sin(t * 8 + i))}">${r(x, y - 2, 1.5, 5, Y + "0.95)")}${r(x - 2, y, 5, 1.5, Y + "0.95)")}</g>`; });
+  s += `<g transform="translate(${f(ax)},${f(112 - bob + dodge)})">${r(-4, -30, 8, 7, SK)}${r(-4, -32, 8, 3, "rgba(58,42,26,0.95)")}${r(-5, -23, 10, 11, R + "0.96)")}${r(-1, -23, 2, 11, W + "0.85)")}${r(sw ? -8 : 5, -21, 3, 6, SK)}${r(sw ? 5 : -8, -21, 3, 6, SK)}${r(sw ? -5 : -1, -12, 3, 9, DK)}${r(sw ? 1 : -4, -12, 3, 9, DK)}${r(sw ? -6 : -2, -3, 5, 3, Y + "0.95)")}${r(sw ? 0 : -5, -3, 5, 3, Y + "0.95)")}</g>`;
+  const bx = goal ? ax + 9 + k * (207 - ax - 9) : ax + 9 + (sw ? 2 : 0);
+  const by = goal ? 106 - 12 * sin(k * Math.PI) : 108 - abs(sin(lp)) * 3 + dodge * 0.6;
+  s += r(bx - 3, by - 3, 6, 6, "#fff") + r(bx - 1, by - 1, 2, 2, "#111");
+  for (let i = 0; i < 3; i++) { const dx = ax - 10 - i * 7, o = p < 0.78 ? Math.max(0, 0.3 - i * 0.1) * abs(sin(t * 9 + i)) : 0; s += r(dx, 110, 4, 2, W + "0.5)", o); }
+  const label = p < 0.4 ? "DRIBLOU" : p < 0.8 ? tr("CAIU", "FELL") : tr("GOL DO DRIBLOU CAIU", "DRIBLOU CAIU SCORES");
+  const lw = Math.max(70, label.length * 4.4 + 14);
+  s += `<rect x="${110 - lw / 2}" y="4" width="${lw}" height="12" rx="2" fill="${R}0.08)" stroke="${R}0.2)" stroke-width="0.5"/><text x="110" y="13" text-anchor="middle" fill="rgba(252,165,165,0.65)" font-size="6.5" font-family="monospace" letter-spacing="0.5">${label}</text>`;
+  return <svg viewBox="0 0 220 140" preserveAspectRatio="xMidYMid slice" shapeRendering="crispEdges" style={SVG_STYLE} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s }} />;
+}
+
 const CARD_EFFECTS: Record<string, React.FC> = {
   limpattack: LimpattackEffect,
   benevo: BenevoEffect,
@@ -1005,10 +769,11 @@ const CARD_EFFECTS: Record<string, React.FC> = {
   capsula: CapsulaEffect,
   vessa: VessaEffect,
   nina: NinaEffect,
+  driblou: DriblouEffect,
 };
 
 /* Animação de um projeto como tile solto (usada no carrossel do Frontista) */
-export function ProjectMotion({ id, fps = 60 }: { id: string; fps?: number }) {
+export function ProjectMotion({ id, fps = 60, bare = false }: { id: string; fps?: number; bare?: boolean }) {
   const Effect = CARD_EFFECTS[id];
   const p = UNLOCKED.find(u => u.id === id);
   if (!Effect || !p) return null;
@@ -1016,641 +781,244 @@ export function ProjectMotion({ id, fps = 60 }: { id: string; fps?: number }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 45%, ${c.bg}, rgba(3,7,5,0.97) 78%)` }}>
       <ClockFps.Provider value={fps}><Effect /></ClockFps.Provider>
-      <div style={{ position: "absolute", left: 12, right: 12, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+      {!bare && <div style={{ position: "absolute", left: 12, right: 12, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
         <span style={{ color: c.text, fontWeight: 600, fontSize: 13 }}>{p.name}</span>
         <span style={{ color: c.text, opacity: 0.5, fontSize: 9, fontFamily: "monospace", letterSpacing: 1, whiteSpace: "nowrap" }}>MOTION</span>
-      </div>
+      </div>}
     </div>
   );
 }
 
-/* ── Hover preview card for UNLOCKED ── */
-function UnlockedHoverCard({ project, svgX, svgY, svgW, svgH, visible }: {
-  project: UnlockedProject; svgX: number; svgY: number; svgW: number; svgH: number; visible: boolean;
-}) {
-  const { t, pick } = useLang();
-  const c = project.color;
-  const leftPct = (svgX / svgW) * 100;
-  const topPct = (svgY / svgH) * 100;
-  const flipLeft = leftPct > 55;
-  const flipUp = topPct > 60;
-  const Effect = CARD_EFFECTS[project.id];
+/* ── Seção Projetos: parede de monitores ──
+   Aparelho de TV (tela + painel de controle) à esquerda, parede de canais à direita e a ficha do projeto
+   abaixo da tela. Cada projeto assume as próprias cores e a fonte do repositório quando entra no ar. */
 
-  return (
-    <div style={{
-      position: "absolute",
-      left: `${leftPct}%`, top: `${topPct}%`,
-      transform: `translate(${flipLeft ? "calc(-100% - 14px)" : "22px"}, ${flipUp ? "calc(-100% + 14px)" : "-14px"})`,
-      zIndex: 60, pointerEvents: "none",
-      opacity: visible ? 1 : 0,
-      scale: visible ? "1" : "0.86",
-      transition: "opacity 0.2s ease, scale 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-      width: "230px",
-    }}>
-      {/* Connector dot */}
-      <div style={{
-        position: "absolute",
-        [flipLeft ? "right" : "left"]: "-8px", top: "22px",
-        width: "7px", height: "7px", borderRadius: "50%",
-        background: c.base, boxShadow: `0 0 10px ${c.glow}`,
-      }} />
+const PER_PAGE = 10;
 
-      <div style={{
-        background: "rgba(4,9,5,0.97)", border: `1px solid ${c.border}`,
-        borderRadius: "14px", overflow: "hidden",
-        boxShadow: `0 0 30px ${c.bg}, 0 8px 32px rgba(0,0,0,0.7)`,
-        position: "relative",
-      }}>
-        {/* Per-project animated background */}
-        {visible && Effect && (
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", borderRadius: "14px" }}>
-            <Effect />
-          </div>
-        )}
+/* personalidade de cada projeto: cor, segunda cor da marca, fonte do repositório e cor do texto sobre a cor */
+const THEME: Record<string, { c: string; c2: string; on: string; f: string; w: number; st?: string; ls: string; tt?: string; fs: number }> = {
+  kairos:      { c: "#f43f5e", c2: "#fda4af", on: "#fff",    f: "'Big Shoulders'", w: 800, tt: "uppercase", ls: ".01em", fs: 1 },
+  praxis:      { c: "#14b8a6", c2: "#4f7df9", on: "#02130a", f: "'Bricolage Grotesque'", w: 700, ls: "-.03em", fs: .82 },
+  confluencia: { c: "#f5b800", c2: "#fef08a", on: "#1a1400", f: "'Instrument Serif'", w: 400, st: "italic", ls: "-.01em", fs: .92 },
+  nyxa:        { c: "#d28a4c", c2: "#f0c496", on: "#140d0a", f: "'Roboto Mono'", w: 700, tt: "uppercase", ls: "-.05em", fs: .7 },
+  capsula:     { c: "#6366f1", c2: "#ff5a1f", on: "#fff",    f: "'Nunito Sans'", w: 900, ls: "-.03em", fs: .8 },
+  vessa:       { c: "#e8c3af", c2: "#bd5b35", on: "#16130d", f: "'Cormorant Garamond'", w: 600, st: "italic", ls: ".01em", fs: .98 },
+  nina:        { c: "#8b5cf6", c2: "#f2600a", on: "#fff",    f: "'Baloo 2'", w: 800, ls: "-.01em", fs: .8 },
+  ponte:       { c: "#f97316", c2: "#fdba74", on: "#1c0a00", f: "'Sora'", w: 800, ls: "-.04em", fs: .7 },
+  benevo:      { c: "#3b82f6", c2: "#93c5fd", on: "#fff",    f: "'Shrikhand'", w: 400, ls: "0", fs: .78 },
+  limpattack:  { c: "#fbbf24", c2: "#fb923c", on: "#1c1917", f: "'Press Start 2P'", w: 400, ls: "-.02em", fs: .4 },
+  driblou:     { c: "#dc2626", c2: "#facc15", on: "#fff",    f: "'Big Shoulders Stencil','Big Shoulders'", w: 800, tt: "uppercase", ls: ".02em", fs: 1 },
+};
 
-        {/* Header */}
-        <div style={{ padding: "10px 12px 8px", borderBottom: `1px solid ${c.solid}`, position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: c.base, boxShadow: `0 0 7px ${c.glow}` }} />
-              <span style={{ color: c.text, fontSize: "9px", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.7, fontFamily: "monospace" }}>
-                {pick(project.period)}
-              </span>
-            </div>
-            {project.award && (
-              <span style={{ fontSize: "9px", fontWeight: 700, padding: "1px 7px", borderRadius: "20px", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
-                {pick(project.award)}
-              </span>
-            )}
-          </div>
-        </div>
+const CATEGORY: Record<string, L10n> = {
+  kairos:      { pt: "SaaS de agendamento", en: "Booking SaaS" },
+  praxis:      { pt: "Gestão do conhecimento", en: "Knowledge management" },
+  confluencia: { pt: "Plataforma cívica", en: "Civic platform" },
+  nyxa:        { pt: "Marketplace de NFTs", en: "NFT marketplace" },
+  capsula:     { pt: "Estúdio criativo com IA", en: "AI creative studio" },
+  vessa:       { pt: "Landing page editorial", en: "Editorial landing page" },
+  nina:        { pt: "Loja virtual", en: "Online store" },
+  ponte:       { pt: "Plataforma de oportunidades", en: "Opportunities platform" },
+  benevo:      { pt: "Gestão de doações", en: "Donation management" },
+  limpattack:  { pt: "Jogo educativo", en: "Educational game" },
+  driblou:     { pt: "Site de clube de Pro Clubs", en: "Pro Clubs club website" },
+};
 
-        <div style={{ padding: "10px 12px 12px", position: "relative" }}>
-          <div style={{ color: "white", fontWeight: 800, fontSize: "15px", marginBottom: "6px" }}>{project.name}</div>
-          <p style={{ color: "rgba(180,180,190,0.85)", fontSize: "10.5px", lineHeight: "1.55", marginBottom: "10px" }}>
-            {pick(project.shortDesc)}
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "8px" }}>
-            {project.stack.map(s => (
-              <span key={s} style={{ fontSize: "9px", padding: "2px 7px", borderRadius: "20px", fontWeight: 600, background: c.solid, border: `1px solid ${c.border}`, color: c.text }}>{s}</span>
-            ))}
-          </div>
-          <div style={{ fontSize: "9px", color: c.text, opacity: 0.45, textAlign: "center", borderTop: `1px solid ${c.solid}`, paddingTop: "7px", fontFamily: "monospace", letterSpacing: "1px" }}>
-            {project.github && project.demo
-              ? t("CLIQUE PARA VER CÓDIGO E DEMO", "CLICK FOR CODE AND DEMO")
-              : project.github
-              ? t("CLIQUE PARA VER O CÓDIGO", "CLICK TO SEE THE CODE")
-              : t("CLIQUE PARA SABER MAIS", "CLICK TO LEARN MORE")}
-          </div>
-        </div>
-      </div>
-      <style>{`@keyframes hpFlicker { 0%,100%{opacity:0.5} 50%{opacity:0.9} }`}</style>
-    </div>
-  );
-}
+const themeVars = (id: string): CSSProperties => {
+  const t = THEME[id];
+  return {
+    ["--c" as string]: t.c, ["--c2" as string]: t.c2, ["--on" as string]: t.on,
+    ["--pf" as string]: `${t.f},var(--display)`, ["--pw" as string]: t.w, ["--ps" as string]: t.st ?? "normal",
+    ["--pls" as string]: t.ls, ["--ptt" as string]: t.tt ?? "none", ["--pfs" as string]: t.fs,
+  } as CSSProperties;
+};
 
-/* ── Full panel for UNLOCKED ── */
-function UnlockedPanel({ project, onClose }: { project: UnlockedProject; onClose: () => void }) {
-  const [show, setShow] = useState(false);
-  const [tab, setTab] = useState<"sobre" | "stack">("sobre");
-  const { t, pick } = useLang();
-  const c = project.color;
-  const Effect = CARD_EFFECTS[project.id];
-  useEffect(() => { requestAnimationFrame(() => setShow(true)); }, []);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+const pad = (n: number) => String(n + 1).padStart(2, "0");
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
-      style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)" }}
-      onClick={onClose}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: "rgba(4,9,5,0.98)",
-          border: `1px solid ${c.border}`,
-          borderRadius: "20px",
-          overflow: "hidden",
-          width: "100%",
-          maxWidth: "540px",
-          boxShadow: `0 0 80px ${c.bg}, 0 0 160px ${c.solid}, 0 24px 64px rgba(0,0,0,0.8)`,
-          transform: show ? "scale(1) translateY(0)" : "scale(0.9) translateY(30px)",
-          opacity: show ? 1 : 0,
-          transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
-          position: "relative",
-        }}
-      >
-        {/* Scanlines */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,197,94,0.012) 3px,rgba(34,197,94,0.012) 4px)", zIndex: 1 }} />
-
-        {/* Per-project animated background — subtle, bottom half only */}
-        {show && Effect && (
-          <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0, height: "160px",
-            pointerEvents: "none", overflow: "hidden", opacity: 0.38,
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 35%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 35%, black 100%)",
-            zIndex: 0,
-          }}>
-            <Effect />
-          </div>
-        )}
-
-        {/* Top glow bar */}
-        <div style={{ height: "3px", background: `linear-gradient(90deg, transparent, ${c.base}, ${c.glow}, ${c.base}, transparent)`, position: "relative", zIndex: 2 }} />
-
-        {/* Header */}
-        <div style={{ padding: "24px 28px 18px", borderBottom: `1px solid ${c.solid}`, position: "relative", zIndex: 2 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: c.base, boxShadow: `0 0 10px ${c.glow}` }} />
-                <span style={{ color: c.text, fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", opacity: 0.65, fontFamily: "monospace" }}>{pick(project.period)}</span>
-              </div>
-              <h3 style={{ color: "white", fontWeight: 900, fontSize: "28px", letterSpacing: "-0.5px", lineHeight: 1.1, marginBottom: "8px" }}>{project.name}</h3>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {project.award && (
-                  <span style={{ fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "20px", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
-                    {pick(project.award)}
-                  </span>
-                )}
-                <span style={{ fontSize: "11px", fontWeight: 600, padding: "3px 10px", borderRadius: "20px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(200,200,210,0.7)", fontFamily: "monospace" }}>
-                  {pick(project.role)}
-                </span>
-              </div>
-            </div>
-            <button onClick={onClose} aria-label={t("Fechar", "Close")} style={{ color: "rgba(120,120,130,0.7)", fontSize: "20px", background: "none", border: "none", cursor: "pointer", paddingTop: "2px", lineHeight: 1 }}>✕</button>
-          </div>
-
-          {/* Tab switcher */}
-          <div style={{ display: "flex", gap: "4px", marginTop: "18px" }}>
-            {(["sobre", "stack"] as const).map(tb => (
-              <button key={tb} onClick={() => setTab(tb)} style={{
-                padding: "6px 16px", borderRadius: "8px", fontSize: "11px", fontWeight: 700,
-                fontFamily: "monospace", letterSpacing: "1px", textTransform: "uppercase", border: "none", cursor: "pointer",
-                background: tab === tb ? c.bg : "transparent",
-                color: tab === tb ? c.text : "rgba(120,120,140,0.6)",
-                borderBottom: tab === tb ? `2px solid ${c.base}` : "2px solid transparent",
-                transition: "all 0.2s ease",
-              }}>{tb === "sobre" ? t("sobre", "about") : "stack"}</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: "22px 28px 26px", minHeight: "180px", position: "relative", zIndex: 2 }}>
-          {tab === "sobre" ? (
-            <div>
-              <p style={{ color: "rgba(200,200,210,0.9)", fontSize: "14px", lineHeight: "1.7", marginBottom: "20px" }}>
-                {pick(project.fullDesc)}
-              </p>
-
-              {/* Action buttons row — GitHub (if public), Demo, and Trailer (if exists) all together */}
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {project.github && (
-                <a href={project.github} target="_blank" rel="noopener noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#e4e4e7" }}>
-                  <svg style={{ width: 14, height: 14 }} fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                  </svg>
-                  GitHub
-                </a>
-                )}
-                {project.demo && (
-                <a href={project.demo} target="_blank" rel="noopener noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, textDecoration: "none", background: c.bg, border: `1px solid ${c.border}`, color: c.text }}>
-                  <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  {t("Ver Demo", "Live demo")}
-                </a>
-                )}
-
-                {!project.github && !project.demo && (
-                  <span style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 600, background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.18)", color: "rgba(200,200,210,0.6)" }}>
-                    {t("🚧 Ainda em planejamento, sem código publicado", "🚧 Still in planning, no code published yet")}
-                  </span>
-                )}
-
-                {/* Pixel art RPG-style trailer button — Limpattack amber theme */}
-                {project.trailer && (
-                  <a
-                    href={project.trailer}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pixel-trailer-btn"
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: "7px",
-                      padding: "7px 13px",
-                      textDecoration: "none", position: "relative",
-                      background: "rgba(120,60,0,0.85)",
-                      color: "rgba(255,236,120,0.97)",
-                      fontSize: "11px", fontWeight: 900,
-                      fontFamily: "monospace", letterSpacing: "2px", textTransform: "uppercase",
-                      imageRendering: "pixelated",
-                      /* pixel-corner border via box-shadow layering */
-                      outline: "2px solid rgba(251,191,36,0.9)",
-                      outlineOffset: "-2px",
-                      boxShadow: [
-                        /* outer dark pixel shadow — offset L shape */
-                        "4px 4px 0px 0px rgba(60,20,0,0.95)",
-                        /* inner top-left highlight */
-                        "inset 2px 2px 0px 0px rgba(255,220,80,0.25)",
-                        /* inner bottom-right shadow */
-                        "inset -2px -2px 0px 0px rgba(0,0,0,0.4)",
-                        /* amber glow */
-                        "0 0 14px rgba(251,191,36,0.2)",
-                      ].join(","),
-                      borderRadius: 0,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {/* Scanline texture */}
-                    <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 1px,rgba(0,0,0,0.18) 1px,rgba(0,0,0,0.18) 2px)", pointerEvents: "none" }} />
-                    {/* Pixel play icon — chunky L-staircase triangle */}
-                    <svg style={{ width: 12, height: 12, imageRendering: "pixelated", flexShrink: 0, position: "relative" }} viewBox="0 0 6 6" shapeRendering="crispEdges" fill="rgba(255,236,120,0.97)">
-                      <rect x="0" y="0" width="2" height="6" />
-                      <rect x="2" y="1" width="2" height="4" />
-                      <rect x="4" y="2" width="2" height="2" />
-                    </svg>
-                    <span style={{ position: "relative" }}>TRAILER</span>
-                    {/* Corner pixel accents — top-left & bottom-right */}
-                    <span style={{ position: "absolute", top: -2, left: -2, width: 4, height: 4, background: "rgba(251,191,36,0.9)" }} />
-                    <span style={{ position: "absolute", bottom: -2, right: -2, width: 4, height: 4, background: "rgba(251,191,36,0.9)" }} />
-                    <span style={{ position: "absolute", top: -2, right: -2, width: 4, height: 4, background: "rgba(60,20,0,0.9)" }} />
-                    <span style={{ position: "absolute", bottom: -2, left: -2, width: 4, height: 4, background: "rgba(60,20,0,0.9)" }} />
-                  </a>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <p style={{ color: "rgba(120,130,140,0.7)", fontSize: "11px", fontFamily: "monospace", letterSpacing: "1px", marginBottom: "14px", textTransform: "uppercase" }}>{t("Tecnologias utilizadas", "Tech stack")}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                {project.stack.map((s, i) => (
-                  <div key={s} style={{
-                    padding: "10px 18px", borderRadius: "12px", fontSize: "13px", fontWeight: 700,
-                    background: c.bg, border: `1px solid ${c.border}`, color: c.text,
-                    boxShadow: `0 0 20px ${c.solid}`,
-                    animation: `stackPop 0.3s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.07}s both`,
-                  }}>{s}</div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      <style>{`
-        @keyframes stackPop { from { opacity:0; transform:scale(0.7) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
-        .pixel-trailer-btn:hover {
-          transform: translate(2px, 2px);
-          box-shadow:
-            2px 2px 0px 0px rgba(60,20,0,0.95),
-            inset 2px 2px 0px 0px rgba(255,220,80,0.25),
-            inset -2px -2px 0px 0px rgba(0,0,0,0.4),
-            0 0 20px rgba(251,191,36,0.35) !important;
-        }
-        .pixel-trailer-btn:active {
-          transform: translate(4px, 4px);
-          box-shadow: 0px 0px 0px 0px rgba(60,20,0,0.95), inset 2px 2px 0px 0px rgba(0,0,0,0.3) !important;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/* ── Arquipélago: duas ilhas, cada uma com cinco hologramas ── */
-const TEAM_PATH = `
-  M 130 300
-  C 110 240, 140 170, 210 140
-  C 270 112, 330 122, 382 100
-  C 440  76, 520  80, 580 110
-  C 640 140, 700 180, 705 250
-  C 710 310, 680 350, 690 400
-  C 700 450, 660 500, 600 515
-  C 540 530, 490 505, 430 522
-  C 370 538, 310 545, 250 520
-  C 190 495, 150 460, 140 410
-  C 132 370, 146 340, 130 300 Z
-`;
-
-const ISLANDS = {
-  solo: {
-    path: ISLAND_PATH,
-    name: { pt: "Ilha do Lobo Solitário", en: "Lone Wolf Isle" },
-    sub: { pt: "feitos sozinho, do banco ao deploy", en: "built alone, from database to deploy" },
-    accent: "52,211,153",
-  },
-  team: {
-    path: TEAM_PATH,
-    name: { pt: "Ilha da Tripulação", en: "Crew Isle" },
-    sub: { pt: "times, bancas e hackathon", en: "teams, panels and a hackathon" },
-    accent: "34,211,238",
-  },
-} as const;
-type IslandId = keyof typeof ISLANDS;
-const ISLAND_ORDER: IslandId[] = ["solo", "team"];
-
-/* Holograma: projetor no chão, feixe de luz na cor do projeto e a logo flutuando com scanlines */
-function Hologram({ p, idx, hovered }: { p: UnlockedProject; idx: number; hovered: boolean }) {
-  const c = p.color;
-  const x = p.mx, y = p.my;
-  const S = 1.2; // escala do holograma inteiro em volta do ponto do projeto
-  return (
-    <>
-      <circle cx={x} cy={y} r={44} fill="transparent" />
-      <g transform={`translate(${x} ${y}) scale(${S}) translate(${-x} ${-y})`}>
-      <ellipse cx={x} cy={y + 22} rx={24} ry={7} fill="none" stroke={c.ping} strokeWidth="1"
-        className="holo-ping" style={{ animationDelay: `${idx * 0.5}s` }} />
-      <path d={`M ${x - 12} ${y + 20} L ${x - 28} ${y - 28} L ${x + 28} ${y - 28} L ${x + 12} ${y + 20} Z`}
-        fill={`url(#beam-${p.id})`} className={`holo-beam${hovered ? " is-h" : ""}`} />
-      <ellipse cx={x} cy={y + 22} rx="16" ry="5" fill="rgba(4,10,6,0.95)" stroke={c.border} strokeWidth="1" />
-      <ellipse cx={x} cy={y + 21} rx="13" ry="4.2" fill={c.ping} />
-      <ellipse cx={x} cy={y + 21} rx="9" ry="2.6" fill={c.base} />
-      <g className="holo-float" style={{ animationDelay: `${-idx * 0.7}s` }}>
-        <g className={`holo-logo${hovered ? " is-h" : ""}`} style={{ animationDelay: `${idx * 0.9}s` }}>
-          {/* Halo de luz: gradiente estático (o filtro de desfoque era refeito a cada quadro) */}
-          <circle cx={x} cy={y - 7} r="30" fill={`url(#halo-${p.id})`} />
-          {/* Placa escura só nas marcas transparentes que somem sobre o brilho (sem borda) */}
-          {p.plate && <rect x={x - 21} y={y - 28} width="42" height="42" rx="10" fill="rgba(3,8,14,0.92)" />}
-          <image href={p.logo} x={x - 19} y={y - 26} width="38" height="38" preserveAspectRatio="xMidYMid meet"
-            mask="url(#scanMask)" />
-        </g>
-      </g>
-      </g>
-      <text x={x} y={y + 50} textAnchor="middle" fill={c.text} fontSize="11" fontWeight="600"
-        fontFamily="Poppins, sans-serif" stroke="rgba(2,8,4,0.85)" strokeWidth="3" paintOrder="stroke"
-        style={{ opacity: hovered ? 1 : 0.8, transition: "opacity 0.2s ease" }}>{p.name}</text>
-    </>
-  );
-}
-
-function IslandMap() {
-  const { t, pick } = useLang();
-  const [island, setIsland] = useState<IslandId>("solo");
-  const [selectedUnlocked, setSelectedUnlocked] = useState<UnlockedProject | null>(null);
-  const [hoveredUnlocked, setHoveredUnlocked] = useState<string | null>(null);
-  // Card da lista sob o mouse: acende o holograma no mapa, mas não abre o mini card
-  const [listHover, setListHover] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const VW = 800, VH = 600;
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640 || "ontouchstart" in window);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const go = (id: IslandId) => {
-    if (id === island) return;
-    setHoveredUnlocked(null);
-    setIsland(id);
-    window.dispatchEvent(new CustomEvent("warp"));
-  };
-
-  const projects = UNLOCKED.filter(p => p.island === island);
-  const other: IslandId = island === "solo" ? "team" : "solo";
-  const isl = ISLANDS[island];
-
-  // Celular: aproxima a ilha e corta a água de fora
-  const viewBox = isMobile ? "60 70 680 480" : `0 0 ${VW} ${VH}`;
-
-  return (
-    <div className="relative w-full" style={{ maxWidth: 800, margin: "0 auto" }}>
-      {/* Seletor de mapa */}
-      <div className="arch-tabs" role="tablist" aria-label={t("Escolha a ilha", "Choose an island")}>
-        {ISLAND_ORDER.map(id => {
-          const it = ISLANDS[id];
-          const on = id === island;
-          const count = UNLOCKED.filter(p => p.island === id).length;
-          return (
-            <button key={id} type="button" role="tab" aria-selected={on} onClick={() => go(id)}
-              className={`arch-tab${on ? " is-on" : ""}`} style={{ "--acc": it.accent } as React.CSSProperties}>
-              <svg viewBox="60 40 680 530" width="46" height="36" aria-hidden="true">
-                <path d={it.path} fill={on ? `rgba(${it.accent},0.22)` : "rgba(255,255,255,0.06)"} stroke={`rgba(${it.accent},${on ? 0.9 : 0.35})`} strokeWidth="14" />
-              </svg>
-              <span className="arch-tab-text">
-                <b>{pick(it.name)}</b>
-                <small>{count} {t("projetos", "projects")} · {pick(it.sub)}</small>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Cartões de hover: só no desktop */}
-      {!isMobile && projects.map(p => (
-        <UnlockedHoverCard key={p.id} project={p} svgX={p.mx} svgY={p.my} svgW={VW} svgH={VH} visible={hoveredUnlocked === p.id && selectedUnlocked === null} />
-      ))}
-
-      <svg
-        viewBox={viewBox}
-        className="w-full"
-        style={{ minHeight: isMobile ? "340px" : undefined }}
-      >
-        <defs>
-          <pattern id="waterGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(6,182,212,0.06)" strokeWidth="0.5" />
-          </pattern>
-          <radialGradient id="islandGrad" cx="45%" cy="42%" r="55%">
-            <stop offset="0%" stopColor="rgba(30,50,30,0.95)" />
-            <stop offset="40%" stopColor="rgba(18,32,20,0.98)" />
-            <stop offset="100%" stopColor="rgba(8,15,10,1)" />
-          </radialGradient>
-          <radialGradient id="islandGlow" cx="45%" cy="42%" r="55%">
-            <stop offset="0%" stopColor={`rgba(${isl.accent},0.07)`} />
-            <stop offset="100%" stopColor={`rgba(${isl.accent},0)`} />
-          </radialGradient>
-          <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-          {/* Scanlines do holograma: duas linhas cheias, uma apagada */}
-          <pattern id="scanPat" width="6" height="3" patternUnits="userSpaceOnUse">
-            <rect width="6" height="2" fill="white" />
-            <rect y="2" width="6" height="1" fill="rgb(90,90,90)" />
-          </pattern>
-          {/* A máscara cobre só a caixa de cada logo (antes cobria o mapa inteiro, 5 vezes por quadro) */}
-          <mask id="scanMask" maskContentUnits="userSpaceOnUse">
-            <rect width={VW} height={VH} fill="url(#scanPat)" />
-          </mask>
-          {UNLOCKED.map(p => (
-            <g key={p.id}>
-              <linearGradient id={`beam-${p.id}`} x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0" stopColor={p.color.hex} stopOpacity="0.5" />
-                <stop offset="1" stopColor={p.color.hex} stopOpacity="0" />
-              </linearGradient>
-              <radialGradient id={`halo-${p.id}`}>
-                <stop offset="0.45" stopColor={p.color.hex} stopOpacity="0.55" />
-                <stop offset="1" stopColor={p.color.hex} stopOpacity="0" />
-              </radialGradient>
-            </g>
-          ))}
-        </defs>
-
-        <rect width="800" height="600" fill="url(#waterGrid)" />
-        {[80, 160, 240, 320, 400, 480, 560].map((y, i) => (
-          <line key={i} x1="0" y1={y} x2="800" y2={y} stroke="rgba(6,182,212,0.04)" strokeWidth="1" strokeDasharray="20 60"
-            style={{ animation: `shimmer ${3 + i * 0.4}s linear infinite`, animationDelay: `${i * 0.3}s` }} />
-        ))}
-
-        <g key={island} className="arch-enter">
-          <path d={isl.path} fill="rgba(0,0,0,0.5)" transform="translate(6,8)" />
-          <path d={isl.path} fill="url(#islandGrad)" />
-          <path d={isl.path} fill="url(#islandGlow)" />
-          {/* Curvas de nível: a própria costa, em escalas menores */}
-          {[0.82, 0.64, 0.46].map(k => (
-            <path key={k} d={isl.path} fill="none" stroke={`rgba(${isl.accent},0.07)`} strokeWidth={1 / k}
-              transform={`translate(400 310) scale(${k}) translate(-400 -310)`} />
-          ))}
-          <path d={isl.path} fill="none" stroke={`rgba(${isl.accent},0.3)`} strokeWidth="1.5" />
-          <path d={isl.path} fill="none" stroke="rgba(6,182,212,0.12)" strokeWidth="4" strokeDasharray="8 16" />
-
-          {projects.map((p, idx) => (
-            <g key={p.id} style={{ cursor: "pointer", outline: "none" }}
-              role="button" tabIndex={0} aria-label={`${p.name}: ${t("ver detalhes do projeto", "see project details")}`}
-              onClick={() => setSelectedUnlocked(p)}
-              onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedUnlocked(p); } }}
-              onFocus={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
-              onBlur={() => { if (!isMobile) setHoveredUnlocked(null); }}
-              onMouseEnter={() => { if (!isMobile) setHoveredUnlocked(p.id); }}
-              onMouseLeave={() => { if (!isMobile) setHoveredUnlocked(null); }}
-            >
-              <Hologram p={p} idx={idx} hovered={hoveredUnlocked === p.id || listHover === p.id} />
-            </g>
-          ))}
-        </g>
-
-        {/* A outra ilha, pequena no canto: clicar viaja para ela */}
-        {!isMobile && (
-          <g className="arch-mini" role="button" tabIndex={0} onClick={() => go(other)}
-            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(other); } }}
-            aria-label={`${t("Ir para", "Go to")} ${pick(ISLANDS[other].name)}`}>
-            <rect x="676" y="480" width="112" height="98" rx="10" fill="rgba(2,8,4,0.6)" stroke={`rgba(${ISLANDS[other].accent},0.25)`} />
-            <path d={ISLANDS[other].path} transform="translate(682 486) scale(0.125)" fill={`rgba(${ISLANDS[other].accent},0.12)`}
-              stroke={`rgba(${ISLANDS[other].accent},0.6)`} strokeWidth="10" />
-            <text x="732" y="568" textAnchor="middle" fontSize="8.5" fontFamily="Poppins, sans-serif" fontWeight="600"
-              fill={`rgba(${ISLANDS[other].accent},0.85)`}>{pick(ISLANDS[other].name)} →</text>
-          </g>
-        )}
-
-        <text x="400" y="582" textAnchor="middle" fill={`rgba(${isl.accent},0.35)`} fontSize="11" fontFamily="monospace" letterSpacing="4" fontWeight="600">
-          {pick(isl.name).toUpperCase()}
-        </text>
-      </svg>
-
-      {/* Lista da ilha: o conteúdo fica visível sem precisar passar o mouse */}
-      <ul key={island} className="arch-list">
-        {projects.map((p, i) => (
-          <li key={p.id}>
-            <button type="button" onClick={() => setSelectedUnlocked(p)} style={{ "--i": i } as React.CSSProperties}
-              onMouseEnter={() => setListHover(p.id)} onFocus={() => setListHover(p.id)}
-              onMouseLeave={() => setListHover(null)} onBlur={() => setListHover(null)}
-              className="arch-item holo-blue">
-              <span className="arch-item-head">
-                <img src={p.logo} alt="" width={30} height={30} loading="lazy" className={p.plate ? "has-plate" : undefined} />
-                <b className="holo-title">{p.name}</b>
-                {p.award && <em>{pick(p.award)}</em>}
-              </span>
-              <small className="holo-text">{pick(p.shortDesc)}</small>
-              <span className="arch-more">{t("ver mais", "see more")} <span aria-hidden="true">→</span></span>
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {selectedUnlocked && <UnlockedPanel project={selectedUnlocked} onClose={() => setSelectedUnlocked(null)} />}
-
-      <style>{`
-        @keyframes shimmer { 0% { stroke-dashoffset:0; } 100% { stroke-dashoffset:-80; } }
-
-        .arch-tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
-        .arch-tab {
-          display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 10px; border-radius: 14px;
-          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer;
-          text-align: left; color: rgba(212,212,216,0.7); transition: all 0.25s ease;
-        }
-        .arch-tab:hover { border-color: rgba(var(--acc),0.4); color: #fff; }
-        .arch-tab.is-on {
-          background: rgba(var(--acc),0.08); border-color: rgba(var(--acc),0.6); color: #fff;
-          box-shadow: 0 0 24px -6px rgba(var(--acc),0.55);
-        }
-        .arch-tab-text { display: flex; flex-direction: column; line-height: 1.25; }
-        .arch-tab-text b { font-size: 14px; font-weight: 600; }
-        .arch-tab-text small { font-size: 10.5px; opacity: 0.65; }
-        .arch-tab.is-on .arch-tab-text b { color: rgb(var(--acc)); }
-
-        .arch-enter { animation: archIn 0.6s cubic-bezier(0.22,1,0.36,1); transform-box: view-box; transform-origin: 50% 50%; }
-        @keyframes archIn { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
-
-        .holo-ping { animation: holoPing 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
-        @keyframes holoPing { 0% { transform: scale(0.7); opacity: 0.9; } 100% { transform: scale(1.7); opacity: 0; } }
-        .holo-beam { opacity: 0.55; transition: opacity 0.3s ease; animation: beamPulse 3s ease-in-out infinite; }
-        .holo-beam.is-h { opacity: 1; }
-        @keyframes beamPulse { 50% { opacity: 0.8; } }
-        .holo-float { animation: holoFloat 3.4s ease-in-out infinite; transform-box: fill-box; }
-        @keyframes holoFloat { 50% { transform: translateY(-4px); } }
-        .holo-logo { transform-box: fill-box; transform-origin: center; opacity: 0.9;
-          transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease; animation: holoFlicker 6s steps(1) infinite; }
-        .holo-logo.is-h { transform: scale(1.22); opacity: 1; }
-        @keyframes holoFlicker { 0%, 100% { opacity: 0.9; } 91% { opacity: 0.55; } 92% { opacity: 0.95; } 94% { opacity: 0.4; } 95% { opacity: 0.9; } }
-        .arch-list { list-style: none; margin: 22px auto 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 780px;
-          animation: archIn 0.5s cubic-bezier(0.22,1,0.36,1); }
-        .arch-list li { width: 244px; max-width: 100%; }
-        .arch-item {
-          width: 100%; height: 100%; display: flex; flex-direction: column; gap: 6px; padding: 11px 13px 10px;
-          text-align: left; cursor: pointer; border: 0; color: inherit; font: inherit;
-        }
-        .arch-item:hover { transform: translateY(-2px); }
-        .arch-item > * { position: relative; z-index: 1; }
-        .arch-item-head { display: flex; align-items: center; gap: 8px; }
-        .arch-item-head img { width: 30px; height: 30px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
-        .arch-item-head img.has-plate { padding: 3px; background: rgba(3,8,14,0.92); }
-        .arch-item-head b { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
-        .arch-item-head em { margin-left: auto; font-style: normal; font-size: 9.5px; font-weight: 600; color: rgba(147,197,253,0.85); white-space: nowrap; }
-        .arch-item small { font-size: 11px; line-height: 1.45;
-          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .arch-more {
-          position: relative; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 10px; border-radius: 9px;
-          font: 700 11px/1 monospace; letter-spacing: 1.6px; text-transform: uppercase;
-          color: rgba(170,230,255,0.98); text-shadow: 0 0 10px rgba(0,190,255,0.85);
-          background:
-            repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,200,255,0.07) 2px 3px),
-            linear-gradient(180deg, rgba(0,140,255,0.16), rgba(0,110,255,0.06));
-          border: 1px solid rgba(0,190,255,0.6);
-          box-shadow: inset 0 0 14px rgba(0,149,255,0.22), 0 0 12px rgba(0,149,255,0.28);
-          transition: box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
-        }
-        .arch-more span { display: inline-block; font-size: 13px; transition: transform 0.25s ease; }
-        .arch-item:hover .arch-more { border-color: rgba(120,225,255,0.95); box-shadow: inset 0 0 18px rgba(0,190,255,0.4), 0 0 20px rgba(0,190,255,0.55); }
-        .arch-item:hover .arch-more span { transform: translateX(5px); }
-        .arch-mini { cursor: pointer; opacity: 0.75; transition: opacity 0.2s ease; outline: none; }
-        .arch-mini:hover, .arch-mini:focus-visible { opacity: 1; }
-
-        @media (prefers-reduced-motion: reduce) {
-          .arch-enter, .holo-ping, .holo-beam, .holo-float, .holo-logo { animation: none; }
-        }
-      `}</style>
-    </div>
-  );
-}
+const PX = {
+  play: <svg viewBox="0 0 12 12" shapeRendering="crispEdges" aria-hidden="true"><path d="M3 1h2v10H3zM5 3h2v6H5zM7 5h2v2H7z" fill="currentColor" /></svg>,
+  anim: <svg viewBox="0 0 12 12" shapeRendering="crispEdges" aria-hidden="true"><path d="M1 1h4v4H1zM7 1h4v4H7zM1 7h4v4H1zM7 7h4v4H7z" fill="currentColor" /></svg>,
+  left: <svg viewBox="0 0 12 12" shapeRendering="crispEdges" aria-hidden="true"><path d="M7 1h2v10H7zM5 3h2v6H5zM3 5h2v2H3z" fill="currentColor" /></svg>,
+  right: <svg viewBox="0 0 12 12" shapeRendering="crispEdges" aria-hidden="true"><path d="M3 1h2v10H3zM5 3h2v6H5zM7 5h2v2H7z" fill="currentColor" /></svg>,
+  out: <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+};
 
 function Projects() {
-  const { t } = useLang();
-  return (
-    <section id="projects" className="relative min-h-screen flex flex-col items-center justify-center px-4 py-24">
+  const { lang, t, pick } = useLang();
+  const N = UNLOCKED.length;
+  const PAGES = Math.ceil(N / PER_PAGE);
+  const [i, setI] = useState(0);
+  const [mode, setMode] = useState<"a" | "t">("a");
+  const [page, setPage] = useState(0);
+  const [caseOpen, setCaseOpen] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [reduced, setReduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const sectionRef = useRef<HTMLElement>(null);
+  const crtRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const swipe = useRef<number | null>(null);
+  const p = UNLOCKED[i];
 
-      <div className="relative z-10 text-center mb-8">
-        <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
+  useEffect(() => {
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const on = () => setReduced(rm.matches);
+    rm.addEventListener("change", on);
+    return () => rm.removeEventListener("change", on);
+  }, []);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "80px" });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const go = (n: number, focusMon = false) => {
+    const next = (n + N) % N;
+    setI(next);
+    setPage(Math.floor(next / PER_PAGE));
+    setCaseOpen(false);
+    const grid = gridRef.current;
+    const mon = grid?.querySelectorAll<HTMLElement>(".mon:not(.off)")[next];
+    if (mon && grid && grid.scrollWidth > grid.clientWidth) grid.scrollTo({ left: mon.offsetLeft - grid.clientWidth / 2 + mon.offsetWidth / 2, behavior: reduced ? "auto" : "smooth" });
+    if (focusMon) mon?.focus();
+  };
+
+  const monFps = reduced || !inView ? 0 : 8;
+  const screenFps = reduced || !inView ? 0 : 30;
+  const teamLabel = p.id === "driblou" ? t("Formato a confirmar", "Format to be confirmed") : p.island === "team" ? t("Em equipe", "Team project") : t("Projeto individual", "Solo project");
+  const award = p.award ? pick(p.award).replace(/🏆\s*/, "") : null;
+  const total = String(N).padStart(2, "0");
+
+  const onGridKey = (e: React.KeyboardEvent) => {
+    const k = e.key;
+    const n = k === "ArrowRight" ? i + 1 : k === "ArrowLeft" ? i - 1 : k === "ArrowDown" ? i + 2 : k === "ArrowUp" ? i - 2 : k === "Home" ? 0 : k === "End" ? N - 1 : null;
+    if (n !== null) { e.preventDefault(); go(Math.max(0, Math.min(N - 1, n)), true); }
+  };
+
+  return (
+    <section ref={sectionRef} id="projects" className="pw relative px-4 py-24 md:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <h2 className="pw-title text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent text-center">
           <span className="text-emerald-400/40 font-light">&lt;</span>{" "}{t("Projetos", "Projects")}{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
         </h2>
-        <p className="mt-4 text-sm tracking-widest text-emerald-500/40 uppercase">{t("// explore o arquipélago", "// explore the archipelago")}</p>
-        <p className="mt-2 text-sm text-zinc-500 hidden md:block">{t("Passe o mouse nos hologramas para ver os detalhes", "Hover over the holograms to see the details")}</p>
-        <p className="mt-2 text-sm text-zinc-500 md:hidden">{t("Toque nos hologramas para ver os detalhes", "Tap the holograms to see the details")}</p>
+        <p className="mt-4 mb-16 mx-auto max-w-2xl text-center text-sm leading-relaxed text-zinc-400">{t("Cada projeto no seu canal. Escolha um monitor para ver a animação, a stack e o case.", "Each project on its own channel. Pick a monitor to see the animation, the stack and the case.")}</p>
+        <div className="sec" style={themeVars(p.id)}>
+          <div className="sec-h">
+            <div>
+              <h2>{t("No ar", "On air")} <span className="grad">{t("agora", "now")}</span></h2>
+            </div>
+
+          </div>
+
+          <div className="tv">
+            {/* Aparelho */}
+            <div className="set">
+              <div ref={crtRef} className="crt" tabIndex={0} role="group" aria-roledescription={t("tela", "screen")} aria-label={t("Tela principal", "Main screen")}
+                onKeyDown={e => { if (e.key === "ArrowRight") { e.preventDefault(); go(i + 1); } else if (e.key === "ArrowLeft") { e.preventDefault(); go(i - 1); } }}
+                onPointerDown={e => { swipe.current = e.clientX; }}
+                onPointerUp={e => { if (swipe.current === null) return; const dx = e.clientX - swipe.current; swipe.current = null; if (Math.abs(dx) > 45) go(i + (dx < 0 ? 1 : -1)); }}
+                onPointerCancel={() => { swipe.current = null; }}>
+                <div className="scr sbg" key={`${p.id}-${mode}`}>
+                  {mode === "a"
+                    ? <ProjectMotion id={p.id} fps={screenFps} bare />
+                    : p.trailer
+                      ? <video src={p.trailer} controls playsInline preload="metadata" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", background: "#000" }} />
+                      : <div className="trl"><div><b>{t("TRAILER EM BREVE", "TRAILER COMING SOON")}</b><small>{t(`O vídeo de ${p.name} entra aqui`, `${p.name}'s video goes here`)}</small></div></div>}
+                </div>
+                <div className="glass" />
+                <div className="zap" key={`z${i}${mode}`} />
+                <div className="osd"><span>CH {pad(i)} / {total}</span><span className="live">{mode === "a" ? t("NO AR", "LIVE") : "TRAILER"}</span></div>
+                <div className="osd-name pfn" key={`n${i}`}>{p.name}</div>
+              </div>
+
+              <div className="deck">
+                <div className="grp">
+                  <span className="glb">{t("Na tela", "On screen")}</span>
+                  <div className="sw" role="radiogroup" aria-label={t("O que passa na tela", "What's on screen")}
+                    onKeyDown={e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); setMode(m => (m === "a" ? "t" : "a")); } }}>
+                    <button className="px" type="button" role="radio" aria-checked={mode === "a"} onClick={() => setMode("a")}>{PX.anim}{t("Animação", "Animation")}</button>
+                    <button className="px" type="button" role="radio" aria-checked={mode === "t"} onClick={() => setMode("t")}>{PX.play}Trailer</button>
+                  </div>
+                </div>
+                <div className="grp chg">
+                  <span className="glb">{t(`Canal ${pad(i)} de ${total}`, `Channel ${pad(i)} of ${total}`)}</span>
+                  <div className="chx">
+                    <button className="px sq" type="button" aria-label={t("Canal anterior", "Previous channel")} onClick={() => go(i - 1)}>{PX.left}</button>
+                    <div className="ticks">
+                      {UNLOCKED.map((u, n) => (
+                        <button key={u.id} type="button" className={`tick${n === i ? " on" : ""}`} tabIndex={-1} style={themeVars(u.id)} onClick={() => go(n)}
+                          aria-label={t(`Canal ${pad(n)}: ${u.name}`, `Channel ${pad(n)}: ${u.name}`)} />
+                      ))}
+                    </div>
+                    <button className="px sq" type="button" aria-label={t("Próximo canal", "Next channel")} onClick={() => go(i + 1)}>{PX.right}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Parede de canais */}
+            <div className="wall" data-page={page}>
+              <div className="wall-h"><p className="eyebrow">{t("Canais", "Channels")}</p><span className="dim" style={{ font: "600 11px var(--mono)" }}>{total} {t("no ar", "on air")}</span></div>
+              <div ref={gridRef} className="wall-g" role="listbox" aria-label={t("Projetos", "Projects")} onKeyDown={onGridKey}>
+                {UNLOCKED.map((u, n) => (
+                  <button key={u.id} className="mon" type="button" role="option" aria-selected={n === i} tabIndex={n === i ? 0 : -1} data-pg={Math.floor(n / PER_PAGE)}
+                    style={themeVars(u.id)} onClick={() => go(n)} aria-label={t(`Canal ${pad(n)}: ${u.name}`, `Channel ${pad(n)}: ${u.name}`)}>
+                    <div className="sbg"><ProjectMotion id={u.id} fps={monFps} bare /></div>
+                    <span className="no">CH {pad(n)}</span>
+                    <span className="air">{t("NO AR", "LIVE")}</span>
+                    <span className="mn pfn">{u.name}</span>
+                  </button>
+                ))}
+                {Array.from({ length: PAGES * PER_PAGE - N }, (_, k) => (
+                  <div key={`off${k}`} className="mon off" data-pg={PAGES - 1} aria-hidden="true"><span>{t("SEM SINAL", "NO SIGNAL")}<small>{t("próximo projeto", "next project")}</small></span></div>
+                ))}
+              </div>
+              <p className="hint">{total} {t("canais. Deslize para ver todos.", "channels. Swipe to see them all.")}</p>
+              <div className="pager">
+                <span className="glb" aria-live="polite">{t(`Página ${page + 1} de ${PAGES}`, `Page ${page + 1} of ${PAGES}`)}</span>
+                <div className="pgs" role="group" aria-label={t("Páginas de canais", "Channel pages")}>
+                  {Array.from({ length: PAGES }, (_, k) => {
+                    const a = k * PER_PAGE + 1;
+                    const b = Math.min(N, (k + 1) * PER_PAGE);
+                    return (
+                      <button key={k} className="px sm" type="button" aria-pressed={k === page} aria-label={t(`Página ${k + 1}`, `Page ${k + 1}`)} onClick={() => setPage(k)}>
+                        {String(a).padStart(2, "0")}{a === b ? "" : "–" + String(b).padStart(2, "0")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Ficha */}
+            <article className="card" aria-live="polite">
+              <img className="wm" src={p.logo} alt="" key={`w${p.id}`} />
+              <div className="tx" key={`t${p.id}`}>
+                <p className="kick">{pick(CATEGORY[p.id])} · {teamLabel}</p>
+                <h3 className="nm">{p.name}</h3>
+                <p className="per">
+                  <span>{pick(p.role)}</span><span>{pick(p.period)}</span>
+                  {award && <span className="badge">{award} · UNIFAFIRE</span>}
+                </p>
+                <p className="sd">{pick(p.shortDesc)}</p>
+                <ul className="chips">{p.stack.map(s => <li key={s}>{s}</li>)}</ul>
+                <div className="links">
+                  {p.demo && <a className="btn pri" href={p.demo} target="_blank" rel="noopener noreferrer">{t("Ver demo", "View demo")} {PX.out}</a>}
+                  {p.github && <a className="btn" href={p.github} target="_blank" rel="noopener noreferrer">GitHub {PX.out}</a>}
+                  <button className="btn" type="button" onClick={() => { setMode("t"); crtRef.current?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); crtRef.current?.focus({ preventScroll: true }); }}>{PX.play}{t("Ver trailer", "Watch trailer")}</button>
+                </div>
+                <button className="cbtn" type="button" aria-expanded={caseOpen} aria-controls="pw-case" onClick={() => setCaseOpen(o => !o)}>
+                  {PX.right}<span>{caseOpen ? t("Fechar o case", "Close the case") : t("Ler o case completo", "Read the full case")}</span>
+                </button>
+                <div className={`cwrap${caseOpen ? " open" : ""}`} id="pw-case"><div><p>{pick(p.fullDesc)}</p></div></div>
+              </div>
+            </article>
+          </div>
+        </div>
       </div>
-      <div className="relative z-10 w-full max-w-3xl"><IslandMap /></div>
+      <span hidden>{lang}</span>
     </section>
   );
 }
