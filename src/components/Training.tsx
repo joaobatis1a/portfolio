@@ -99,13 +99,13 @@ function Viewer({ start, onClose }: { start: number; onClose: () => void }) {
                 <span className="font-mono text-xs tracking-widest text-cyan-200/70">{String(k + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
                 <button type="button" onClick={onClose} aria-label={t("Fechar", "Close")} className="grid h-11 w-11 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">✕</button>
             </div>
-            <div className="relative grid min-h-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4">
-                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="grid h-12 w-12 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">‹</button>
+            <div className="relative grid min-h-0 items-center px-4 sm:px-20">
+                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="absolute left-3 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100 sm:left-6">‹</button>
                 <figure className="grid min-w-0 justify-items-center gap-3">
                     <img src={`/certs/${CKEYS[k]}.jpg`} alt={c.t} className="max-h-[calc(100vh-210px)] max-w-full rounded-md shadow-[0_0_0_1px_rgba(0,190,255,.5),0_0_40px_rgba(0,149,255,.3)]" />
                     <figcaption className="text-center text-sm font-semibold text-white">{c.t}<small className="mt-1 block font-mono text-xs text-sky-200">{c.i} · {c.d}</small></figcaption>
                 </figure>
-                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="grid h-12 w-12 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">›</button>
+                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="absolute right-3 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100 sm:right-6">›</button>
             </div>
             <div className="flex flex-wrap justify-center gap-1.5 px-4 pb-5 pt-3">
                 {CKEYS.map((ck, i) => (

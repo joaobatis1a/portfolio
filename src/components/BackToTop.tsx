@@ -27,7 +27,6 @@ function BackToTop() {
                 className={`bt-holo fixed bottom-5 right-4 z-50 sm:bottom-8 sm:right-8 ${visible ? "bt-on" : ""}`}
                 tabIndex={visible ? 0 : -1}
             >
-                <span className="bt-label">{t("topo", "top")}</span>
                 <svg className="bt-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 19V5M5 12l7-7 7 7" />
                 </svg>
@@ -35,7 +34,7 @@ function BackToTop() {
             <style>{`
                 .bt-holo {
                     position: fixed; display: inline-flex; align-items: center; gap: 10px;
-                    height: 46px; padding: 0 16px 0 14px; border-radius: 999px;
+                    width: 50px; height: 50px; padding: 0; justify-content: center; border-radius: 50%;
                     background-color: rgba(0,110,255,0.10);
                     background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,180,255,0.05) 3px 4px);
                     box-shadow: 0 0 0 1px rgba(0,149,255,0.5), 0 0 26px rgba(0,149,255,0.25), inset 0 0 20px rgba(0,100,255,0.12);
@@ -64,7 +63,7 @@ function BackToTop() {
                 .bt-holo:active { transform: scale(.96); }
                 .bt-label { font: 600 11px "Roboto Mono", ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,180,255,0.6); }
                 .bt-arrow { width: 18px; height: 18px; flex: none; filter: drop-shadow(0 0 5px rgba(0,190,255,0.7)); }
-                @media (max-width: 640px) { .bt-holo { height: 42px; padding: 0 13px 0 12px; gap: 8px; } .bt-label { font-size: 10px; } }
+                @media (max-width: 640px) { .bt-holo { width: 46px; height: 46px; } }
                 @media (prefers-reduced-motion: reduce) { .bt-holo::after { animation: none; display: none; } }
             `}</style>
         </>

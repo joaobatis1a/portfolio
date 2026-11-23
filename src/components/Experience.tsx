@@ -200,7 +200,7 @@ export default function Experience() {
                 .exp-acts em { font: 700 10.5px/1.8 "Roboto Mono", ui-monospace, monospace; font-style: normal; color: #93b35f; }
                 .exp-acts b { display: block; font-size: 13px; font-weight: 600; color: #fff; line-height: 1.4; }
                 .exp-acts span { display: block; font-size: 12px; line-height: 1.45; color: #c9cbef; }
-                .exp-px { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(147,179,95,.09);
+                .exp-px { display: flex; gap: 12px; align-items: center; margin: 14px 0 22px; padding: 10px 12px; border-radius: 12px; background: rgba(147,179,95,.09);
                     box-shadow: inset 3px 0 0 #93b35f, inset 0 0 0 1px rgba(147,179,95,.18); opacity: 0; transition: opacity .6s ease .85s; }
                 .exp-card.in .exp-px { opacity: 1; }
                 .exp-px img { flex: none; width: 30px; height: 30px; border-radius: 8px; background: #121345; padding: 4px; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }

@@ -121,7 +121,7 @@ function FeaturedEmailCard({ href }: { href: string }) {
             </div>
 
             <span
-                className="featured-card-cta relative inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-black"
+                className="featured-card-cta relative inline-flex min-h-[44px] items-center gap-2 rounded-[12px] px-5 py-2 text-[13px] font-semibold text-[#02130a]"
                 style={{ background: "linear-gradient(135deg, #34d399, #22d3ee)" }}
             >
                 <span className="relative z-10">{t("Enviar e-mail", "Send email")}</span>

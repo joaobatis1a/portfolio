@@ -383,11 +383,11 @@ export default function Frontista() {
                 .ft-still .ft-copy[aria-hidden] { display: none; }
 
                 /* Perfis: holograma azul, como os cartões de Habilidades */
-                .ft-chan { display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-decoration: none; }
+                .ft-chan { display: flex; align-items: center; gap: 14px; padding: 12px 22px 12px 14px; border-radius: 999px; text-decoration: none; }
                 .ft-chan > * { position: relative; z-index: 1; }
                 .ft-chan:hover { transform: translateY(-2px); }
                 .ft-chan-ico {
-                    width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 12px;
+                    width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 999px;
                     color: rgba(120,210,255,0.95); background: rgba(0,100,255,0.1); border: 1px solid rgba(0,149,255,0.3);
                     box-shadow: inset 0 0 12px rgba(0,100,255,0.1); transition: color 0.25s ease, box-shadow 0.25s ease;
                 }
