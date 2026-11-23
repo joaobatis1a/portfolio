@@ -1,809 +1,310 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n/context";
 
 /* ══════════════════════════════════════════════════════════
-   DADOS
+   DADOS (anos, marcos e certificados)
 ══════════════════════════════════════════════════════════ */
+type Ev = { t: string; g?: string; p?: string; n?: string };
+type Yr = { y: string; l: string; c: string; e: Ev[]; certs: string[] };
 
-const TIMELINE_NODES = [
-  {
-    year: "2022",
-    label: "ORIGEM",
-    color: "#22c55e",
-    glow: "rgba(34,197,94,0.6)",
-    events: [
-      { icon: "⚙️", text: "Entrada no Senac, curso Mediotech (Ensino Médio + Técnico em TI)" },
-      { icon: "🖥️", text: "Foco em Montagem e Manutenção de Computadores" },
-      { icon: "📜", text: "Certificado: Aperfeiçoamento em Algoritmo e Pensamento Computacional" },
-      { icon: "💡", text: "Primeiro contato com lógica de programação" },
-    ],
-  },
-  {
-    year: "2023",
-    label: "EXPANSÃO",
-    color: "#06b6d4",
-    glow: "rgba(6,182,212,0.6)",
-    events: [
-      { icon: "🌐", text: "Foco em Redes de Computadores e infraestrutura" },
-      { icon: "📜", text: "Certificado: Assistente de Suporte e Manutenção de Computadores" },
-      { icon: "📜", text: "Certificado: Assistente de Operação de Redes de Computadores" },
-    ],
-  },
-  {
-    year: "2024",
-    label: "CÓDIGO",
-    color: "#a78bfa",
-    glow: "rgba(167,139,250,0.6)",
-    events: [
-      { icon: "💻", text: "Foco em Desenvolvimento de Software" },
-      { icon: "🧠", text: "HTML, CSS, JavaScript, Python, Dart e MySQL" },
-      { icon: "🏗️", text: "Projeto Integrador SkillShare, plataforma de venda de cursos online" },
-      { icon: "🚀", text: "SkillShare selecionado para o REC'n'Play" },
-      { icon: "📜", text: "Certificado: Assistente de Desenvolvimento de Aplicativos Computacionais" },
-    ],
-  },
-  {
-    year: "2025",
-    label: "DECOLAGEM",
-    color: "#f59e0b",
-    glow: "rgba(245,158,11,0.6)",
-    events: [
-      { icon: "🎓", text: "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)" },
-      { icon: "🏆", text: "LimpAttack: 1º lugar no 1º período" },
-      { icon: "🥈", text: "Benevo: 2º lugar no 2º período" },
-      { icon: "💼", text: "Jovem Aprendiz no Grupo ACLF, onde nasceu a ideia do Praxis" },
-    ],
-  },
-  {
-    year: "2026",
-    label: "PRESENTE",
-    color: "#ec4899",
-    glow: "rgba(236,72,153,0.6)",
-    events: [
-      { icon: "🏆", text: "P.O.N.T.E: 1º lugar no 3º período" },
-      { icon: "🚀", text: "Hacka Business da Avanade: selecionado, Cápsula como Product Owner" },
-      { icon: "🎓", text: "DIO Campus Expert, Turma 16, com apoio do Santander Universidades" },
-      { icon: "📜", text: "Certificado: Lógica de Programação com JavaScript (DIO)" },
-      { icon: "🗺️", text: "Confluência: líder do projeto final do 4º período, apresentação em dezembro" },
-      { icon: "📡", text: "Marca Frontista: criador de conteúdo de front-end" },
-    ],
-  },
+const YEARS: Yr[] = [
+    { y: "2022", l: "origem", c: "#4ade80", certs: ["alg"],
+      e: [{ t: "Entrada no Senac, curso Mediotech (Ensino Médio + Técnico em TI)", g: "início" },
+          { t: "Foco em Montagem e Manutenção de Computadores" },
+          { t: "Primeiro contato com lógica de programação" }] },
+    { y: "2023", l: "expansão", c: "#22d3ee", certs: ["hw"],
+      e: [{ t: "Foco em Redes de Computadores e infraestrutura" }] },
+    { y: "2024", l: "código", c: "#a78bfa", certs: ["net", "en"],
+      e: [{ t: "Foco em Desenvolvimento de Software" },
+          { t: "HTML, CSS, JavaScript, Python, Dart e MySQL" },
+          { t: "Projeto Integrador SkillShare, plataforma de venda de cursos online", n: "SkillShare" },
+          { t: "SkillShare participou da seleção para o REC'n'Play", n: "SkillShare" }] },
+    { y: "2025", l: "decolagem", c: "#fbbf24", certs: ["dev", "fafire"],
+      e: [{ t: "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)", g: "início" },
+          { t: "LimpAttack: 1º lugar no 1º período", g: "1º lugar", p: "/logos/projects/limpattack.png", n: "LimpAttack" },
+          { t: "Benevo: 2º lugar no 2º período", g: "2º lugar", p: "/logos/projects/benevo.svg", n: "Benevo" },
+          { t: "Jovem Aprendiz no Grupo ACLF, onde nasceu a ideia do Praxis", p: "/logos/projects/praxis.png", n: "Praxis" }] },
+    { y: "2026", l: "presente", c: "#f472b6", certs: ["js", "dio"],
+      e: [{ t: "P.O.N.T.E: 1º lugar no 3º período", g: "1º lugar", p: "/logos/projects/ponte.png", n: "P.O.N.T.E" },
+          { t: "Hacka Business da Avanade: selecionado, Cápsula como Product Owner", g: "seleção", p: "/logos/projects/capsula.svg", n: "Cápsula" },
+          { t: "DIO Campus Expert, Turma 16, com apoio do Santander Universidades" },
+          { t: "Confluência: líder do projeto final do 4º período, apresentação em dezembro", g: "liderança", p: "/logos/projects/confluencia.png", n: "Confluência" },
+          { t: "Marca Frontista: criador de conteúdo de front-end", p: "/logo.svg", n: "Frontista" }] },
 ];
 
-const CERTIFICATES = [
-  {
-    title: "Lógica de Programação com JavaScript",
-    institution: "Dio",
-    date: "Abril 2026",
-    category: "Desenvolvimento",
-    color: "#f59e0b",
-    icon: "JS",
-  },
-  {
-    title: "Assistente de Desenvolvimento de Aplicativos Computacionais",
-    institution: "Senac",
-    date: "Janeiro 2025",
-    category: "Desenvolvimento",
-    color: "#22c55e",
-    icon: "DEV",
-  },
-  {
-    title: "Assistente de Operação de Redes de Computadores",
-    institution: "Senac",
-    date: "Janeiro 2024",
-    category: "Infraestrutura",
-    color: "#06b6d4",
-    icon: "NET",
-  },
-  {
-    title: "Basic 1, Inglês",
-    institution: "Senac",
-    date: "Julho 2024",
-    category: "Idioma",
-    color: "#a78bfa",
-    icon: "EN",
-  },
-  {
-    title: "Assistente de Suporte e Manutenção de Computadores",
-    institution: "Senac",
-    date: "Abril 2023",
-    category: "Infraestrutura",
-    color: "#06b6d4",
-    icon: "HW",
-  },
-  {
-    title: "Aperfeiçoamento em Algoritmo e Pensamento Computacional",
-    institution: "Senac",
-    date: "Dezembro 2022",
-    category: "Fundamentos",
-    color: "#22c55e",
-    icon: "ALG",
-  },
-];
-
-/* Tradução dos dados acima: a chave é o texto em português */
-const EN: Record<string, string> = {
-  "ORIGEM": "ORIGIN",
-  "EXPANSÃO": "EXPANSION",
-  "CÓDIGO": "CODE",
-  "DECOLAGEM": "TAKEOFF",
-  "PRESENTE": "PRESENT",
-  "Entrada no Senac, curso Mediotech (Ensino Médio + Técnico em TI)": "Joined Senac's Mediotech program (high school + IT technical course)",
-  "Foco em Montagem e Manutenção de Computadores": "Focus on computer assembly and maintenance",
-  "Certificado: Aperfeiçoamento em Algoritmo e Pensamento Computacional": "Certificate: Algorithms and Computational Thinking",
-  "Primeiro contato com lógica de programação": "First contact with programming logic",
-  "Foco em Redes de Computadores e infraestrutura": "Focus on computer networks and infrastructure",
-  "Certificado: Assistente de Suporte e Manutenção de Computadores": "Certificate: Computer Support and Maintenance Assistant",
-  "Certificado: Assistente de Operação de Redes de Computadores": "Certificate: Computer Network Operations Assistant",
-  "Foco em Desenvolvimento de Software": "Focus on software development",
-  "HTML, CSS, JavaScript, Python, Dart e MySQL": "HTML, CSS, JavaScript, Python, Dart and MySQL",
-  "Projeto Integrador SkillShare, plataforma de venda de cursos online": "Capstone project SkillShare, a platform for selling online courses",
-  "SkillShare selecionado para o REC'n'Play": "SkillShare selected for REC'n'Play",
-  "Certificado: Assistente de Desenvolvimento de Aplicativos Computacionais": "Certificate: Software Application Development Assistant",
-  "Ingresso no Centro Universitário UNIFAFIRE, curso de ADS (Análise e Desenvolvimento de Sistemas)": "Started Systems Analysis and Development at Centro Universitário UNIFAFIRE",
-  "LimpAttack: 1º lugar no 1º período": "LimpAttack: 1st place in the 1st semester",
-  "Benevo: 2º lugar no 2º período": "Benevo: 2nd place in the 2nd semester",
-  "Jovem Aprendiz no Grupo ACLF, onde nasceu a ideia do Praxis": "Apprentice at Grupo ACLF, where the idea for Praxis was born",
-  "P.O.N.T.E: 1º lugar no 3º período": "P.O.N.T.E: 1st place in the 3rd semester",
-  "Hacka Business da Avanade: selecionado, Cápsula como Product Owner": "Avanade's Hacka Business: selected, Product Owner of Cápsula",
-  "DIO Campus Expert, Turma 16, com apoio do Santander Universidades": "DIO Campus Expert, Class 16, backed by Santander Universidades",
-  "Certificado: Lógica de Programação com JavaScript (DIO)": "Certificate: Programming Logic with JavaScript (DIO)",
-  "Confluência: líder do projeto final do 4º período, apresentação em dezembro": "Confluência: team lead of the 4th-semester final project, presenting in December",
-  "Marca Frontista: criador de conteúdo de front-end": "Frontista brand: front-end content creator",
-  "Lógica de Programação com JavaScript": "Programming Logic with JavaScript",
-  "Assistente de Desenvolvimento de Aplicativos Computacionais": "Software Application Development Assistant",
-  "Assistente de Operação de Redes de Computadores": "Computer Network Operations Assistant",
-  "Basic 1, Inglês": "English, Basic 1",
-  "Assistente de Suporte e Manutenção de Computadores": "Computer Support and Maintenance Assistant",
-  "Aperfeiçoamento em Algoritmo e Pensamento Computacional": "Algorithms and Computational Thinking",
-  "Abril 2026": "April 2026",
-  "Janeiro 2025": "January 2025",
-  "Janeiro 2024": "January 2024",
-  "Julho 2024": "July 2024",
-  "Abril 2023": "April 2023",
-  "Dezembro 2022": "December 2022",
-  "Desenvolvimento": "Development",
-  "Infraestrutura": "Infrastructure",
-  "Idioma": "Language",
-  "Fundamentos": "Fundamentals",
-  "// PASSE O MOUSE SOBRE UM NÓ": "// HOVER OVER A NODE"
+const CERTS: Record<string, { t: string; s: string; i: string; d: string }> = {
+    alg: { t: "Aperfeiçoamento em Algoritmo e Pensamento Computacional", s: "ALGORITMO", i: "Senac", d: "dez/2022" },
+    hw: { t: "Assistente de Suporte e Manutenção de Computadores", s: "MANUTENÇÃO", i: "Senac", d: "abr/2023" },
+    net: { t: "Assistente de Operação de Redes de Computadores", s: "REDES", i: "Senac", d: "jan/2024" },
+    en: { t: "Basic 1, Inglês", s: "INGLÊS", i: "Senac", d: "jul/2024" },
+    dev: { t: "Assistente de Desenvolvimento de Aplicativos Computacionais", s: "DESENV. DE APPS", i: "Senac", d: "jan/2025" },
+    fafire: { t: "1º período de ADS, Desenvolvedor(a) Python Júnior", s: "PYTHON JÚNIOR", i: "UNIFAFIRE", d: "nov/2025" },
+    js: { t: "Formação Lógica de Programação", s: "LÓGICA DE PROG.", i: "DIO", d: "abr/2026" },
+    dio: { t: "DIO Campus Expert, Turma 16", s: "CAMPUS EXPERT", i: "DIO", d: "jul/2026" },
 };
+const CKEYS = Object.keys(CERTS);
 
-/** Devolve o texto no idioma atual (os dados ficam escritos em português) */
-function useTx() {
-  const { lang } = useLang();
-  return (pt: string) => (lang === "en" ? EN[pt] ?? pt : pt);
+const TAG: Record<string, string> = { "1º lugar": "#fde047", "2º lugar": "#e5e7eb", seleção: "#a5f3fc", liderança: "#bbf7d0", início: "#c4b5fd" };
+const ICON: Record<string, string> = { "1º lugar": "trophy", "2º lugar": "medal", seleção: "star", liderança: "crown", início: "flag" };
+
+/* pixel art 8×8 das conquistas */
+const PIX: Record<string, string[]> = {
+    trophy: ["..yyyy..", "yyyyyyyy", "y.yyyy.y", "..yyyy..", "...yy...", "...yy...", "..yyyy..", ".oooooo."],
+    medal: [".rr..bb.", "..rrbb..", "...rb...", "..wwww..", ".wwggww.", ".wggggw.", ".wwggww.", "..wwww.."],
+    star: ["...cc...", "...cc...", "cccccccc", ".cccccc.", "..cccc..", ".cc..cc.", "cc....cc", "........"],
+    crown: ["g..g..g.", "gg.gg.gg", "gggggggg", "gggggggg", "gyggggyg", "gggggggg", "........", "........"],
+    flag: ["pp......", "pppppp..", "pppppppp", "pppppp..", "pp......", "pp......", "pp......", "pp......"],
+    scroll: [".wwwwww.", "wbbbbbbw", ".wbbbbw.", ".wwwwww.", ".wbbbbw.", ".wwwwww.", "wbbbbbbw", ".wwwwww."],
+};
+const PC: Record<string, string> = { y: "#fde047", o: "#a16207", r: "#ef4444", b: "#3b82f6", w: "#e5e7eb", g: "#4ade80", c: "#22d3ee", p: "#c4b5fd" };
+
+const unacc = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function Pix({ name, color }: { name: string; color?: string }) {
+    return (
+        <svg viewBox="0 0 8 8" shapeRendering="crispEdges" width="22" height="22" aria-hidden="true" className="shrink-0">
+            {PIX[name].map((row, y) =>
+                [...row].map((ch, x) => ch === "." ? null : (
+                    <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={name === "scroll" && color ? color : PC[ch]} />
+                )))}
+        </svg>
+    );
 }
 
 /* ══════════════════════════════════════════════════════════
-   LINHA DO TEMPO — curva SVG (viewBox) + marcadores HTML
-   Toda a geometria é fixa e calculada uma única vez, em unidades
-   do viewBox. A curva escala com o container via SVG nativo, e os
-   marcadores usam porcentagem sobre o MESMO sistema de coordenadas
-   — então nunca existe medição em JS, nunca existe recálculo em
-   runtime, e curva/nós são matematicamente impossíveis de
-   dessincronizar, em qualquer tamanho de tela ou reflow tardio.
+   VISUALIZADOR DE CERTIFICADOS
 ══════════════════════════════════════════════════════════ */
-const VB_W = 1000;
-const VB_H = 260;
-
-function getTimelinePositions(count: number) {
-  return Array.from({ length: count }, (_, i) => {
-    const t = count > 1 ? i / (count - 1) : 0;
-    const x = VB_W * 0.06 + t * VB_W * 0.88;
-    const y = VB_H * 0.54 + Math.sin(t * Math.PI * 1.4) * VB_H * 0.3;
-    return { x, y, t };
-  });
-}
-
-// Spline Catmull-Rom → Bézier cúbica: curva suave que passa exatamente
-// pelos pontos dos nós, sem "cotovelos" entre segmentos.
-function smoothPath(points: { x: number; y: number }[]) {
-  if (points.length < 2) return "";
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1] ?? points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
-  }
-  return d;
-}
-
-function NeuralTimeline({
-  nodes,
-  activeIdx,
-  onHoverNode,
-}: {
-  nodes: typeof TIMELINE_NODES;
-  activeIdx: number | null;
-  onHoverNode: (idx: number | null) => void;
-}) {
-  const tx = useTx();
-  // Calculado uma única vez a partir da quantidade de nós — não depende
-  // do tamanho do container, então nunca precisa ser recalculado depois
-  // que os dados chegaram. Zero medição, zero ResizeObserver, zero raf.
-  const positions = useMemo(() => getTimelinePositions(nodes.length), [nodes.length]);
-  const pathD = useMemo(() => smoothPath(positions), [positions]);
-
-  const gradientId = "timeline-grad";
-  const glowId = "timeline-glow";
-
-  return (
-    <div style={{ position: "relative", width: "100%", height: 260 }}>
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="none"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}
-      >
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            {nodes.map((n, i) => (
-              <stop key={i} offset={`${(i / (nodes.length - 1)) * 100}%`} stopColor={n.color} />
-            ))}
-          </linearGradient>
-          <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Trilho de fundo, sutil, sempre visível */}
-        <path d={pathD} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1.5} />
-
-        {/* Curva principal — desenha-se uma vez ao entrar em viewport e
-            permanece fixa para sempre. pathLength="1" normaliza o
-            comprimento, então a animação de "desenho" funciona igual
-            não importa o tamanho real do path em pixels. */}
-        <path
-          d={pathD}
-          fill="none"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          pathLength={1}
-          style={{
-            strokeDasharray: 1,
-            strokeDashoffset: 1,
-            animation: "timelineDraw 1.6s cubic-bezier(0.65,0,0.35,1) forwards",
-            filter: `url(#${glowId})`,
-          }}
-        />
-
-        {/* Pulsos de energia viajando sobre a curva — 100% SVG nativo
-            (animateMotion + mpath), sem nenhum JS por frame. Sempre
-            perfeitamente colados na curva porque usam o MESMO `d`. */}
-        <path id="timeline-motion-path" d={pathD} fill="none" stroke="none" />
-        {[0, 1, 2].map((i) => (
-          <circle key={i} r={3.2} fill="#fff" opacity={0.9}>
-            <animateMotion
-              dur="5s"
-              begin={`${i * 1.7}s`}
-              repeatCount="indefinite"
-              rotate="auto"
-            >
-              <mpath href="#timeline-motion-path" />
-            </animateMotion>
-            <animate
-              attributeName="opacity"
-              values="0;0.9;0.9;0"
-              keyTimes="0;0.05;0.9;1"
-              dur="5s"
-              begin={`${i * 1.7}s`}
-              repeatCount="indefinite"
-            />
-          </circle>
-        ))}
-      </svg>
-
-      {/* Marcadores dos nós — HTML real (acessível, hover nativo),
-          posicionados em % sobre o MESMO sistema de coordenadas do
-          viewBox da curva. Fixos desde a primeira renderização. */}
-      {positions.map((p, i) => {
-        const node = nodes[i];
-        const isActive = activeIdx === i;
-        const leftPct = (p.x / VB_W) * 100;
-        const topPct = (p.y / VB_H) * 100;
-        return (
-          <div
-            key={node.year}
-            role="button"
-            tabIndex={0}
-            aria-label={`${node.year}, ${tx(node.label)}`}
-            onMouseEnter={() => onHoverNode(i)}
-            onMouseLeave={() => onHoverNode(null)}
-            onFocus={() => onHoverNode(i)}
-            onBlur={() => onHoverNode(null)}
-            onClick={() => onHoverNode(isActive ? null : i)}
-            style={{
-              position: "absolute",
-              left: `${leftPct}%`,
-              top: `${topPct}%`,
-              transform: "translate(-50%, -50%)",
-              cursor: "pointer",
-              outline: "none",
-              opacity: 0,
-              animation: `nodeIn 0.5s ease forwards`,
-              animationDelay: `${0.3 + i * 0.15}s`,
-            }}
-          >
-            {/* Halo (só aparece em hover/active) */}
-            <div
-              style={{
-                position: "absolute", inset: -20,
-                borderRadius: "50%",
-                background: `radial-gradient(circle, ${node.glow} 0%, transparent 70%)`,
-                opacity: isActive ? 1 : 0,
-                transition: "opacity 0.25s ease",
-                pointerEvents: "none",
-              }}
-            />
-            {/* Anel pulsante — CSS puro, nunca toca na posição */}
-            <div
-              style={{
-                position: "absolute", inset: isActive ? -13 : -9,
-                borderRadius: "50%",
-                border: `1.5px solid ${node.color}`,
-                opacity: isActive ? 0.9 : 0.55,
-                transition: "inset 0.25s ease, opacity 0.25s ease",
-                animation: "ringPulse 2.6s ease-in-out infinite",
-                animationDelay: `${i * 0.3}s`,
-              }}
-            />
-            {/* Núcleo */}
-            <div
-              style={{
-                width: isActive ? 15 : 11,
-                height: isActive ? 15 : 11,
-                borderRadius: "50%",
-                background: `radial-gradient(circle at 35% 35%, #fff, ${node.color})`,
-                boxShadow: `0 0 12px ${node.glow}, 0 0 4px ${node.color}`,
-                transition: "width 0.25s ease, height 0.25s ease",
-              }}
-            />
-            {/* Rótulo */}
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: "50%",
-                transform: "translateX(-50%)",
-                marginTop: 10,
-                textAlign: "center",
-                whiteSpace: "nowrap",
-                pointerEvents: "none",
-              }}
-            >
-              <div style={{
-                fontFamily: "monospace", fontWeight: 800,
-                fontSize: isActive ? 13 : 11,
-                color: isActive ? "#fff" : node.color,
-                letterSpacing: 1,
-                transition: "font-size 0.2s ease, color 0.2s ease",
-              }}>
-                {node.year}
-              </div>
-              <div style={{
-                fontFamily: "monospace", fontSize: 8,
-                color: node.color + (isActive ? "cc" : "77"),
-                letterSpacing: 2, marginTop: 1,
-              }}>
-                {tx(node.label)}
-              </div>
+function Viewer({ start, onClose }: { start: number; onClose: () => void }) {
+    const { t } = useLang();
+    const [k, setK] = useState(start);
+    const n = CKEYS.length;
+    const go = (d: number) => setK((x) => (x + d + n) % n);
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+            if (e.key === "ArrowLeft") go(-1);
+            if (e.key === "ArrowRight") go(1);
+        };
+        window.addEventListener("keydown", onKey);
+        document.documentElement.style.overflow = "hidden";
+        return () => { window.removeEventListener("keydown", onKey); document.documentElement.style.overflow = ""; };
+    });
+    const c = CERTS[CKEYS[k]];
+    return (
+        <div className="fixed inset-0 z-[60] grid grid-rows-[auto_1fr_auto] bg-[rgba(2,6,14,.95)]" role="dialog" aria-modal="true" aria-label={t("Certificado", "Certificate")}>
+            <div className="flex items-center justify-between gap-3 px-4 pt-4">
+                <span className="font-mono text-xs tracking-widest text-cyan-200/70">{String(k + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
+                <button type="button" onClick={onClose} aria-label={t("Fechar", "Close")} className="grid h-11 w-11 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">✕</button>
             </div>
-          </div>
-        );
-      })}
-
-      {/* Partículas decorativas flutuantes — puramente cosméticas,
-          posições fixas via CSS, nunca reposicionadas em JS. */}
-      {[
-        { left: "18%", top: "70%", delay: "0s", size: 3 },
-        { left: "38%", top: "82%", delay: "1.2s", size: 2 },
-        { left: "62%", top: "24%", delay: "2.1s", size: 2.5 },
-        { left: "81%", top: "58%", delay: "0.6s", size: 2 },
-      ].map((p, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: p.left, top: p.top,
-            width: p.size, height: p.size,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.5)",
-            animation: `floatParticle 4.5s ease-in-out infinite`,
-            animationDelay: p.delay,
-            pointerEvents: "none",
-          }}
-        />
-      ))}
-
-      <style>{`
-        @keyframes timelineDraw {
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes nodeIn {
-          from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-        @keyframes ringPulse {
-          0%, 100% { transform: scale(1); opacity: 0.55; }
-          50%      { transform: scale(1.12); opacity: 0.9; }
-        }
-        @keyframes floatParticle {
-          0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
-          50%      { transform: translateY(-10px) scale(1.3); opacity: 0.5; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════
-   PAINEL DE EVENTOS DO ANO
-══════════════════════════════════════════════════════════ */
-function YearPanel({ node, visible }: { node: typeof TIMELINE_NODES[0] | null; visible: boolean }) {
-  const tx = useTx();
-  // Guarda o último ano aberto e reinicia a animação quando ele muda (ajuste durante o render, sem efeito)
-  const [rendered, setRendered] = useState<typeof TIMELINE_NODES[0] | null>(node);
-  const [animKey, setAnimKey] = useState(node ? 1 : 0);
-  const [prevNode, setPrevNode] = useState(node);
-  if (node !== prevNode) {
-    setPrevNode(node);
-    if (node) { setRendered(node); setAnimKey(k => k + 1); }
-  }
-
-  if (!rendered) return (
-    <div style={{
-      minHeight: 180,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "monospace", fontSize: 11, color: "rgba(34,197,94,0.3)", letterSpacing: 3,
-    }}>
-      {tx("// PASSE O MOUSE SOBRE UM NÓ")}
-    </div>
-  );
-
-  const c = rendered.color;
-
-  return (
-    <div style={{
-      padding: "20px 24px",
-      background: "rgba(3,10,6,0.7)",
-      border: `1px solid ${c}44`,
-      borderRadius: 16,
-      boxShadow: `0 0 40px ${c}18, inset 0 0 30px ${c}08`,
-      minHeight: 180,
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(8px)",
-      transition: "opacity 0.3s ease, transform 0.3s ease",
-    }}>
-      {/* Header do painel */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: c, boxShadow: `0 0 10px ${c}` }} />
-        <span style={{ fontFamily: "monospace", fontWeight: 900, fontSize: 22, color: c, letterSpacing: 1 }}>
-          {rendered.year}
-        </span>
-        <span style={{ fontFamily: "monospace", fontSize: 9, color: c + "88", letterSpacing: 3, textTransform: "uppercase" }}>
-          // {tx(rendered.label)}
-        </span>
-        <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${c}40, transparent)` }} />
-      </div>
-
-      {/* Eventos com entrada cascata */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {rendered.events.map((ev, i) => (
-          <div
-            key={`${animKey}-${i}`}
-            style={{
-              display: "flex", alignItems: "flex-start", gap: 10,
-              opacity: 0,
-              animation: `eventIn 0.35s ease forwards`,
-              animationDelay: `${i * 0.08}s`,
-            }}
-          >
-            <span style={{ fontSize: 14, lineHeight: 1.4, flexShrink: 0 }}>{ev.icon}</span>
-            <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(220,240,220,0.75)", lineHeight: 1.6 }}>
-              {tx(ev.text)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════
-   CARD DE CERTIFICADO com flip 3D
-══════════════════════════════════════════════════════════ */
-function CertCard({ cert }: { cert: typeof CERTIFICATES[0] }) {
-  const tx = useTx();
-  const { t } = useLang();
-  const [hovering, setHovering] = useState(false);
-  const [tapped, setTapped] = useState(false);
-  const flipped = hovering || tapped;
-  const c = cert.color;
-
-  return (
-    <div
-      style={{ perspective: 900, height: 140, cursor: "pointer" }}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      onClick={() => setTapped(t => !t)}
-    >
-      <div style={{
-        width: "100%", height: "100%",
-        position: "relative",
-        transformStyle: "preserve-3d",
-        transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
-      }}>
-        {/* FRENTE */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backfaceVisibility: "hidden",
-          background: "rgba(3,10,6,0.9)",
-          border: `1px solid ${c}44`,
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: `0 0 0 1px ${c}18, 0 0 24px ${c}14`,
-          padding: "16px 18px",
-          display: "flex", flexDirection: "column", justifyContent: "space-between",
-        }}>
-          {/* Scan lines */}
-          <div style={{
-            position: "absolute", inset: 0, pointerEvents: "none",
-            backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 3px)",
-          }} />
-
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{
-                fontFamily: "monospace", fontWeight: 900, fontSize: 10,
-                padding: "2px 8px", border: `1px solid ${c}55`,
-                color: c, background: c + "12", letterSpacing: 1,
-              }}>
-                {cert.icon}
-              </span>
-              <span style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.2)", letterSpacing: 2 }}>
-                {tx(cert.category).toUpperCase()}
-              </span>
+            <div className="relative grid min-h-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4">
+                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="grid h-12 w-12 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">‹</button>
+                <figure className="grid min-w-0 justify-items-center gap-3">
+                    <img src={`/certs/${CKEYS[k]}.jpg`} alt={c.t} className="max-h-[calc(100vh-210px)] max-w-full rounded-md shadow-[0_0_0_1px_rgba(0,190,255,.5),0_0_40px_rgba(0,149,255,.3)]" />
+                    <figcaption className="text-center text-sm font-semibold text-white">{c.t}<small className="mt-1 block font-mono text-xs text-sky-200">{c.i} · {c.d}</small></figcaption>
+                </figure>
+                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="grid h-12 w-12 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">›</button>
             </div>
-            <p style={{
-              fontFamily: "monospace", fontSize: 11, color: "rgba(220,240,220,0.85)",
-              lineHeight: 1.55, margin: 0,
-            }}>
-              {tx(cert.title)}
-            </p>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.3)" }}>
-              {cert.institution} · {tx(cert.date)}
-            </span>
-            <span style={{ fontFamily: "monospace", fontSize: 8, color: c + "88", letterSpacing: 1 }}>
-              {t("VIRAR →", "FLIP →")}
-            </span>
-          </div>
-          {/* Barra inferior colorida */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
-            background: `linear-gradient(90deg, transparent, ${c}, transparent)` }} />
+            <div className="flex flex-wrap justify-center gap-1.5 px-4 pb-5 pt-3">
+                {CKEYS.map((ck, i) => (
+                    <button key={ck} type="button" onClick={() => setK(i)} aria-label={CERTS[ck].t}
+                        className={`h-8 w-11 rounded border-2 bg-cover bg-center transition ${i === k ? "border-sky-400 opacity-100" : "border-transparent opacity-50"}`}
+                        style={{ backgroundImage: `url(/certs/${ck}.jpg)` }} />
+                ))}
+            </div>
         </div>
-
-        {/* VERSO */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backfaceVisibility: "hidden",
-          transform: "rotateY(180deg)",
-          background: c + "18",
-          border: `1px solid ${c}66`,
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: `0 0 40px ${c}30, inset 0 0 20px ${c}10`,
-          padding: "16px 18px",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
-        }}>
-          <div style={{ fontSize: 28 }}>🎓</div>
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 13, color: c, margin: "0 0 4px 0", letterSpacing: 1 }}>
-              {cert.institution}
-            </p>
-            <p style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.35)", margin: 0, letterSpacing: 2 }}>
-              {tx(cert.date).toUpperCase()}
-            </p>
-          </div>
-          <div style={{ height: 1, width: "60%", background: `linear-gradient(90deg,transparent,${c},transparent)` }} />
-          <p style={{ fontFamily: "monospace", fontSize: 8, color: c + "aa", letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>
-            {tx(cert.category)}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 /* ══════════════════════════════════════════════════════════
-   SEÇÃO PRINCIPAL
+   MODO JOGO (mundos por ano, level sobe com o ano)
+══════════════════════════════════════════════════════════ */
+function Game() {
+    const [viewer, setViewer] = useState<number | null>(null);
+    const [cur, setCur] = useState(0);
+    const [lv, setLv] = useState(16);
+    const [toast, setToast] = useState<{ g: string; n?: string } | null>(null);
+    const [lvUp, setLvUp] = useState<string | null>(null);
+    const timers = useRef<number[]>([]);
+    useEffect(() => () => timers.current.forEach(clearTimeout), []);
+    const later = (f: () => void, ms: number) => { timers.current.push(window.setTimeout(f, ms)); };
+
+    const total = YEARS.reduce((a, y) => a + y.e.length, 0);
+    const achieved = YEARS.reduce((a, y) => a + y.e.filter((e) => e.g && e.g !== "início").length, 0);
+    const done = YEARS.slice(0, cur + 1).reduce((a, y) => a + y.e.length, 0);
+    const got = YEARS.slice(0, cur + 1).reduce((a, y) => a + y.e.filter((e) => e.g && e.g !== "início").length, 0);
+    const yr = YEARS[cur];
+
+    const go = (i: number) => {
+        const target = 16 + i;
+        const diff = target - lv;
+        setCur(i);
+        if (diff !== 0) {
+            // level sobe (ou desce) um por vez, como no jogo
+            const dir = diff > 0 ? 1 : -1;
+            let v = lv;
+            const tick = () => {
+                v += dir;
+                setLv(v);
+                if (v !== target) later(tick, 160);
+            };
+            tick();
+            if (dir > 0) {
+                const n = diff;
+                setLvUp(n > 1 ? `LEVEL UP! +${n}` : "LEVEL UP!");
+                later(() => setLvUp(null), 1500);
+            }
+        }
+        const best = YEARS[i].e.find((e) => e.g && e.g !== "início");
+        if (best) {
+            setToast({ g: best.g!, n: best.n });
+            later(() => setToast(null), 3600);
+        } else setToast(null);
+    };
+
+    return (
+        <div className="relative overflow-hidden rounded-2xl bg-[#0b0a1f] font-['Press_Start_2P'] text-white shadow-[0_0_0_4px_#1e1b4b,0_0_0_8px_#0b0a1f,0_30px_60px_rgba(0,0,0,.55)]">
+            <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(2px_2px_at_10%_20%,#fff_50%,transparent_51%),radial-gradient(2px_2px_at_60%_70%,#a5b4fc_50%,transparent_51%),radial-gradient(2px_2px_at_85%_30%,#fff_50%,transparent_51%)] [background-size:200px_140px,200px_140px,260px_180px]" />
+            <div className="pointer-events-none absolute inset-0 [background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.18)_0_2px,transparent_2px_4px)]" />
+
+            <div className="relative z-10 flex flex-wrap items-center gap-4 border-b-4 border-[#312e81] bg-[#1e1b4b] px-4 py-4 text-[10px]">
+                <span>{unacc("JOÃO")}</span>
+                <span className="text-yellow-300">LV {lv}</span>
+                <div className="relative h-4 min-w-[120px] flex-1 border-[3px] border-white bg-[#0b0a1f]">
+                    <i className="absolute inset-y-0 left-0 bg-[repeating-linear-gradient(90deg,#4ade80_0_8px,#22c55e_8px_10px)] transition-[width] duration-700" style={{ width: `${(done / total) * 100}%` }} />
+                </div>
+                <span className="text-cyan-300">★ {got}/{achieved}</span>
+            </div>
+
+            {/* mapa de mundos */}
+            <div className="relative z-10 mx-4 mt-4 grid grid-cols-5 gap-2 max-[640px]:grid-cols-3 max-[640px]:gap-y-6">
+                {YEARS.map((y, i) => (
+                    <button key={y.y} type="button" onClick={() => go(i)} aria-current={i === cur}
+                        className="group flex flex-col items-center gap-2 text-center">
+                        <span className={`grid h-14 w-16 place-items-center text-base text-[#0b0a1f] transition-transform max-[640px]:h-12 max-[640px]:w-14 ${i === cur ? "animate-[bob_.8s_steps(2)_infinite]" : "group-hover:-translate-y-1"}`}
+                            style={{ background: y.c, boxShadow: "inset -6px -6px 0 rgba(0,0,0,.28), inset 6px 6px 0 rgba(255,255,255,.25), 0 6px 0 #000" }}>
+                            {i + 1}
+                        </span>
+                        <span className="text-[9px] leading-relaxed text-indigo-200">
+                            <b className="block text-[11px] font-normal text-white">{y.y}</b>{unacc(y.l.toUpperCase())}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
+            {/* diálogo do mundo */}
+            <div className="relative z-10 mx-4 mb-5 mt-6 border-4 border-white bg-[#0b0a1f] p-5 shadow-[0_0_0_4px_#0b0a1f,inset_0_0_0_4px_#312e81] text-[10px] leading-loose">
+                <h3 className="mb-2 text-[13px] font-normal" style={{ color: yr.c }}>
+                    {unacc(`MUNDO ${cur + 1} · ${yr.y}`)}
+                    <small className="block text-[9px] text-indigo-200">{unacc(`${yr.l.toUpperCase()} · ${yr.e.length} ${yr.e.length === 1 ? "MISSÃO" : "MISSÕES"}`)}</small>
+                </h3>
+                <ul className="m-0 mb-2 grid list-none gap-2 p-0 font-sans text-sm normal-case leading-relaxed">
+                    {yr.e.map((e, k) => (
+                        <li key={k} className="flex items-start gap-3">
+                            <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center border-[3px] border-green-400 after:h-1.5 after:w-1.5 after:bg-green-400" />
+                            <span>{e.t}</span>
+                        </li>
+                    ))}
+                </ul>
+                <div className="mt-3 flex flex-wrap gap-2.5">
+                    {yr.e.filter((e) => e.g).map((e, k) => (
+                        <span key={k} className="flex items-center gap-2 border-[3px] bg-[#1e1b4b] px-2.5 py-1.5 text-[8px] leading-snug" style={{ borderColor: TAG[e.g!] }}>
+                            <Pix name={ICON[e.g!]} />
+                            <span>{unacc(e.g!.toUpperCase())}{e.n ? <><br />{unacc(e.n.toUpperCase())}</> : null}</span>
+                        </span>
+                    ))}
+                    {yr.certs.map((ck) => (
+                        <button key={ck} type="button" onClick={() => setViewer(CKEYS.indexOf(ck))}
+                            className="flex items-center gap-2 border-[3px] border-blue-400 bg-[#1e1b4b] px-2.5 py-1.5 text-left text-[8px] leading-snug text-white transition-transform hover:-translate-y-0.5">
+                            <Pix name="scroll" color="#60a5fa" />
+                            <span>{unacc(`CERTIFICADO · ${CERTS[ck].i.toUpperCase()}`)}<br />{unacc(CERTS[ck].s)}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* marcos/fotos ligados aos projetos */}
+            <div className="relative z-10 mx-4 mb-5 flex flex-wrap gap-2">
+                {yr.e.filter((e) => e.p).map((e, k) => (
+                    <span key={k} className="flex items-center gap-2 bg-[#1e1b4b] px-2 py-1 font-sans text-xs normal-case text-indigo-100">
+                        <img src={e.p} alt="" className="h-5 w-5 object-contain" />{e.n}
+                    </span>
+                ))}
+            </div>
+
+            {toast && (
+                <div key={`${toast.g}-${cur}`} className="absolute bottom-4 right-4 z-20 flex max-w-[calc(100%-32px)] items-center gap-3 border-4 border-yellow-300 bg-[#0b0a1f] px-3 py-3 text-[8px] leading-relaxed shadow-[0_6px_0_#000] [animation:toastIn_.35s_steps(5)_both]">
+                    <Pix name={ICON[toast.g]} />
+                    <span><b className="block text-[9px] font-normal text-yellow-300">{unacc("CONQUISTA DESBLOQUEADA")}</b>{unacc(toast.g.toUpperCase())}{toast.n ? ` · ${unacc(toast.n.toUpperCase())}` : ""}</span>
+                </div>
+            )}
+            {lvUp && (
+                <div className="pointer-events-none absolute left-1/2 top-[38%] z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[clamp(14px,3vw,22px)] text-yellow-300 [text-shadow:4px_4px_0_#b45309,0_0_20px_rgba(253,224,71,.6)] [animation:lvUp_1.4s_steps(8)_forwards]">
+                    {lvUp}
+                </div>
+            )}
+            {viewer !== null && <Viewer start={viewer} onClose={() => setViewer(null)} />}
+        </div>
+    );
+}
+
+/* ══════════════════════════════════════════════════════════
+   PAREDE DE CERTIFICADOS (holograma azul)
+══════════════════════════════════════════════════════════ */
+function Wall() {
+    const { t } = useLang();
+    const [viewer, setViewer] = useState<number | null>(null);
+    const rot = ["-3deg", "2deg", "-1.5deg", "3deg", "2.5deg", "-2.5deg", "1.5deg", "-3.5deg"];
+    return (
+        <div className="mx-auto mt-16 w-full max-w-[1060px]">
+            <h3 className="mb-4 text-center font-mono text-xs uppercase tracking-[0.24em] text-sky-300 [text-shadow:0_0_12px_rgba(0,180,255,.6)]">{t("Certificados", "Certificates")}</h3>
+            <div className="relative isolate overflow-hidden rounded-[18px] bg-[#010614] shadow-[0_0_0_1px_rgba(0,149,255,.5),0_0_40px_rgba(0,149,255,.22),inset_0_0_60px_rgba(0,100,255,.14)] [background-image:linear-gradient(rgba(0,170,255,.09)_1px,transparent_1px),linear-gradient(90deg,rgba(0,170,255,.09)_1px,transparent_1px),radial-gradient(80%_60%_at_50%_0%,rgba(0,120,255,.28),transparent_70%)] [background-size:44px_44px,44px_44px,auto]">
+                <div className="pointer-events-none absolute inset-0 z-[1] [background:repeating-linear-gradient(0deg,transparent_0_3px,rgba(0,180,255,.05)_3px_4px)]" />
+                <div className="pointer-events-none absolute inset-2.5 z-[3] rounded-xl border-2 border-sky-400/90 [mask:linear-gradient(#000_0_0)_top_left/26px_26px_no-repeat,linear-gradient(#000_0_0)_top_right/26px_26px_no-repeat,linear-gradient(#000_0_0)_bottom_left/26px_26px_no-repeat,linear-gradient(#000_0_0)_bottom_right/26px_26px_no-repeat]" />
+                <div className="relative z-[2] grid grid-cols-2 gap-x-4 gap-y-10 px-5 pb-12 pt-16 md:grid-cols-4 md:gap-x-[30px] md:px-10">
+                    {CKEYS.map((ck, i) => (
+                        <button key={ck} type="button" onClick={() => setViewer(i)} aria-label={CERTS[ck].t}
+                            className="group relative cursor-pointer bg-transparent p-0 text-left transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.03]"
+                            style={{ transform: `rotate(${rot[i]})` }}>
+                            <span className="absolute left-1/2 top-[-10px] z-[2] h-[22px] w-[42%] -translate-x-1/2 -rotate-3 bg-gradient-to-b from-white/70 to-stone-100/60 [clip-path:polygon(0_8%,4%_0,9%_10%,14%_0,20%_8%,80%_6%,86%_0,91%_9%,96%_0,100%_8%,100%_92%,95%_100%,90%_91%,84%_100%,78%_92%,22%_94%,16%_100%,10%_90%,5%_100%,0_92%)] shadow-sm" />
+                            <img src={`/certs/${ck}.jpg`} alt="" loading="lazy"
+                                className="block h-auto w-full rounded-sm shadow-[0_0_0_1px_rgba(0,190,255,.55),0_0_22px_rgba(0,149,255,.35),0_14px_24px_rgba(0,0,0,.6)] transition-shadow group-hover:shadow-[0_0_0_1.5px_rgba(0,210,255,.9),0_0_34px_rgba(0,170,255,.55)]" />
+                            <span className="mt-3 block text-center font-sans text-xs leading-snug text-sky-200 [text-shadow:0_0_10px_rgba(0,170,255,.5)]">{CERTS[ck].t}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+            {viewer !== null && <Viewer start={viewer} onClose={() => setViewer(null)} />}
+        </div>
+    );
+}
+
+/* ══════════════════════════════════════════════════════════
+   SEÇÃO
 ══════════════════════════════════════════════════════════ */
 export default function Training() {
-  const { t } = useLang();
-  // Começa no ano mais recente, já aberto: o conteúdo aparece sem precisar de interação
-  const [activeNode, setActiveNode] = useState<number | null>(TIMELINE_NODES.length - 1);
-  const hovering = useRef(false);
-  const lastTouch = useRef(0);
-  const sectionRef = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold: 0.2 }
-    );
-    if (sectionRef.current) obs.observe(sectionRef.current);
-    return () => obs.disconnect();
-  }, []);
-
-  // Enquanto ninguém interage, a linha do tempo avança sozinha pelos anos
-  // Depois de 2026 volta para 2022 (loop). Se a pessoa mexeu, espera 6 s parada antes de retomar.
-  useEffect(() => {
-    if (!inView) return;
-    const id = setInterval(() => {
-      if (hovering.current || Date.now() - lastTouch.current < 6000) return;
-      setActiveNode(i => ((i ?? -1) + 1) % TIMELINE_NODES.length);
-    }, 4500);
-    return () => clearInterval(id);
-  }, [inView]);
-
-  // Ao tirar o mouse, o painel fica no último ano visto em vez de sumir
-  const handleHoverNode = (idx: number | null) => {
-    lastTouch.current = Date.now();
-    hovering.current = idx !== null;
-    if (idx !== null) setActiveNode(idx);
-  };
-
-  return (
-    <section
-      ref={sectionRef}
-      id="training"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-24"
-    >
-      <div className="relative z-10 w-full max-w-5xl">
-
-        {/* ── TÍTULO ── */}
-        <div
-          className="text-center mb-16"
-          style={{
-            opacity: inView ? 1 : 0,
-            transform: inView ? "translateY(0)" : "translateY(20px)",
-            transition: "all 0.7s ease",
-          }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
-            <span className="text-emerald-400/40 font-light">&lt;</span>
-            {" "}{t("Formação", "Education")}{" "}
-            <span className="text-emerald-400/40 font-light">/&gt;</span>
-          </h2>
-          <p className="mt-4 mx-auto max-w-xl text-sm leading-relaxed text-zinc-400">{t("Cursos, certificados e a trajetória que me trouxe até aqui.", "Courses, certificates and the path that brought me here.")}</p>
-        </div>
-
-        {/* ══════════════════════════════════
-            LINHA DO TEMPO — SINAL
-        ══════════════════════════════════ */}
-        <div
-          style={{
-            opacity: inView ? 1 : 0,
-            transform: inView ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.7s ease 0.2s",
-            marginBottom: 32,
-          }}
-        >
-          {/* Label da seção */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 8px #22c55e" }} />
-            <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(34,197,94,0.5)", letterSpacing: 3, textTransform: "uppercase" }}>
-              {t("// linha do tempo", "// timeline")}
-            </span>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(34,197,94,0.2),transparent)" }} />
-          </div>
-
-          {/* Osciloscópio da trajetória */}
-          <div
-            style={{
-              position: "relative",
-              background: "rgba(3,10,6,0.6)",
-              backgroundImage: "repeating-linear-gradient(0deg, rgba(34,197,94,0.035) 0px, rgba(34,197,94,0.035) 1px, transparent 1px, transparent 5px)",
-              border: "1px solid rgba(34,197,94,0.12)",
-              borderRadius: 16,
-              boxShadow: "0 0 40px rgba(34,197,94,0.06)",
-              marginBottom: 12,
-              padding: "14px 12px 30px",
-            }}
-          >
-            {/* Leitura de canal, no canto — reforça a metáfora de sinal sem competir com os nós */}
-            <div style={{
-              position: "absolute", top: 10, right: 12,
-              fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
-              color: "rgba(34,197,94,0.35)", pointerEvents: "none",
-            }}>
-              CH.1 · TRAJETÓRIA
+    const { t } = useLang();
+    return (
+        <section id="training" className="relative flex flex-col items-center px-4 py-28">
+            <div className="w-full max-w-[1100px] text-center">
+                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
+                    <span className="text-emerald-400/40 font-light">&lt;</span>
+                    {" "}{t("Formação", "Training")}{" "}
+                    <span className="text-emerald-400/40 font-light">/&gt;</span>
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">
+                    {t("Cursos, certificados e a trajetória que me trouxe até aqui.", "Courses, certificates and the path that brought me here.")}
+                </p>
             </div>
-            <NeuralTimeline
-              nodes={TIMELINE_NODES}
-              activeIdx={activeNode}
-              onHoverNode={handleHoverNode}
-            />
-          </div>
-
-          {/* Painel de eventos */}
-          <YearPanel
-            node={activeNode !== null ? TIMELINE_NODES[activeNode] : null}
-            visible={activeNode !== null}
-          />
-        </div>
-
-        {/* ══════════════════════════════════
-            CERTIFICADOS
-        ══════════════════════════════════ */}
-        <div
-          style={{
-            opacity: inView ? 1 : 0,
-            transform: inView ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.7s ease 0.4s",
-            marginTop: 64,
-          }}
-        >
-          {/* Label */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#06b6d4", boxShadow: "0 0 8px #06b6d4" }} />
-            <span style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(6,182,212,0.5)", letterSpacing: 3, textTransform: "uppercase" }}>
-              {t("// certificados", "// certificates")}
-            </span>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(6,182,212,0.2),transparent)" }} />
-            <span style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.15)", letterSpacing: 2 }}>
-              {CERTIFICATES.length} EMITIDOS
-            </span>
-          </div>
-
-          <p style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 1, marginBottom: 20 }}>
-            {t("// passe o mouse para virar", "// hover to flip")}
-          </p>
-
-          {/* Grid de cards */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-            gap: 12,
-          }}>
-            {CERTIFICATES.map((cert, i) => (
-              <div
-                key={i}
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? "translateY(0)" : "translateY(20px)",
-                  transition: `all 0.5s ease ${0.5 + i * 0.07}s`,
-                }}
-              >
-                <CertCard cert={cert} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Animações globais */}
-      <style>{`
-        @keyframes eventIn {
-          from { opacity: 0; transform: translateX(-10px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
-    </section>
-  );
+            <div className="mt-12 w-full max-w-[1100px]">
+                <Game />
+            </div>
+            <Wall />
+            <style>{`
+                @keyframes toastIn { from { transform: translateX(calc(100% + 40px)); } to { transform: none; } }
+                @keyframes lvUp { 0% { opacity: 0; transform: translate(-50%, -20%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 75% { opacity: 1; transform: translate(-50%, -80%); } 100% { opacity: 0; transform: translate(-50%, -110%); } }
+                @keyframes bob { 50% { transform: translateY(-6px); } }
+                @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+            `}</style>
+        </section>
+    );
 }

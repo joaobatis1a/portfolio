@@ -130,7 +130,7 @@ function Footer() {
             </div>
 
             <style>{`
-                .ftx { position: relative; max-width: 1120px; margin: 0 auto; border-radius: 28px; padding: 48px 48px 22px; overflow: hidden; isolation: isolate;
+                .ftx { position: relative; max-width: 1240px; margin: 0 auto; border-radius: 28px; padding: 48px 48px 22px; overflow: hidden; isolation: isolate;
                     background: linear-gradient(135deg, rgba(52,211,153,.07), rgba(34,211,238,.04) 45%, rgba(0,0,0,.35));
                     border: 1px solid rgba(52,211,153,.24); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
                     box-shadow: 0 40px 90px -20px rgba(0,0,0,.85), 0 0 70px -10px rgba(52,211,153,.14); }
