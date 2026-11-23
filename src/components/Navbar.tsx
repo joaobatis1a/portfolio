@@ -173,7 +173,7 @@ function Navbar() {
                 }} />
 
                 <nav
-                    className="flex flex-col items-center justify-center h-full gap-1"
+                    className="flex flex-col items-center justify-center h-full gap-2.5"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Logo */}
@@ -200,30 +200,21 @@ function Navbar() {
                         }}
                     />
 
-                    {NAV_LINKS.map(({ to, label, icon }, i) => (
+                    {NAV_LINKS.map(({ to, label }, i) => (
                         <Link
                             key={to}
                             to={to} smooth offset={-70} duration={500}
                             onClick={() => { setOpen(false); fireWarp(); }}
                             style={{
-                                color: active === to ? "rgba(170,228,255,1)" : "rgba(150,210,255,0.78)",
-                                textShadow: active === to ? "0 0 10px rgba(0,180,255,0.75)" : "none",
                                 opacity: open ? 1 : 0,
                                 transform: open ? "translateX(0)" : "translateX(-20px)",
                                 transition: `opacity 0.3s ease ${0.06 + i * 0.05}s, transform 0.35s ease ${0.06 + i * 0.05}s`,
                             }}
-                            className={`drawer-link cursor-pointer w-56 flex items-center gap-3 px-5 py-3 rounded-lg text-base font-medium transition-all duration-200
-                                ${active === to ? "drawer-link-active" : ""}`}
+                            className={`dr-row cursor-pointer ${active === to ? "on" : ""}`}
                         >
-                            <span className="drawer-icon text-lg w-5 text-center"
-                                style={{ color: active === to ? "rgba(120,220,255,1)" : "rgba(0,170,255,0.55)" }}>
-                                {icon}
-                            </span>
-                            <span className="drawer-label">{pick(label)}</span>
-                            {active === to && (
-                                <span className="ml-auto w-1.5 h-1.5 rounded-full"
-                                    style={{ background: "rgba(0,190,255,1)", boxShadow: "0 0 6px rgba(0,190,255,0.9)" }} />
-                            )}
+                            <span className="dr-n">{String(i + 1).padStart(2, "0")}</span>
+                            <span className="dr-l">{pick(label)}</span>
+                            <svg className="dr-arr" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
                         </Link>
                     ))}
 
@@ -312,6 +303,29 @@ function Navbar() {
                     .nb .burger { display: grid; }
                 }
 
+                /* Itens do menu mobile: pílulas holográficas, mesmo desenho da barra */
+                .dr-row {
+                    position: relative; isolation: isolate; display: flex; align-items: center; gap: 14px;
+                    width: min(280px, 84vw); height: 52px; padding: 0 20px; border-radius: 999px;
+                    background-color: rgba(0,110,255,0.08);
+                    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,180,255,0.05) 3px 4px);
+                    box-shadow: 0 0 0 1px rgba(0,149,255,0.4), 0 0 22px rgba(0,149,255,0.18), inset 0 0 20px rgba(0,100,255,0.1);
+                    transition: background-color .25s, box-shadow .25s;
+                }
+                .dr-row::before {
+                    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+                    border: 2px solid rgba(0,190,255,0.9); opacity: .45; transition: opacity .25s;
+                    -webkit-mask: linear-gradient(#000 0 0) top left / 16px 16px no-repeat, linear-gradient(#000 0 0) top right / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+                            mask: linear-gradient(#000 0 0) top left / 16px 16px no-repeat, linear-gradient(#000 0 0) top right / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+                }
+                .dr-row:hover::before, .dr-row.on::before { opacity: 1; }
+                .dr-row.on { background-color: rgba(0,149,255,0.18); box-shadow: 0 0 0 1px rgba(0,190,255,0.75), 0 0 30px rgba(0,149,255,0.4), inset 0 0 22px rgba(0,100,255,0.16); }
+                .dr-n { font: 600 11px "Roboto Mono", ui-monospace, monospace; letter-spacing: .14em; color: rgba(0,190,255,0.75); }
+                .dr-l { flex: 1; font: 600 17px "Poppins", sans-serif; color: rgba(150,210,255,0.85); transition: color .25s, transform .25s; }
+                .dr-row:hover .dr-l { color: rgba(190,235,255,1); transform: translateX(3px); }
+                .dr-row.on .dr-l { color: #e6f6ff; text-shadow: 0 0 12px rgba(0,180,255,0.7); }
+                .dr-arr { width: 14px; height: 14px; flex: none; color: rgba(0,190,255,0.6); opacity: .5; transition: opacity .25s, transform .25s; }
+                .dr-row:hover .dr-arr, .dr-row.on .dr-arr { opacity: 1; transform: translateX(2px); }
                 /* Drawer link — barrinha lateral deslizando */
                 .drawer-link {
                     position: relative;
