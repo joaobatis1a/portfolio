@@ -154,7 +154,7 @@ function Navbar() {
             <div
                 className="lg:hidden fixed inset-0 z-40"
                 style={{
-                    background: "rgba(2,8,4,0.96)",
+                    background: "rgba(2,10,24,0.96)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
                     opacity: open ? 1 : 0,
@@ -168,7 +168,7 @@ function Navbar() {
                     position: "absolute", top: "35%", left: "50%",
                     transform: "translate(-50%,-50%)",
                     width: 400, height: 400, borderRadius: "50%",
-                    background: "radial-gradient(ellipse, rgba(6,182,212,0.07) 0%, transparent 70%)",
+                    background: "radial-gradient(ellipse, rgba(0,149,255,0.12) 0%, transparent 70%)",
                     pointerEvents: "none",
                 }} />
 
@@ -178,8 +178,10 @@ function Navbar() {
                 >
                     {/* Logo */}
                     <div
-                        className="font-bold text-xl bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-6"
+                        className="font-bold text-xl tracking-widest mb-6"
                         style={{
+                            color: "rgba(120,210,255,0.95)",
+                            textShadow: "0 0 12px rgba(0,180,255,0.7)",
                             opacity: open ? 1 : 0,
                             transform: open ? "translateY(0)" : "translateY(-10px)",
                             transition: "opacity 0.3s ease, transform 0.3s ease",
@@ -192,7 +194,7 @@ function Navbar() {
                     <div
                         className="h-[1px] w-48 mb-4"
                         style={{
-                            background: "linear-gradient(90deg, transparent, rgba(6,182,212,0.4), transparent)",
+                            background: "linear-gradient(90deg, transparent, rgba(0,190,255,0.55), transparent)",
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.1s",
                         }}
@@ -204,24 +206,23 @@ function Navbar() {
                             to={to} smooth offset={-70} duration={500}
                             onClick={() => { setOpen(false); fireWarp(); }}
                             style={{
+                                color: active === to ? "rgba(170,228,255,1)" : "rgba(150,210,255,0.78)",
+                                textShadow: active === to ? "0 0 10px rgba(0,180,255,0.75)" : "none",
                                 opacity: open ? 1 : 0,
                                 transform: open ? "translateX(0)" : "translateX(-20px)",
                                 transition: `opacity 0.3s ease ${0.06 + i * 0.05}s, transform 0.35s ease ${0.06 + i * 0.05}s`,
                             }}
                             className={`drawer-link cursor-pointer w-56 flex items-center gap-3 px-5 py-3 rounded-lg text-base font-medium transition-all duration-200
-                                ${active === to
-                                    ? "text-cyan-300 drawer-link-active"
-                                    : "text-zinc-400 hover:text-white"
-                                }`}
+                                ${active === to ? "drawer-link-active" : ""}`}
                         >
                             <span className="drawer-icon text-lg w-5 text-center"
-                                style={{ color: active === to ? "rgba(34,211,238,0.9)" : "rgba(255,255,255,0.2)" }}>
+                                style={{ color: active === to ? "rgba(120,220,255,1)" : "rgba(0,170,255,0.55)" }}>
                                 {icon}
                             </span>
                             <span className="drawer-label">{pick(label)}</span>
                             {active === to && (
-                                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400"
-                                    style={{ boxShadow: "0 0 6px rgba(34,211,238,0.8)" }} />
+                                <span className="ml-auto w-1.5 h-1.5 rounded-full"
+                                    style={{ background: "rgba(0,190,255,1)", boxShadow: "0 0 6px rgba(0,190,255,0.9)" }} />
                             )}
                         </Link>
                     ))}
@@ -230,19 +231,19 @@ function Navbar() {
                     <div
                         className="h-[1px] w-48 mt-4"
                         style={{
-                            background: "linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent)",
+                            background: "linear-gradient(90deg, transparent, rgba(0,190,255,0.4), transparent)",
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.45s",
                         }}
                     />
                     <p
-                        className="text-zinc-600 text-[10px] mt-3 tracking-[3px] uppercase"
+                        className="text-[10px] mt-3 tracking-[3px] uppercase"
                         style={{
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.5s",
                         }}
                     >
-                        {t("toque fora para fechar", "tap outside to close")}
+                        <span style={{ color: "rgba(120,190,235,0.6)" }}>{t("toque fora para fechar", "tap outside to close")}</span>
                     </p>
                 </nav>
             </div>
@@ -321,7 +322,8 @@ function Navbar() {
                     position: absolute;
                     left: 0; top: 0; bottom: 0;
                     width: 2px;
-                    background: linear-gradient(to bottom, #34d399, #22d3ee);
+                    background: linear-gradient(to bottom, rgba(0,190,255,0.9), rgba(120,220,255,0.9));
+                    box-shadow: 0 0 8px rgba(0,190,255,0.7);
                     transform: scaleY(0);
                     transform-origin: center;
                     transition: transform 0.25s ease;
@@ -335,7 +337,7 @@ function Navbar() {
                     content: "";
                     position: absolute;
                     inset: 0;
-                    background: linear-gradient(90deg, rgba(6,182,212,0.06), transparent);
+                    background: linear-gradient(90deg, rgba(0,149,255,0.14), transparent);
                     opacity: 0;
                     transition: opacity 0.25s ease;
                 }
@@ -344,11 +346,11 @@ function Navbar() {
                     opacity: 1 !important;
                 }
                 .drawer-link:hover .drawer-icon {
-                    color: rgba(34,211,238,0.8) !important;
+                    color: rgba(120,220,255,1) !important;
                     transition: color 0.2s ease;
                 }
                 .drawer-link:hover .drawer-label {
-                    color: white;
+                    color: rgba(170,228,255,1);
                     transform: translateX(3px);
                     display: inline-block;
                     transition: transform 0.2s ease, color 0.2s ease;
