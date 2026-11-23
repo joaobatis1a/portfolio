@@ -65,7 +65,7 @@ const unacc = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 function Pix({ name, color }: { name: string; color?: string }) {
     return (
-        <svg viewBox="0 0 8 8" shapeRendering="crispEdges" width="22" height="22" aria-hidden="true" className="shrink-0">
+        <svg viewBox="0 0 8 8" shapeRendering="crispEdges" width="24" height="24" aria-hidden="true" className="shrink-0">
             {PIX[name].map((row, y) =>
                 [...row].map((ch, x) => ch === "." ? null : (
                     <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={name === "scroll" && color ? color : PC[ch]} />
@@ -122,6 +122,7 @@ function Viewer({ start, onClose }: { start: number; onClose: () => void }) {
    MODO JOGO (mundos por ano, level sobe com o ano)
 ══════════════════════════════════════════════════════════ */
 function Game() {
+    const { t } = useLang();
     const [viewer, setViewer] = useState<number | null>(null);
     const [cur, setCur] = useState(0);
     const [lv, setLv] = useState(16);
@@ -194,12 +195,12 @@ function Game() {
             </div>
 
             {/* diálogo do mundo */}
-            <div className="relative z-10 mx-4 mb-5 mt-6 border-4 border-white bg-[#0b0a1f] p-5 shadow-[0_0_0_4px_#0b0a1f,inset_0_0_0_4px_#312e81] text-[10px] leading-loose">
+            <div className="relative z-10 mx-[18px] mb-5 mt-1.5 border-4 border-white bg-[#0b0a1f] px-5 py-[18px] shadow-[0_0_0_4px_#0b0a1f,inset_0_0_0_4px_#312e81] text-[10.5px] leading-[2]">
                 <h3 className="mb-2 text-[13px] font-normal" style={{ color: yr.c }}>
                     {unacc(`MUNDO ${cur + 1} · ${yr.y}`)}
-                    <small className="block text-[9px] text-indigo-200">{unacc(`${yr.l.toUpperCase()} · ${yr.e.length} ${yr.e.length === 1 ? "MISSÃO" : "MISSÕES"}`)}</small>
+                    <small className="block text-[9px] text-indigo-200">{unacc(`${yr.l.toUpperCase()} · ${yr.e.length} ${yr.e.length === 1 ? "MISSÃO CONCLUÍDA" : "MISSÕES CONCLUÍDAS"}`)}</small>
                 </h3>
-                <ul className="m-0 mb-2 grid list-none gap-2 p-0 font-sans text-sm normal-case leading-relaxed">
+                <ul className="m-0 mb-2 grid list-none gap-2.5 p-0 font-sans text-[13.5px] normal-case leading-normal">
                     {yr.e.map((e, k) => (
                         <li key={k} className="flex items-start gap-3">
                             <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center border-[3px] border-green-400 after:h-1.5 after:w-1.5 after:bg-green-400" />
@@ -224,17 +225,18 @@ function Game() {
                 </div>
             </div>
 
-            {/* marcos/fotos ligados aos projetos */}
-            <div className="relative z-10 mx-4 mb-5 flex flex-wrap gap-2">
-                {yr.e.filter((e) => e.p).map((e, k) => (
-                    <span key={k} className="flex items-center gap-2 bg-[#1e1b4b] px-2 py-1 font-sans text-xs normal-case text-indigo-100">
-                        <img src={e.p} alt="" className="h-5 w-5 object-contain" />{e.n}
-                    </span>
+            <div className="relative z-10 flex justify-center gap-3 pb-5">
+                {[-1, 1].map((d) => (
+                    <button key={d} type="button" onClick={() => go((cur + d + YEARS.length) % YEARS.length)}
+                        aria-label={d < 0 ? t("Mundo anterior", "Previous world") : t("Próximo mundo", "Next world")}
+                        className="h-11 w-[52px] border-0 bg-[#312e81] text-xs text-white shadow-[inset_-4px_-4px_0_rgba(0,0,0,.35),inset_4px_4px_0_rgba(255,255,255,.2),0_4px_0_#000] active:translate-y-[3px]">
+                        {d < 0 ? "◀" : "▶"}
+                    </button>
                 ))}
             </div>
 
             {toast && (
-                <div key={`${toast.g}-${cur}`} className="absolute bottom-4 right-4 z-20 flex max-w-[calc(100%-32px)] items-center gap-3 border-4 border-yellow-300 bg-[#0b0a1f] px-3 py-3 text-[8px] leading-relaxed shadow-[0_6px_0_#000] [animation:toastIn_.35s_steps(5)_both]">
+                <div key={`${toast.g}-${cur}`} className="absolute right-4 top-[76px] z-20 flex max-w-[min(330px,calc(100%-32px))] items-center gap-3 border-4 border-yellow-300 bg-[#0b0a1f] px-3.5 py-3 text-[8.5px] leading-[1.7] shadow-[0_6px_0_#000] shadow-[0_6px_0_#000] [animation:toastIn_.35s_steps(5)_both]">
                     <Pix name={ICON[toast.g]} />
                     <span><b className="block text-[9px] font-normal text-yellow-300">{unacc("CONQUISTA DESBLOQUEADA")}</b>{unacc(toast.g.toUpperCase())}{toast.n ? ` · ${unacc(toast.n.toUpperCase())}` : ""}</span>
                 </div>
