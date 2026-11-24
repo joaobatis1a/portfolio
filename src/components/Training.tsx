@@ -225,7 +225,7 @@ function Game() {
                 </div>
             </div>
 
-            <div className="relative z-10 flex justify-center gap-3 pb-5">
+            <div className="relative z-10 flex justify-between px-4 pb-5">
                 {[-1, 1].map((d) => (
                     <button key={d} type="button" onClick={() => go((cur + d + YEARS.length) % YEARS.length)}
                         aria-label={d < 0 ? t("Mundo anterior", "Previous world") : t("Próximo mundo", "Next world")}
