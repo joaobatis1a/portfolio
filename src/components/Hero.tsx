@@ -68,8 +68,8 @@ function Hero() {
                         to="projects" smooth offset={-70} duration={600} onClick={fireWarp}
                         className="hero-btn hero-btn-pri cursor-pointer"
                     >
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
                         {t("Ver projetos", "See projects")}
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
                     </Link>
                     <a href="/batista-curriculo.pdf" download="Joao-Batista-Neto-Curriculo.pdf" className="hero-btn">
                         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 7L8 10.5 11.5 7M2.5 13.5h11" /></svg>

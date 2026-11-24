@@ -195,7 +195,7 @@ function Game() {
             </div>
 
             {/* diálogo do mundo */}
-            <div className="relative z-10 mx-[18px] mb-5 mt-1.5 border-4 border-white bg-[#0b0a1f] px-5 py-[18px] shadow-[0_0_0_4px_#0b0a1f,inset_0_0_0_4px_#312e81] text-[10.5px] leading-[2]">
+            <div className="relative z-10 mx-[18px] mb-5 mt-1.5 min-h-[300px] border-4 border-white bg-[#0b0a1f] px-5 py-[18px] max-[640px]:min-h-[570px] shadow-[0_0_0_4px_#0b0a1f,inset_0_0_0_4px_#312e81] text-[10.5px] leading-[2]">
                 <h3 className="mb-2 text-[13px] font-normal" style={{ color: yr.c }}>
                     {unacc(`MUNDO ${cur + 1} · ${yr.y}`)}
                     <small className="block text-[9px] text-indigo-200">{unacc(`${yr.l.toUpperCase()} · ${yr.e.length} ${yr.e.length === 1 ? "MISSÃO CONCLUÍDA" : "MISSÕES CONCLUÍDAS"}`)}</small>
