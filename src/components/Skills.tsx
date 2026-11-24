@@ -178,25 +178,23 @@ function HoloCard({ category, active, position }: {
                         {pick(category.title)}
                     </h3>
                     <div className="flex-1 h-px bg-gradient-to-r from-blue-500/50 to-transparent" />
+                    <span className="font-mono text-[11px] tabular-nums text-blue-300/60">
+                        {String(category.skills.length).padStart(2, "0")}
+                    </span>
                 </div>
-                <div className="flex flex-wrap gap-6 justify-center">
+                <div className="flex flex-wrap gap-x-8 gap-y-6 justify-center">
                     {category.skills.map((skill) => (
                         <div key={skill.name} className="flex flex-col items-center gap-2 group/skill">
-                            <div className="w-16 h-16 flex items-center justify-center rounded-xl transition-all duration-300 group-hover/skill:scale-110"
-                                style={{
-                                    background: "rgba(0,100,255,0.1)",
-                                    border: "1px solid rgba(0,149,255,0.25)",
-                                    boxShadow: "inset 0 0 12px rgba(0,100,255,0.08)",
-                                }}>
+                            <div className="w-16 h-16 flex items-center justify-center transition-all duration-300 group-hover/skill:scale-110 group-hover/skill:-translate-y-1">
                                 <img
                                     src={skill.icon}
                                     alt={skill.name}
-                                    className={`w-9 h-9 object-contain transition-all duration-300 group-hover/skill:drop-shadow-[0_0_8px_rgba(0,180,255,0.7)] ${"white" in skill && skill.white ? "brightness-0 invert" : ""}`}
+                                    className={`w-11 h-11 object-contain transition-all duration-300 group-hover/skill:drop-shadow-[0_0_8px_rgba(0,180,255,0.7)] ${"white" in skill && skill.white ? "brightness-0 invert" : ""}`}
                                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                                 />
                             </div>
-                            <span className="text-[11px] text-center transition-colors duration-300 group-hover/skill:text-blue-200"
-                                style={{ color: "rgba(150,210,255,0.7)" }}>
+                            <span className="text-xs text-center font-medium tracking-wide transition-colors duration-300 group-hover/skill:text-blue-200"
+                                style={{ color: "rgba(150,210,255,0.8)" }}>
                                 {skill.name}
                             </span>
                         </div>
@@ -256,26 +254,27 @@ function Skills() {
                     {" "}{t("Habilidades", "Skills")}{" "}
                     <span className="text-blue-500/40 font-light">/&gt;</span>
                 </h2>
-                <p className="mt-2 text-xs tracking-widest text-blue-400/50 uppercase">{t("// transmissão recebida", "// transmission received")}</p>
+                <p className="mt-4 mx-auto max-w-xl text-sm leading-relaxed text-zinc-400">{t("As tecnologias e ferramentas que uso no dia a dia.", "The technologies and tools I use every day.")}</p>
             </div>
 
             {/* Tabs */}
-            <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-3xl px-2">
-                {CATEGORIES.map((cat, i) => {
+            <div className="mb-10 grid w-full max-w-3xl grid-cols-2 gap-2 px-2 sm:flex sm:flex-col sm:items-center">
+            {[CATEGORIES.slice(0, Math.ceil(CATEGORIES.length / 2)), CATEGORIES.slice(Math.ceil(CATEGORIES.length / 2))].map((row, r) => (
+                <div key={r} className="contents sm:flex sm:flex-wrap sm:justify-center sm:gap-2">
+                {row.map((cat) => {
+                    const i = CATEGORIES.indexOf(cat);
                     const isActive = current === i;
                     const isGlitching = glitchTab === i;
                     return (
                         <button
                             key={cat.title.en}
                             onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 8000); }}
-                            className="relative px-4 py-2 text-xs font-semibold tracking-widest uppercase overflow-hidden transition-all duration-300"
+                            className={`holo-tab relative flex items-center justify-center w-full min-w-0 px-3 py-2.5 sm:w-auto sm:min-w-[148px] sm:px-4 text-center text-[11px] leading-tight font-semibold tracking-wider uppercase transition-all duration-300 ${isActive ? "is-active" : ""}`}
                             style={{
-                                background: isActive ? "rgba(0,149,255,0.18)" : "rgba(0,60,140,0.10)",
-                                border: isActive ? "1px solid rgba(0,200,255,0.65)" : "1px solid rgba(0,149,255,0.18)",
-                                color: isActive ? "rgba(140,220,255,1)" : "rgba(90,160,210,0.55)",
+                                background: isActive ? "rgba(0,149,255,0.16)" : undefined,
+                                color: isActive ? "rgba(140,220,255,1)" : "rgba(150,210,255,0.8)",
                                 textShadow: isActive ? "0 0 10px rgba(0,200,255,0.8)" : "none",
-                                boxShadow: isActive ? "0 0 18px rgba(0,149,255,0.35), inset 0 0 12px rgba(0,100,255,0.12)" : "none",
-                                borderRadius: "9999px",
+                                borderRadius: "999px",
                                 transform: isGlitching ? `translateX(${i % 2 ? 3 : -3}px)` : "translateX(0)",
                                 transition: isGlitching ? "transform 0.05s" : "all 0.3s",
                                 filter: isGlitching ? "brightness(1.8) saturate(2)" : "none",
@@ -304,6 +303,8 @@ function Skills() {
                         </button>
                     );
                 })}
+                </div>
+            ))}
             </div>
 
             {/* Carousel + HUD arrows */}
@@ -325,31 +326,53 @@ function Skills() {
 
             {/* Dots + progress bar */}
             <div className="mt-16 flex flex-col items-center gap-4">
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2.5">
                     {CATEGORIES.map((_, i) => (
                         <button key={i}
+                            aria-label={`${i + 1}`}
                             onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 8000); }}
                             className="rounded-full transition-all duration-300"
                             style={{
-                                width: current === i ? "20px" : "6px",
-                                height: "6px",
-                                background: current === i ? "rgba(0,180,255,0.9)" : "rgba(0,149,255,0.3)",
-                                boxShadow: current === i ? "0 0 8px rgba(0,180,255,0.7)" : "none",
+                                width: current === i ? "22px" : "8px",
+                                height: "8px",
+                                border: `1px solid ${current === i ? "rgba(0,200,255,0.9)" : "rgba(0,149,255,0.55)"}`,
+                                background: current === i ? "linear-gradient(90deg,rgba(0,149,255,0.9),rgba(0,210,255,0.9))" : "rgba(0,110,255,0.08)",
+                                boxShadow: current === i ? "0 0 10px rgba(0,180,255,0.7)" : "0 0 6px rgba(0,149,255,0.2)",
                             }} />
                     ))}
                 </div>
-                <div className="w-48 h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(0,100,255,0.15)" }}>
-                    <div key={current}
-                        className="h-full rounded-full"
-                        style={{
-                            background: "linear-gradient(90deg,rgba(0,149,255,0.8),rgba(0,210,255,0.9))",
-                            animation: paused ? "none" : `progressBar ${AUTO_INTERVAL}ms linear forwards`,
-                            boxShadow: "0 0 6px rgba(0,180,255,0.6)",
-                        }} />
+                <div className="flex items-center gap-3">
+                    <span className="font-mono text-[11px] tabular-nums text-blue-300/60">{String(current + 1).padStart(2, "0")}</span>
+                    <div className="relative w-56 h-[3px] rounded-full overflow-hidden"
+                        style={{ background: "rgba(0,110,255,0.12)", boxShadow: "inset 0 0 0 1px rgba(0,149,255,0.25)" }}>
+                        <div key={current}
+                            className="absolute inset-y-0 left-0 rounded-full"
+                            style={{
+                                background: "linear-gradient(90deg,rgba(0,149,255,0.8),rgba(0,220,255,0.95))",
+                                animation: paused ? "none" : `progressBar ${AUTO_INTERVAL}ms linear forwards`,
+                                boxShadow: "0 0 8px rgba(0,180,255,0.7)",
+                            }} />
+                    </div>
+                    <span className="font-mono text-[11px] tabular-nums text-blue-300/30">{String(CATEGORIES.length).padStart(2, "0")}</span>
                 </div>
             </div>
 
             <style>{`
+                .holo-tab {
+                    position: relative; isolation: isolate; overflow: hidden;
+                    background-color: rgba(0,110,255,0.08);
+                    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,180,255,0.05) 3px 4px);
+                    box-shadow: 0 0 0 1px rgba(0,149,255,0.5), 0 0 28px rgba(0,149,255,0.22), inset 0 0 26px rgba(0,100,255,0.1);
+                    -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
+                }
+                .holo-tab::before {
+                    content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 3; pointer-events: none;
+                    border: 2px solid rgba(0,190,255,0.9); opacity: 0.85; transition: opacity 0.5s;
+                    -webkit-mask: linear-gradient(#000 0 0) top left / 18px 18px no-repeat, linear-gradient(#000 0 0) top right / 18px 18px no-repeat, linear-gradient(#000 0 0) bottom left / 18px 18px no-repeat, linear-gradient(#000 0 0) bottom right / 18px 18px no-repeat;
+                            mask: linear-gradient(#000 0 0) top left / 18px 18px no-repeat, linear-gradient(#000 0 0) top right / 18px 18px no-repeat, linear-gradient(#000 0 0) bottom left / 18px 18px no-repeat, linear-gradient(#000 0 0) bottom right / 18px 18px no-repeat;
+                }
+                .holo-tab.is-active { background-color: rgba(0,149,255,0.16); box-shadow: 0 0 0 1px rgba(0,149,255,0.7), 0 0 34px rgba(0,149,255,0.4), inset 0 0 26px rgba(0,100,255,0.16); }
+                .holo-tab.is-active::before, .holo-tab:hover::before { opacity: 1; }
                 @keyframes scanBeam {
                     0%   { top: -2px; }
                     100% { top: 100%; }

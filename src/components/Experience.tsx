@@ -1,462 +1,225 @@
 import { useEffect, useRef, useState } from "react";
-import { useLang, type Lang } from "../i18n/context";
+import { useLang } from "../i18n/context";
 
-/* ══ DURAÇÃO DINÂMICA ══ */
-function tempoDesde(ano: number, mes: number, lang: Lang) {
-  const inicio = new Date(ano, mes - 1, 1);
-  const agora  = new Date();
-  const meses  = Math.max(0, (agora.getFullYear() - inicio.getFullYear()) * 12 + (agora.getMonth() - inicio.getMonth()));
-  const en = lang === "en";
-  if (meses < 1)  return en ? "just started" : "recém-iniciado";
-  if (meses < 12) return en ? `${meses} ${meses === 1 ? "month" : "months"}` : `${meses} ${meses === 1 ? "mês" : "meses"}`;
-  const anos  = Math.floor(meses / 12);
-  const restM = meses % 12;
-  return `${anos}${en ? "y" : "a"}${restM ? ` ${restM}m` : ""}`;
+/* ══ DURAÇÃO DESDE NOV/2025 ══ */
+function tempoDesde(lang: "pt" | "en") {
+    const inicio = new Date(2025, 10, 1);
+    const agora = new Date();
+    const m = Math.max(0, (agora.getFullYear() - inicio.getFullYear()) * 12 + (agora.getMonth() - inicio.getMonth()));
+    const a = Math.floor(m / 12);
+    const r = m % 12;
+    const en = lang === "en";
+    const pa = (n: number) => (en ? `${n} ${n === 1 ? "year" : "years"}` : `${n} ${n === 1 ? "ano" : "anos"}`);
+    const pm = (n: number) => (en ? `${n} ${n === 1 ? "month" : "months"}` : `${n} ${n === 1 ? "mês" : "meses"}`);
+    const parts = [a ? pa(a) : "", r ? pm(r) : ""].filter(Boolean);
+    return parts.length ? parts.join(en ? " and " : " e ") : en ? "just started" : "recém-iniciado";
 }
 
-/* ══ REVEAL: o texto está sempre no HTML; a tarja ▓ é só uma camada visual que recolhe ══ */
-function Reveal({ children, delay = 0, revealed, mono = false }: {
-  children: string; delay?: number; revealed: boolean; mono?: boolean;
-}) {
-  return (
-    <span
-      className={`exp-redact${revealed ? " is-on" : ""}`}
-      style={{ "--d": `${delay}ms`, fontFamily: mono ? "monospace" : "inherit" } as React.CSSProperties}
-    >
-      {children}
-    </span>
-  );
-}
+const ACTS = {
+    pt: [
+        ["Controle de leituras", "Gás, água, energia, temperaturas e poços, em planilhas no Excel."],
+        ["Lançamento das leituras", "Registro das leituras no Gshop."],
+        ["Notificações", "Criação e análise de notificações no Word."],
+        ["Empenhos e notas fiscais", "Controle e organização."],
+        ["Circulares operacionais", "Criação, entrega, digitalização e organização de notificações e circulares."],
+        ["Apoio no dia a dia", "Ajuda nos gargalos da rotina."],
+    ],
+    en: [
+        ["Meter readings", "Gas, water, power, temperatures and wells, in Excel sheets."],
+        ["Readings entry", "Logging the readings in Gshop."],
+        ["Notifications", "Creating and reviewing notifications in Word."],
+        ["Purchase orders and invoices", "Control and organization."],
+        ["Operational circulars", "Creating, delivering, scanning and organizing notifications and circulars."],
+        ["Day-to-day support", "Helping with the routine's bottlenecks."],
+    ],
+};
 
-/* ══ LINHA DE CAMPO DA FICHA ══ */
-function MissionField({ label, value, delay, revealed, mono = false }: {
-  label: string; value: string; delay: number; revealed: boolean; mono?: boolean;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", padding: "5px 0",
-      borderBottom: "1px solid rgba(34,197,94,0.07)" }}>
-      <span style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
-        color: "rgba(34,197,94,0.35)", textTransform: "uppercase",
-        minWidth: 110, paddingTop: 1, flexShrink: 0 }}>
-        {label}
-      </span>
-      <span style={{ fontSize: 11, color: "rgba(220,235,220,0.82)", lineHeight: 1.5 }}>
-        <Reveal delay={delay} revealed={revealed} mono={mono}>{value}</Reveal>
-      </span>
-    </div>
-  );
-}
+const TOOLS: [string, string][] = [
+    ["Word", "/logos/exp/word.png"],
+    ["Excel", "/logos/exp/excel.png"],
+    ["Google Planilhas", "/logos/exp/sheets.png"],
+    ["Gshop", "/logos/exp/group.png"],
+    ["iLovePDF", "/logos/exp/ilovepdf.png"],
+    ["Drive", "/logos/exp/drive.png"],
+    ["Acrobat", "/logos/exp/acrobat.png"],
+    ["Canva", "/logos/exp/canva.png"],
+    ["ChatGPT", "/logos/exp/chatgpt.png"],
+    ["Claude", "/logos/exp/claude.png"],
+    ["Sefaz", "/logos/exp/sefaz.png"],
+    ["Outlook", "/logos/exp/outlook.png"],
+];
 
-/* ══ CHIP DE CAPACIDADE ══ */
-function CapChip({ label, delay, revealed }: { label: string; delay: number; revealed: boolean }) {
-  return (
-    <span
-      className={`exp-chip${revealed ? " is-on" : ""}`}
-      style={{ "--d": `${delay}ms` } as React.CSSProperties}
-    >
-      {label}
-    </span>
-  );
-}
-
-/* ══ CARIMBO: efeito de stamp físico, todo em CSS ══ */
-function Stamp({ active }: { active: boolean }) {
-  const { t } = useLang();
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute",
-      top: "34%", right: 14,
-      pointerEvents: "none",
-      zIndex: 30,
-    }}>
-      {active && <div className="exp-stamp-flash" />}
-      <div className={`exp-stamp${active ? " is-on" : ""}`}>
-        <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 3,
-          color: "rgba(34,197,94,0.55)" }}>
-          {t("MISSÃO", "MISSION")}
-        </span>
-        <span style={{ fontFamily: "monospace", fontSize: 13, fontWeight: 900,
-          letterSpacing: 4, color: "rgba(34,197,94,0.88)" }}>
-          {t("ACEITA", "ACCEPTED")}
-        </span>
-        <span style={{ fontFamily: "monospace", fontSize: 7, letterSpacing: 2,
-          color: "rgba(34,197,94,0.4)" }}>
-          {t("NOV 2025", "NOV 2025")}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-
-/* ══ SEÇÃO PRINCIPAL ══ */
 export default function Experience() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const tiltRef    = useRef<HTMLDivElement>(null);
-  const [inView,   setInView]   = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const [stamped,  setStamped]  = useState(false);
+    const { t, lang } = useLang();
+    const cardRef = useRef<HTMLElement>(null);
+    const [inView, setInView] = useState(false);
 
-  useEffect(() => {
-    // Sem animação (preferência do sistema): a ficha já aparece aberta
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (!e.isIntersecting) return;
-        setInView(true);
-        if (still) { setRevealed(true); setStamped(true); }
-        obs.disconnect();
-      },
-      { threshold: 0.15 }
+    useEffect(() => {
+        const el = cardRef.current;
+        if (!el) return;
+        const io = new IntersectionObserver((es) => {
+            if (es.some((e) => e.isIntersecting)) { setInView(true); io.disconnect(); }
+        }, { threshold: 0.2 });
+        io.observe(el);
+        return () => io.disconnect();
+    }, []);
+
+    /* inclinação do card com o mouse (lerp em rAF, só enquanto há movimento) */
+    const onMove = (e: React.MouseEvent<HTMLElement>) => {
+        const el = cardRef.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const px = e.clientX - r.left;
+        const py = e.clientY - r.top;
+        el.style.setProperty("--mx", `${px}px`);
+        el.style.setProperty("--my", `${py}px`);
+        tgt.current = { x: (py / r.height - 0.5) * -8, y: (px / r.width - 0.5) * 8 };
+        kick();
+    };
+    const onLeave = () => { tgt.current = { x: 0, y: 0 }; kick(); };
+    const tgt = useRef({ x: 0, y: 0 });
+    const cur = useRef({ x: 0, y: 0 });
+    const raf = useRef(0);
+    const step = () => {
+        const el = cardRef.current;
+        if (!el) { raf.current = 0; return; }
+        cur.current.x += (tgt.current.x - cur.current.x) * 0.12;
+        cur.current.y += (tgt.current.y - cur.current.y) * 0.12;
+        el.style.transform = `perspective(1100px) rotateX(${cur.current.x.toFixed(2)}deg) rotateY(${cur.current.y.toFixed(2)}deg)`;
+        const moving = Math.abs(tgt.current.x - cur.current.x) + Math.abs(tgt.current.y - cur.current.y) > 0.01;
+        raf.current = moving ? requestAnimationFrame(step) : 0;
+    };
+    const kick = () => { if (!raf.current) raf.current = requestAnimationFrame(step); };
+    useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+    const acts = ACTS[lang === "en" ? "en" : "pt"];
+
+    return (
+        <section id="experience" className="relative flex flex-col items-center justify-center px-4 py-28 overflow-hidden">
+            <div className="relative z-10 w-full max-w-3xl text-center">
+                <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
+                    <span className="text-emerald-400/40 font-light">&lt;</span>
+                    {" "}{t("Experiência", "Experience")}{" "}
+                    <span className="text-emerald-400/40 font-light">/&gt;</span>
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">
+                    {t("Da teoria à rotina de trabalho.", "From theory to everyday work.")}
+                </p>
+            </div>
+
+            <article
+                ref={cardRef}
+                onMouseMove={onMove}
+                onMouseLeave={onLeave}
+                className={`exp-card relative z-10 mt-14 w-full max-w-[620px] rounded-[18px] overflow-hidden ${inView ? "in" : ""}`}
+            >
+                <img className="exp-blade" src="/logos/exp/aclf-white.png" alt="" aria-hidden="true" />
+                <div className="exp-pad">
+                    <div className="exp-top">
+                        <img className="exp-logo" src="/logos/exp/aclf-white.png" alt="ACLF Empreendimentos" />
+                        <span className="exp-live"><i />{t("Em andamento", "In progress")}</span>
+                    </div>
+
+                    <div className="exp-role">
+                        <div>
+                            <small>{t("Jovem Aprendiz", "Apprentice")}</small>
+                            <h3>{t("Assistente Administrativo", "Administrative Assistant")}</h3>
+                            <p>{t("Grupo ACLF · Paulista/PE", "Grupo ACLF · Paulista, PE")}</p>
+                        </div>
+                        <div className="exp-when">
+                            <b>{tempoDesde(lang === "en" ? "en" : "pt")}</b>
+                            <span>{t("nov/2025 — atual", "Nov 2025 — present")}</span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <p className="exp-lab">{t("Atividades", "Activities")}</p>
+                    <ul className="exp-acts">
+                        {acts.map(([b, s], i) => (
+                            <li key={b} style={{ ["--i" as string]: i } as React.CSSProperties}>
+                                <em>{String(i + 1).padStart(2, "0")}</em>
+                                <div><b>{b}</b><span>{s}</span></div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <div className="exp-px">
+                        <img src="/logos/projects/praxis.png" alt="" />
+                        <p>
+                            <b>Praxis.</b>{" "}
+                            {t("Pensei no Praxis, uma ideia que apresentei ao setor e ao RH.",
+                               "I came up with Praxis, an idea I presented to my department and HR.")}
+                        </p>
+                    </div>
+
+                    <p className="exp-lab">{t("Ferramentas", "Tools")}</p>
+                    <div className="exp-tl">
+                        {TOOLS.map(([name, src], i) => (
+                            <span key={name} className="exp-tile" style={{ ["--i" as string]: i } as React.CSSProperties} title={name} aria-label={name} role="img">
+                                <img src={src} alt="" />
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </article>
+
+            <style>{`
+                .exp-card { position: relative; background: linear-gradient(155deg, #26277c 0%, #1b1c60 48%, #121345 100%);
+                    box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 30px 60px rgba(0,0,0,.5), 0 0 70px rgba(48,49,145,.25);
+                    background-image: radial-gradient(360px circle at var(--mx,50%) var(--my,0%), rgba(255,255,255,.09), transparent 60%), linear-gradient(155deg, #26277c 0%, #1b1c60 48%, #121345 100%);
+                    transform-style: preserve-3d; will-change: transform; isolation: isolate;
+                    opacity: 0; transform: translateY(18px);
+                    transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .25s ease-out; }
+                .exp-card.in { opacity: 1; transform: none; }
+                .exp-card::before { content: ""; position: absolute; left: 0; top: 0; height: 3px; width: 100%;
+                    background: linear-gradient(90deg, #3d5f2c, #5f8a45 50%, #93b35f); transform-origin: left; transform: scaleX(0);
+                    transition: transform 1.1s cubic-bezier(.22,1,.36,1) .25s; }
+                .exp-card.in::before { transform: scaleX(1); }
+                .exp-blade { position: absolute; right: -46px; top: -30px; width: 250px; opacity: .07; z-index: -1; pointer-events: none; }
+                .exp-pad { padding: 20px 22px 18px; }
+                .exp-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+                .exp-logo { display: block; height: 26px; width: auto; }
+                .exp-live { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; background: rgba(147,179,95,.12);
+                    box-shadow: inset 0 0 0 1px rgba(147,179,95,.45); font: 700 9.5px "Roboto Mono", ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: #d6ecb4; }
+                .exp-live i { width: 7px; height: 7px; border-radius: 50%; background: #a3e635; animation: expLive 2s ease-out infinite; }
+                @keyframes expLive { 0% { box-shadow: 0 0 0 0 rgba(163,230,53,.6); } 100% { box-shadow: 0 0 0 9px rgba(163,230,53,0); } }
+                .exp-role { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-top: 18px; }
+                .exp-role small { display: block; font: 700 11px "Roboto Mono", ui-monospace, monospace; letter-spacing: .2em; text-transform: uppercase; color: #93b35f; }
+                .exp-role h3 { margin: 3px 0 1px; font: 700 clamp(1.1rem, 3.6vw, 1.3rem)/1.2 "Poppins", sans-serif; color: #fff; }
+                .exp-role p { margin: 0; font-size: 12.5px; color: #c9cbef; }
+                .exp-when { text-align: right; }
+                .exp-when b { display: block; font: 400 24px/1 "Bebas Neue", Impact, sans-serif; letter-spacing: .04em; color: #fff; }
+                .exp-when span { font: 500 10.5px "Roboto Mono", ui-monospace, monospace; letter-spacing: .08em; color: #a3a6e0; }
+                .exp-card hr { border: 0; height: 1px; margin: 16px 0 14px; background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.04)); }
+                .exp-lab { margin: 0 0 10px; font: 700 9.5px "Roboto Mono", ui-monospace, monospace; letter-spacing: .2em; text-transform: uppercase; color: #93b35f; }
+                .exp-acts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px 22px; }
+                .exp-acts li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; opacity: 0; transform: translateY(8px);
+                    transition: opacity .5s ease, transform .5s ease; transition-delay: calc(.35s + var(--i) * 70ms); }
+                .exp-card.in .exp-acts li { opacity: 1; transform: none; }
+                .exp-acts em { font: 700 10.5px/1.8 "Roboto Mono", ui-monospace, monospace; font-style: normal; color: #93b35f; }
+                .exp-acts b { display: block; font-size: 13px; font-weight: 600; color: #fff; line-height: 1.4; }
+                .exp-acts span { display: block; font-size: 12px; line-height: 1.45; color: #c9cbef; }
+                .exp-px { display: flex; gap: 12px; align-items: center; margin: 14px 0 22px; padding: 10px 12px; border-radius: 12px; background: rgba(147,179,95,.09);
+                    box-shadow: inset 3px 0 0 #93b35f, inset 0 0 0 1px rgba(147,179,95,.18); opacity: 0; transition: opacity .6s ease .85s; }
+                .exp-card.in .exp-px { opacity: 1; }
+                .exp-px img { flex: none; width: 30px; height: 30px; border-radius: 8px; background: #121345; padding: 4px; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+                .exp-px p { margin: 0; font-size: 12.5px; line-height: 1.5; color: #e3e5ff; }
+                .exp-px p b { color: #fff; }
+                .exp-tl { display: flex; flex-wrap: wrap; gap: 6px; }
+                .exp-tile { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: #fff;
+                    box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); opacity: 0; transition: opacity .4s ease, transform .25s;
+                    transition-delay: calc(1s + var(--i) * 35ms), 0s; }
+                .exp-card.in .exp-tile { opacity: 1; }
+                .exp-tile:hover { transform: translateY(-2px); }
+                .exp-tile img { width: 72%; height: 72%; object-fit: contain; }
+                @container (max-width: 560px) { .exp-acts { grid-template-columns: minmax(0, 1fr); gap: 12px; } .exp-when { text-align: left; } }
+                @media (prefers-reduced-motion: reduce) {
+                    .exp-card, .exp-acts li, .exp-px, .exp-tile { opacity: 1 !important; transform: none !important; transition: none !important; }
+                    .exp-card::before { transform: none; } .exp-live i { animation: none; }
+                }
+                .exp-card { container-type: inline-size; }
+            `}</style>
+        </section>
     );
-    if (sectionRef.current) obs.observe(sectionRef.current);
-    return () => obs.disconnect();
-  }, []);
-
-  /* Sequência: scan (CSS) → reveal → stamp */
-  const onScanEnd = () => {
-    setRevealed(true);
-    setTimeout(() => setStamped(true), 950);
-  };
-
-  /* Tilt do card no mouse: lerp num rAF que só roda enquanto há movimento */
-  const tiltTarget  = useRef({ x: 0, y: 0 });
-  const tiltCurrent = useRef({ x: 0, y: 0 });
-  const tiltRaf     = useRef(0);
-  const runTilt = () => {
-    if (tiltRaf.current) return;
-    const tick = () => {
-      const c = tiltCurrent.current, t = tiltTarget.current;
-      c.x += (t.x - c.x) * 0.1;
-      c.y += (t.y - c.y) * 0.1;
-      if (tiltRef.current) tiltRef.current.style.transform = `perspective(1100px) rotateX(${c.x}deg) rotateY(${c.y}deg)`;
-      if (Math.abs(t.x - c.x) + Math.abs(t.y - c.y) > 0.01) tiltRaf.current = requestAnimationFrame(tick);
-      else tiltRaf.current = 0;
-    };
-    tiltRaf.current = requestAnimationFrame(tick);
-  };
-  useEffect(() => () => cancelAnimationFrame(tiltRaf.current), []);
-
-  const onCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    tiltTarget.current = {
-      x: ((e.clientY - rect.top) / rect.height - 0.5) * 7,
-      y: ((e.clientX - rect.left) / rect.width - 0.5) * 7,
-    };
-    runTilt();
-  };
-  const onCardMouseLeave = () => { tiltTarget.current = { x: 0, y: 0 }; runTilt(); };
-
-  const { lang, t } = useLang();
-  const dur  = tempoDesde(2025, 11, lang);
-  const CAPS = t([
-    "Notas de Empenho", "Gestão Documental", "Comunicados e Circulares",
-    "Processos Internos", "Padronização", "Microsoft Excel", "Microsoft Word",
-  ], [
-    "Purchase Commitments", "Document Management", "Memos & Circulars",
-    "Internal Processes", "Standardization", "Microsoft Excel", "Microsoft Word",
-  ]);
-
-  return (
-    <section
-      ref={sectionRef}
-      id="experience"
-      className="relative flex flex-col items-center justify-center overflow-hidden px-4 py-24"
-    >
-      {/* ── Grid sutil ── */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: "linear-gradient(rgba(6,182,212,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.02) 1px,transparent 1px)",
-        backgroundSize: "60px 60px", zIndex: 1,
-      }} />
-
-      <div className="relative w-full max-w-3xl" style={{ zIndex: 2 }}>
-
-        {/* ── Título ── */}
-        <div className="text-center mb-12" style={{
-          opacity: inView ? 1 : 0,
-          transform: inView ? "translateY(0)" : "translateY(20px)",
-          transition: "all 0.7s ease",
-        }}>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
-            <span className="text-emerald-400/40 font-light">&lt;</span>
-            {" "}{t("Experiência", "Experience")}{" "}
-            <span className="text-emerald-400/40 font-light">/&gt;</span>
-          </h2>
-          <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">
-            {t("// primeira missão profissional", "// first professional mission")}
-          </p>
-        </div>
-
-        {/* ── Ficha de missão ── */}
-        <div style={{
-          opacity: inView ? 1 : 0,
-          transform: inView ? "translateY(0)" : "translateY(24px)",
-          transition: "all 0.6s ease 0.2s",
-          position: "relative",
-        }}>
-          {/* Wrapper único de tilt: card e carimbo giram juntos, no mesmo espaço 3D */}
-          <div className="exp-float">
-          <div
-            ref={tiltRef}
-            onMouseMove={onCardMouseMove}
-            onMouseLeave={onCardMouseLeave}
-            style={{
-              position: "relative",
-              transformStyle: "preserve-3d",
-              animation: stamped ? "cardShake 0.3s ease" : "none",
-            }}
-          >
-          <div
-            style={{
-              background: "rgba(2,8,4,0.97)",
-              border: "1px solid rgba(34,197,94,0.18)",
-              borderRadius: 16,
-              position: "relative", overflow: "hidden",
-              boxShadow: "0 0 60px rgba(34,197,94,0.08), 0 0 100px rgba(6,182,212,0.04)",
-            }}
-          >
-            {/* Scanlines */}
-            <div style={{
-              position: "absolute", inset: 0, pointerEvents: "none",
-              backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,197,94,0.012) 3px,rgba(34,197,94,0.012) 4px)",
-              zIndex: 0,
-            }} />
-
-            {revealed && <div className="exp-live" aria-hidden="true"><i /></div>}
-
-            {/* Barra de scan */}
-            {inView && !revealed && (
-              <div className="exp-scan" onAnimationEnd={onScanEnd} style={{
-                position: "absolute", left: 0, right: 0, zIndex: 10,
-                top: 0, height: 2,
-                background: "linear-gradient(90deg,transparent,rgba(34,197,94,0.9),rgba(6,182,212,0.9),transparent)",
-                boxShadow: "0 0 20px rgba(34,197,94,0.6), 0 0 40px rgba(34,197,94,0.2)",
-              }} />
-            )}
-
-            {/* Cabeçalho */}
-            <div style={{
-              padding: "14px 20px 12px",
-              borderBottom: "1px solid rgba(34,197,94,0.12)",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              background: "rgba(34,197,94,0.03)", position: "relative", zIndex: 1,
-            }}>
-              <div>
-                <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 3,
-                  color: "rgba(34,197,94,0.4)", marginBottom: 2 }}>
-                  {t("REGISTRO OPERACIONAL · Nº EXP-2025-001", "OPERATIONAL RECORD · NO. EXP-2025-001")}
-                </div>
-                <div style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700,
-                  color: "rgba(34,197,94,0.7)", letterSpacing: 2 }}>
-                  {t("FICHA DE MISSÃO", "MISSION FILE")}
-                </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "monospace", fontSize: 8,
-                  color: "rgba(255,255,255,0.2)", letterSpacing: 1 }}>
-                  {t("CLASSIFICAÇÃO", "CLEARANCE")}
-                </div>
-                <div style={{ fontFamily: "monospace", fontSize: 9, fontWeight: 700,
-                  color: revealed ? "rgba(34,197,94,0.55)" : "rgba(34,197,94,0.2)",
-                  letterSpacing: 2, transition: "color 0.5s" }}>
-                  {revealed ? t("LIBERADO", "CLEARED") : t("RESTRITO", "RESTRICTED")}
-                </div>
-              </div>
-            </div>
-
-            {/* Corpo */}
-            <div style={{ padding: "18px 20px 20px", position: "relative", zIndex: 1 }}>
-              <MissionField label={t("Cargo", "Role")}              value={t("Assistente Administrativo · Jovem Aprendiz", "Administrative Assistant · Apprentice")} delay={0}   revealed={revealed} />
-              <MissionField label={t("Organização", "Organization")} value={t("Grupo ACLF, Paulista/PE", "Grupo ACLF, Paulista, Brazil")} delay={100} revealed={revealed} />
-              <MissionField label={t("Início", "Start")}             value={t("Novembro de 2025", "November 2025")} delay={200} revealed={revealed} mono />
-              <MissionField label="Status"                           value={t("EM ANDAMENTO", "ONGOING")}           delay={300} revealed={revealed} mono />
-              <MissionField label={t("Duração", "Duration")}         value={dur}                                    delay={400} revealed={revealed} mono />
-
-              {/* Sumário */}
-              <div style={{
-                margin: "16px 0 14px", padding: "12px 14px",
-                background: "rgba(34,197,94,0.035)", border: "1px solid rgba(34,197,94,0.1)",
-                opacity: revealed ? 1 : 0, transform: revealed ? "translateY(0)" : "translateY(6px)",
-                transition: "opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s",
-              }}>
-                <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
-                  color: "rgba(34,197,94,0.35)", marginBottom: 8 }}>
-                  {t("SUMÁRIO OPERACIONAL", "OPERATIONAL SUMMARY")}
-                </div>
-                <p style={{ fontSize: 12, lineHeight: 1.75, color: "rgba(210,228,210,0.78)", margin: 0 }}>
-                  {t("Elaboro e controlo notas de empenho, documentos e planilhas em Word e Excel, com foco em precisão e rastreabilidade, e distribuo comunicados e circulares para setores internos e lojas. Foi aqui que percebi a falta de padronização de documentos e procedimentos e criei o ",
-                     "I prepare and track purchase commitments, documents and spreadsheets in Word and Excel, focused on accuracy and traceability, and I send memos and circulars to internal departments and stores. This is where I noticed the lack of standards for documents and procedures and built ")}
-                  <span style={{ color: "rgba(74,222,128,0.9)" }}>Praxis</span>
-                  {t(", que uso na rotina e apresentei ao setor.", ", which I use every day and presented to my department.")}
-                </p>
-              </div>
-
-              {/* Capacidades */}
-              <div style={{
-                opacity: revealed ? 1 : 0,
-                transition: "opacity 0.4s ease 0.9s",
-              }}>
-                <div style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
-                  color: "rgba(34,197,94,0.3)", marginBottom: 10 }}>
-                  {t("CAPACIDADES ADQUIRIDAS", "SKILLS ACQUIRED")}
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {CAPS.map((c, i) => (
-                    <CapChip key={c} label={c} delay={500 + i * 40} revealed={revealed} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Quote */}
-              <div style={{
-                marginTop: 18, padding: "11px 14px",
-                borderLeft: "2px solid rgba(34,197,94,0.3)",
-                opacity: revealed ? 1 : 0, transform: revealed ? "translateY(0)" : "translateY(6px)",
-                transition: "opacity 0.5s ease 1.5s, transform 0.5s ease 1.5s",
-              }}>
-                <p style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: 2,
-                  color: "rgba(34,197,94,0.35)", marginBottom: 6 }}>
-                  {t("APRENDIZADO-CHAVE", "KEY LESSON")}
-                </p>
-                <p style={{ fontSize: 11.5, lineHeight: 1.7, color: "rgba(220,235,220,0.7)",
-                  fontStyle: "italic", margin: 0 }}>
-                  {t("\"Antes de aprender a estruturar sistemas, aprendi a estruturar processos.\"", "\"Before I learned to structure systems, I learned to structure processes.\"")}
-                </p>
-              </div>
-            </div>
-
-            {/* Rodapé */}
-            <div style={{
-              borderTop: "1px solid rgba(34,197,94,0.1)",
-              padding: "8px 20px",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              background: "rgba(34,197,94,0.02)", position: "relative", zIndex: 1,
-              opacity: revealed ? 1 : 0, transition: "opacity 0.4s ease 2s",
-            }}>
-              <span style={{ fontFamily: "monospace", fontSize: 8,
-                color: "rgba(255,255,255,0.15)", letterSpacing: 1 }}>
-                EXP-001 · JOÃO BATISTA NETO
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80",
-                  boxShadow: "0 0 6px rgba(74,222,128,0.8)",
-                  animation: "expPulse 1.6s ease-in-out infinite" }} />
-                <span style={{ fontFamily: "monospace", fontSize: 8,
-                  color: "rgba(74,222,128,0.7)", letterSpacing: 2 }}>
-                  {t("ATIVO", "ACTIVE")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── CARIMBO ── */}
-          <Stamp active={stamped} />
-          </div>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes expPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-        @keyframes stampFlash { 0%{opacity:1} 100%{opacity:0} }
-        @keyframes expScan { from { top: 0%; } to { top: 100%; } }
-        .exp-scan { animation: expScan 0.7s linear forwards; }
-
-        /* Tarja: o texto real fica embaixo e a barra recolhe para a direita */
-        .exp-redact { position: relative; display: inline-block; }
-        .exp-redact::after {
-          content: ""; position: absolute; inset: 1px -2px; border-radius: 2px;
-          background:
-            repeating-linear-gradient(90deg, rgba(34,197,94,0.32) 0 5px, rgba(34,197,94,0.18) 5px 6px),
-            #06140b;
-          transform-origin: right center;
-          transition: transform 0.45s cubic-bezier(0.65,0,0.35,1) var(--d, 0ms);
-        }
-        .exp-redact.is-on::after { transform: scaleX(0); }
-
-        .exp-chip {
-          font-family: monospace; font-size: 9px; letter-spacing: 1px; padding: 3px 9px;
-          display: inline-block;
-          border: 1px solid rgba(34,197,94,0.28);
-          color: rgba(34,197,94,0.62);
-          background: rgba(34,197,94,0.05);
-          opacity: 0; transform: scale(0.92);
-          transition: opacity 0.35s ease var(--d, 0ms), transform 0.35s cubic-bezier(0.34,1.56,0.64,1) var(--d, 0ms);
-        }
-        .exp-chip.is-on { opacity: 1; transform: scale(1); }
-
-        .exp-stamp {
-          border: 3px solid rgba(34,197,94,0.85);
-          padding: 10px 18px;
-          display: flex; flex-direction: column; align-items: center; gap: 2px;
-          background: rgba(2,8,4,0.98);
-          box-shadow: 0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2);
-          transform: rotate(-12deg) scale(0.05);
-          opacity: 0;
-        }
-        .exp-stamp.is-on { animation: stampIn 0.4s ease forwards; }
-        @keyframes stampIn {
-          0%   { transform: rotate(-12deg) scale(0.05); opacity: 0; }
-          18%  { transform: rotate(-12deg) scale(1.12); opacity: 1;
-                 box-shadow: 0 0 0 4px rgba(34,197,94,0.25), 0 0 36px rgba(34,197,94,0.5); }
-          55%  { transform: rotate(-12deg) scale(0.97); opacity: 1; }
-          100% { transform: rotate(-12deg) scale(1); opacity: 1;
-                 box-shadow: 0 0 0 1px rgba(34,197,94,0.15), 0 0 20px rgba(34,197,94,0.2); }
-        }
-        .exp-stamp-flash {
-          position: absolute; inset: -22px; border-radius: 2px;
-          background: radial-gradient(ellipse, rgba(34,197,94,0.4) 0%, transparent 70%);
-          animation: stampFlash 0.3s ease forwards;
-        }
-
-        /* Ficha viva: tudo em transform/opacity (compostos), sem custo de layout */
-        .exp-float { animation: expFloat 10s ease-in-out infinite; }
-        .exp-float:hover { animation-play-state: paused; }
-        @keyframes expFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-
-        .exp-live { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; border-radius: inherit; }
-        /* feixe horizontal de ponta a ponta, em loop */
-        .exp-live::before {
-          content: ""; position: absolute; inset: 0;
-          background: linear-gradient(180deg, transparent 0, transparent 45%, rgba(34,211,238,0.025) 47.5%, rgba(74,222,128,0.11) 50%, rgba(34,211,238,0.025) 52.5%, transparent 55%, transparent 100%);
-          animation: expBeam 10s linear infinite;
-        }
-        @keyframes expBeam { from { transform: translateY(-50%); } to { transform: translateY(50%); } }
-        /* brilho diagonal que atravessa a ficha de tempos em tempos */
-        .exp-live::after {
-          content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 26%;
-          background: linear-gradient(100deg, transparent, rgba(134,239,172,0.04), transparent);
-          transform: translateX(-160%) skewX(-18deg);
-          animation: expSweep 14s ease-in-out 3s infinite;
-        }
-        @keyframes expSweep { 0% { transform: translateX(-160%) skewX(-18deg); } 40%, 100% { transform: translateX(520%) skewX(-18deg); } }
-        /* a luz interna "respira" */
-        .exp-live i {
-          position: absolute; inset: 0; border-radius: inherit;
-          box-shadow: inset 0 0 46px rgba(34,197,94,0.08), inset 0 0 2px rgba(74,222,128,0.25);
-          animation: expBreath 7s ease-in-out infinite alternate;
-        }
-        @keyframes expBreath { from { opacity: 0.4; } to { opacity: 1; } }
-        @media (prefers-reduced-motion: reduce) {
-          .exp-float, .exp-live::before, .exp-live::after, .exp-live i { animation: none; }
-          .exp-live::before, .exp-live::after { display: none; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .exp-redact::after { display: none; }
-          .exp-chip { opacity: 1; transform: none; transition: none; }
-          .exp-stamp, .exp-stamp.is-on { animation: none; opacity: 1; transform: rotate(-12deg); }
-          .exp-stamp-flash { display: none; }
-        }
-        @keyframes cardShake {
-          0%   { translate: 0 0; }
-          20%  { translate: -3px 1px; }
-          40%  { translate: 3px -1px; }
-          60%  { translate: -2px 1px; }
-          80%  { translate: 2px 0; }
-          100% { translate: 0 0; }
-        }
-      `}</style>
-    </section>
-  );
 }

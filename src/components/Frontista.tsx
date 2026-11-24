@@ -128,13 +128,36 @@ function NoteTile({ tile }: { tile: Extract<FrontistaTile, { kind: "note" }> }) 
     );
 }
 
+const LOGOS = {
+    praxis:     { name: "Praxis",     src: "/logos/projects/praxis.png",     color: "#4f7df9" },
+    ponte:      { name: "P.O.N.T.E",  src: "/logos/projects/ponte.png",      color: "#fb923c" },
+    benevo:     { name: "Benevo",     src: "/logos/projects/benevo.svg",     color: "#93c5fd" },
+    limpattack: { name: "Limpattack", src: "/logos/projects/limpattack.png", color: "#fb923c" },
+};
+
+/* Cartão com a logo do projeto dentro, flutuando devagar */
+function LogoTile({ tile }: { tile: Extract<FrontistaTile, { kind: "logo" }> }) {
+    const l = LOGOS[tile.project];
+    const seed = tile.project.length;
+    return (
+        <div style={{ position: "absolute", inset: 0, "--c": l.color,
+            background: `radial-gradient(65% 55% at 50% 42%, color-mix(in srgb, ${l.color} 24%, transparent), transparent 72%), linear-gradient(160deg, #08110c, #030705)` } as React.CSSProperties}>
+            <div className="ft-lg" style={{ animationDuration: `${5.5 + seed * 0.3}s`, animationDelay: `${-seed * 0.9}s` }}>
+                <img src={l.src} alt={`Logo ${l.name}`} draggable={false} style={{ animationDuration: `${(5.5 + seed * 0.3) * 1.3}s`, animationDelay: `${-seed * 0.9}s` }} />
+            </div>
+            <span className="ft-caption">{l.name}</span>
+        </div>
+    );
+}
+
 function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
     const tx = useText();
     const [ref, { near, focus }] = useOnScreen<HTMLDivElement>();
     const width = Math.round(height * ratioOf(tile.ratio));
     const href = tile.kind === "video" || tile.kind === "image" ? tile.href : undefined;
     const title = tile.kind === "video" || tile.kind === "image" ? tx(tile.title) : undefined;
-    const accent = tile.kind === "note" ? ACCENTS[tile.accent ?? "green"].line : "rgba(34,197,94,0.18)";
+    const accent = tile.kind === "note" ? ACCENTS[tile.accent ?? "green"].line
+        : tile.kind === "logo" ? `color-mix(in srgb, ${LOGOS[tile.project].color} 35%, transparent)` : "rgba(34,197,94,0.18)";
 
     const body = (
         <>
@@ -142,6 +165,7 @@ function Tile({ tile, height }: { tile: FrontistaTile; height: number }) {
             {tile.kind === "video" && <VideoTile src={tile.src} poster={tile.poster} focus={focus} />}
             {tile.kind === "image" && <img src={tile.src} alt={tx(tile.alt)} loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
             {tile.kind === "note" && <NoteTile tile={tile} />}
+            {tile.kind === "logo" && <LogoTile tile={tile} />}
             {tile.kind === "video" && <span className="ft-rec"><i />REC</span>}
             {title && <span className="ft-caption">{title}</span>}
         </>
@@ -191,9 +215,8 @@ function SocialLinks() {
           icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" /></svg> },
     ];
     return (
-        <div className="relative z-10 mt-14 px-4 flex flex-col items-center">
-            <p className="text-xs tracking-widest text-blue-400/50 uppercase">{t("// sintonize o canal", "// tune in")}</p>
-            <div className="mt-4 grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="relative z-10 mt-7 flex flex-col items-center">
+            <div className="grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3 text-left">
                 {links.map((l, i) => (
                     <a key={l.name} style={{ "--i": i + 2 } as React.CSSProperties} href={l.href} target="_blank" rel="noopener noreferrer" className="ft-chan holo-blue">
                         <span className="ft-chan-ico" aria-hidden="true">{l.icon}</span>
@@ -295,13 +318,10 @@ export default function Frontista() {
                 <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
                     <span className="text-emerald-400/40 font-light">&lt;</span>{" "}Frontista{" "}<span className="text-emerald-400/40 font-light">/&gt;</span>
                 </h2>
-                <p className="mt-3 text-xs tracking-widest text-emerald-500/40 uppercase">{t("// motions, bastidores e conteúdo", "// motion, behind the scenes & content")}</p>
-                <p className="mt-5 max-w-xl mx-auto text-sm leading-relaxed text-zinc-400">
-                    {t("O Frontista nasceu da fusão do meu sobrenome com o que eu faço: ", "Frontista blends my last name with what I do: ")}
-                    <span className="text-emerald-400">{t("desenvolvimento front-end", "front-end development")}</span>.{" "}
-                    {t("Lá eu documento minha evolução, mostro o processo dos projetos e explico programação para quem está começando.",
-                       "That's where I document my growth, show how my projects are built and explain programming to beginners.")}
+                <p className="mt-4 max-w-xl mx-auto text-sm leading-relaxed text-zinc-400">
+                    {t("Meu sobrenome + front-end: aqui eu documento minha evolução e explico programação para quem está começando.", "My last name + front-end: where I document my growth and explain programming to beginners.")}
                 </p>
+                <SocialLinks />
             </div>
 
             {/* Fileiras */}
@@ -312,8 +332,6 @@ export default function Frontista() {
                         onHover={h => { hovered.current[i] = h; }} />
                 ))}
             </div>
-
-            <SocialLinks />
 
             <style>{`
                 .ft-rows { position: relative; display: flex; flex-direction: column; gap: 14px; }
@@ -354,16 +372,22 @@ export default function Frontista() {
                     .ft-caption { font-size: 10px; padding: 18px 8px 7px; }
                 }
 
+                .ft-lg { position: absolute; inset: 0 0 28px; display: grid; place-items: center; animation: ftLogoFloat 6s ease-in-out infinite; }
+                .ft-lg img { display: block; width: 52%; max-height: 50%; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0,0,0,.55)); animation: ftLogoRot 8s ease-in-out infinite; }
+                @keyframes ftLogoFloat { 0%,100% { transform: translate(0,0); } 25% { transform: translate(7px,-10px); } 50% { transform: translate(-4px,-16px); } 75% { transform: translate(-8px,-6px); } }
+                @keyframes ftLogoRot { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+                .ft-still .ft-lg, .ft-still .ft-lg img { animation: none; }
+
                 /* Sem animação: as fileiras viram faixas roláveis com o dedo ou o trackpad */
                 .ft-still .ft-row { overflow-x: auto; scrollbar-width: none; }
                 .ft-still .ft-copy[aria-hidden] { display: none; }
 
                 /* Perfis: holograma azul, como os cartões de Habilidades */
-                .ft-chan { display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-decoration: none; }
+                .ft-chan { display: flex; align-items: center; gap: 14px; padding: 12px 22px 12px 14px; border-radius: 999px; text-decoration: none; }
                 .ft-chan > * { position: relative; z-index: 1; }
                 .ft-chan:hover { transform: translateY(-2px); }
                 .ft-chan-ico {
-                    width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 12px;
+                    width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border-radius: 999px;
                     color: rgba(120,210,255,0.95); background: rgba(0,100,255,0.1); border: 1px solid rgba(0,149,255,0.3);
                     box-shadow: inset 0 0 12px rgba(0,100,255,0.1); transition: color 0.25s ease, box-shadow 0.25s ease;
                 }

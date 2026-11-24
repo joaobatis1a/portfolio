@@ -15,19 +15,24 @@ const NAV_LINKS = [
 const linkFor = (sectionId: string) =>
     NAV_LINKS.find(l => l.sections.includes(sectionId))?.to ?? sectionId;
 
-/* Seletor de idioma: PT | EN, com a pílula deslizando para o lado ativo */
-function LangSwitch({ compact = false }: { compact?: boolean }) {
+/* Seletor de idioma: globo + PT | EN, com a pílula deslizando para o lado ativo */
+function LangSwitch() {
     const { lang, setLang, t } = useLang();
     const opts: Lang[] = ["pt", "en"];
     return (
-        <div className={`lang-switch${compact ? " lang-compact" : ""}`} role="group" aria-label={t("Idioma", "Language")}>
-            <span className="lang-pill" style={{ transform: lang === "en" ? "translateX(100%)" : "none" }} />
-            {opts.map(o => (
-                <button key={o} type="button" onClick={() => setLang(o)} aria-pressed={lang === o}
-                    className={lang === o ? "is-on" : ""} title={o === "pt" ? "Português" : "English"}>
-                    {o.toUpperCase()}
-                </button>
-            ))}
+        <div className="lg2" data-l={lang} role="radiogroup" aria-label={t("Idioma", "Language")}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.6 2.6 4 5.7 4 9s-1.4 6.4-4 9c-2.6-2.6-4-5.7-4-9s1.4-6.4 4-9z" />
+            </svg>
+            <div className="sg">
+                <span className="th" />
+                {opts.map(o => (
+                    <button key={o} type="button" role="radio" aria-checked={lang === o} onClick={() => setLang(o)}
+                        title={o === "pt" ? "Português" : "English"}>
+                        {o.toUpperCase()}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }
@@ -101,47 +106,23 @@ function Navbar() {
     }, [open]);
 
     const fireWarp = () => window.dispatchEvent(new CustomEvent("warp"));
-    const current = NAV_LINKS.find(l => l.to === active);
-    const path = current ? pick(current.label).toLowerCase() : "";
 
     return (
         <>
             {/* ── Navbar: encolhe ao rolar, some ao descer, volta ao subir ── */}
-            <div className="fixed top-4 left-0 w-full z-50 flex justify-center"
+            <div className="fixed top-3.5 left-0 w-full z-50 flex justify-center"
                 style={{ transform: hidden && !open ? "translateY(-150%)" : "none", transition: "transform 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
-                <nav
-                    className={`relative overflow-hidden rounded-full border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10${active === "frontista" ? " nav-noblur" : ""}`}
-                    style={{
-                        width: scrolled ? "min(92%, 1040px)" : "min(95%, 1152px)",
-                        padding: scrolled ? "9px 0" : "15px 0",
-                        background: active === "frontista" ? "rgba(12,14,16,0.95)" : scrolled ? "rgba(14,16,18,0.9)" : "rgba(24,24,27,0.7)",
-                        transition: "width 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.4s ease, background 0.4s ease",
-                    }}
-                >
-                    <div className="flex items-center justify-between gap-4 transition-all duration-500"
-                        style={{ padding: scrolled ? "0 22px" : "0 36px" }}>
-                        {/* Marca: nome completo no topo; ao rolar, vira "FRONT" + o caminho da seção atual */}
-                        <Link
-                            to="hero" smooth duration={500} onClick={fireWarp}
-                            aria-label={t("Voltar ao início", "Back to top")}
-                            className="nav-brand cursor-pointer"
-                        >
-                            <span className={`nav-full nav-grad${scrolled ? " is-off" : ""}`}>JOÃO BATISTA NETO</span>
-                            <span className={`nav-path${scrolled && path ? " is-on" : ""}`} aria-hidden="true">
-                                <span key={path} className="nav-path-txt">~/{path}</span><i className="nav-caret" />
-                            </span>
-                        </Link>
-
+                <nav className={`nb${scrolled ? " s" : ""}`} aria-label={t("Principal", "Main")}>
+                    <div className="in">
                         {/* Desktop links */}
-                        <ul ref={linksRef} className="relative hidden lg:flex items-center gap-1"
-                            style={{ fontSize: scrolled ? "13px" : "14px", transition: "font-size 0.4s ease" }}>
-                            <span ref={indicatorRef} className="nav-ind" aria-hidden="true" />
+                        <ul ref={linksRef} className="relative hidden lg:flex items-center gap-2">
+                            <span ref={indicatorRef} className="ind" aria-hidden="true" />
                             {NAV_LINKS.map(({ to, label }) => (
                                 <li key={to} className="relative">
                                     <Link
                                         to={to} smooth offset={-70} duration={500}
                                         data-to={to}
-                                        className={`nav-link${active === to ? " is-on" : ""}`}
+                                        className={active === to ? "on" : ""}
                                         onClick={fireWarp}
                                     >
                                         {pick(label)}
@@ -149,26 +130,23 @@ function Navbar() {
                                 </li>
                             ))}
                         </ul>
+                        <span className="dv hidden lg:block" aria-hidden="true" />
+                        <LangSwitch />
 
-                        <div className="flex items-center gap-3">
-                        <LangSwitch compact={scrolled} />
-
-                        {/* Hamburger: 3 linhas viram X */}
+                        {/* Hambúrguer: 3 linhas viram X */}
                         <button
-                            className="lg:hidden flex flex-col justify-center items-center gap-[5px] focus:outline-none"
-                            style={{ width: scrolled ? 28 : 30, height: scrolled ? 28 : 30 }}
+                            className="burger lg:hidden"
                             onClick={() => setOpen(o => !o)}
-                            aria-label="Menu"
+                            aria-label="Menu" aria-expanded={open}
                         >
-                            <span className="nav-bar" style={{ transform: open ? "translateY(7px) rotate(45deg)" : "none" }} />
-                            <span className="nav-bar" style={{ opacity: open ? 0 : 1, transform: open ? "scaleX(0)" : "none" }} />
-                            <span className="nav-bar" style={{ transform: open ? "translateY(-7px) rotate(-45deg)" : "none" }} />
+                            <i style={{ transform: open ? "translateY(7px) rotate(45deg)" : "none" }} />
+                            <i style={{ opacity: open ? 0 : 1 }} />
+                            <i style={{ transform: open ? "translateY(-7px) rotate(-45deg)" : "none" }} />
                         </button>
-                        </div>
                     </div>
 
                     {/* Progresso de leitura na borda de baixo */}
-                    <span ref={progressRef} className="nav-progress" aria-hidden="true" />
+                    <span ref={progressRef} className="prog" aria-hidden="true" />
                 </nav>
             </div>
 
@@ -176,7 +154,7 @@ function Navbar() {
             <div
                 className="lg:hidden fixed inset-0 z-40"
                 style={{
-                    background: "rgba(2,8,4,0.96)",
+                    background: "rgba(2,10,24,0.96)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
                     opacity: open ? 1 : 0,
@@ -190,18 +168,20 @@ function Navbar() {
                     position: "absolute", top: "35%", left: "50%",
                     transform: "translate(-50%,-50%)",
                     width: 400, height: 400, borderRadius: "50%",
-                    background: "radial-gradient(ellipse, rgba(6,182,212,0.07) 0%, transparent 70%)",
+                    background: "radial-gradient(ellipse, rgba(0,149,255,0.12) 0%, transparent 70%)",
                     pointerEvents: "none",
                 }} />
 
                 <nav
-                    className="flex flex-col items-center justify-center h-full gap-1"
+                    className="flex flex-col items-center justify-center h-full gap-2.5"
                     onClick={e => e.stopPropagation()}
                 >
                     {/* Logo */}
                     <div
-                        className="font-bold text-xl bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-6"
+                        className="font-bold text-xl tracking-widest mb-6"
                         style={{
+                            color: "rgba(120,210,255,0.95)",
+                            textShadow: "0 0 12px rgba(0,180,255,0.7)",
                             opacity: open ? 1 : 0,
                             transform: open ? "translateY(0)" : "translateY(-10px)",
                             transition: "opacity 0.3s ease, transform 0.3s ease",
@@ -214,13 +194,13 @@ function Navbar() {
                     <div
                         className="h-[1px] w-48 mb-4"
                         style={{
-                            background: "linear-gradient(90deg, transparent, rgba(6,182,212,0.4), transparent)",
+                            background: "linear-gradient(90deg, transparent, rgba(0,190,255,0.55), transparent)",
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.1s",
                         }}
                     />
 
-                    {NAV_LINKS.map(({ to, label, icon }, i) => (
+                    {NAV_LINKS.map(({ to, label }, i) => (
                         <Link
                             key={to}
                             to={to} smooth offset={-70} duration={500}
@@ -230,21 +210,11 @@ function Navbar() {
                                 transform: open ? "translateX(0)" : "translateX(-20px)",
                                 transition: `opacity 0.3s ease ${0.06 + i * 0.05}s, transform 0.35s ease ${0.06 + i * 0.05}s`,
                             }}
-                            className={`drawer-link cursor-pointer w-56 flex items-center gap-3 px-5 py-3 rounded-lg text-base font-medium transition-all duration-200
-                                ${active === to
-                                    ? "text-cyan-300 drawer-link-active"
-                                    : "text-zinc-400 hover:text-white"
-                                }`}
+                            className={`dr-row cursor-pointer ${active === to ? "on" : ""}`}
                         >
-                            <span className="drawer-icon text-lg w-5 text-center"
-                                style={{ color: active === to ? "rgba(34,211,238,0.9)" : "rgba(255,255,255,0.2)" }}>
-                                {icon}
-                            </span>
-                            <span className="drawer-label">{pick(label)}</span>
-                            {active === to && (
-                                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400"
-                                    style={{ boxShadow: "0 0 6px rgba(34,211,238,0.8)" }} />
-                            )}
+                            <span className="dr-n">{String(i + 1).padStart(2, "0")}</span>
+                            <span className="dr-l">{pick(label)}</span>
+                            <svg className="dr-arr" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
                         </Link>
                     ))}
 
@@ -252,87 +222,110 @@ function Navbar() {
                     <div
                         className="h-[1px] w-48 mt-4"
                         style={{
-                            background: "linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent)",
+                            background: "linear-gradient(90deg, transparent, rgba(0,190,255,0.4), transparent)",
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.45s",
                         }}
                     />
                     <p
-                        className="text-zinc-600 text-[10px] mt-3 tracking-[3px] uppercase"
+                        className="text-[10px] mt-3 tracking-[3px] uppercase"
                         style={{
                             opacity: open ? 1 : 0,
                             transition: "opacity 0.3s ease 0.5s",
                         }}
                     >
-                        {t("toque fora para fechar", "tap outside to close")}
+                        <span style={{ color: "rgba(120,190,235,0.6)" }}>{t("toque fora para fechar", "tap outside to close")}</span>
                     </p>
                 </nav>
             </div>
 
             <style>{`
-                /* Sobre o carrossel do Frontista o desfoque de fundo era refeito a cada quadro: desligado ali */
-                .nav-noblur { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-                .nav-brand { display: inline-flex; align-items: baseline; white-space: nowrap; font-weight: 700; letter-spacing: 0.3px; }
-                .nav-grad {
-                    background: linear-gradient(90deg, #34d399, #4ade80, #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent;
-                    transition: font-size 0.4s ease;
+                /* Barra: topo integrado ao céu; ao rolar vira cápsula em gradiente verde→ciano, texto escuro e pílula preta */
+                .nb {
+                    position: relative; width: min(95%, 1152px); border-radius: 999px; border: 0;
+                    --lgbg: rgba(255,255,255,.06); --lgbd: rgba(255,255,255,.16); --lgth: linear-gradient(90deg,#34d399,#22d3ee); --lgsh: 0 0 14px rgba(52,211,153,.35);
+                    --lgon: #02130a; --lgoff: rgba(214,220,226,.8); --lgic: rgba(214,220,226,.7); --lnk: rgba(224,230,234,.88); --lnkon: #fff;
+                    transition: width .55s cubic-bezier(.22,1,.36,1), background .4s, box-shadow .4s;
                 }
-                .nav-full { display: inline-block; overflow: hidden; vertical-align: bottom; font-size: 19px;
-                    transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease; }
-                .nav-full { max-width: 12em; }
-                .nav-full.is-off { max-width: 0; opacity: 0; }
+                .nb .in { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; }
+                .nb ul { position: relative; margin: 0; padding: 0; list-style: none; }
+                .nb ul a { position: relative; z-index: 1; display: block; padding: 9px 22px; border-radius: 999px; font-size: 14px; font-weight: 500;
+                    color: var(--lnk); cursor: pointer; text-decoration: none; transition: color .25s; }
+                .nb ul a:hover, .nb ul a.on { color: var(--lnkon); }
+                .nb .ind { position: absolute; top: 0; bottom: 0; left: 0; width: 0; border-radius: 999px; opacity: 0; pointer-events: none;
+                    transition: transform .5s cubic-bezier(.22,1,.36,1), width .5s cubic-bezier(.22,1,.36,1), opacity .3s; }
+                .nb .dv { width: 1px; height: 24px; margin: 0 6px; background: rgba(255,255,255,.18); }
+                .nb .prog { position: absolute; left: 26px; right: 26px; bottom: 0; height: 2px; border-radius: 2px; background: var(--pg, linear-gradient(90deg,#34d399,#22d3ee));
+                    transform-origin: left; transform: scaleX(0); opacity: 0; transition: opacity .3s; pointer-events: none; }
+                .nb.s .prog { opacity: .9; }
+                .nb { overflow: hidden; }
+                .nb::before { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid rgba(0,190,255,.9); pointer-events: none; opacity: 0; transition: opacity .5s; z-index: 3;
+                    -webkit-mask: linear-gradient(#000 0 0) top left/18px 18px no-repeat, linear-gradient(#000 0 0) top right/18px 18px no-repeat, linear-gradient(#000 0 0) bottom left/18px 18px no-repeat, linear-gradient(#000 0 0) bottom right/18px 18px no-repeat;
+                            mask: linear-gradient(#000 0 0) top left/18px 18px no-repeat, linear-gradient(#000 0 0) top right/18px 18px no-repeat, linear-gradient(#000 0 0) bottom left/18px 18px no-repeat, linear-gradient(#000 0 0) bottom right/18px 18px no-repeat; }
+                .nb::after { content: ""; position: absolute; top: 0; bottom: 0; left: -70px; width: 70px; background: linear-gradient(90deg, transparent, rgba(0,210,255,.5), transparent); opacity: 0; pointer-events: none; z-index: 2; }
+                .nb.s {
+                    width: min(92%, 1040px);
+                    --lgbg: rgba(0,110,255,.12); --lgbd: rgba(0,149,255,.45); --lgth: rgba(0,150,255,.32); --lgsh: 0 0 14px rgba(0,170,255,.55), inset 0 0 0 1px rgba(0,200,255,.6);
+                    --lgon: #e6f6ff; --lgoff: rgba(150,210,255,.72); --lgic: rgba(120,210,255,.85); --lnk: rgba(150,210,255,.78); --lnkon: rgba(170,228,255,1);
+                    --pg: linear-gradient(90deg, transparent, rgba(0,210,255,.95));
+                    background-color: rgba(0,110,255,.08);
+                    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,180,255,.05) 3px 4px);
+                    box-shadow: 0 0 0 1px rgba(0,149,255,.5), 0 0 28px rgba(0,149,255,.22), inset 0 0 26px rgba(0,100,255,.1);
+                    -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
+                    animation: navHoloIn .8s steps(1, end) both;
+                }
+                .nb.s::before { opacity: 1; }
+                .nb.s::after { opacity: .75; animation: navBeam 4.2s linear infinite; }
+                @keyframes navBeam { to { left: 100%; } }
+                @keyframes navHoloIn { 0% { opacity: 0; } 12% { opacity: .9; filter: brightness(2.2); } 22% { opacity: .25; } 34% { opacity: 1; filter: brightness(1.6); } 46% { opacity: .5; } 58% { opacity: 1; filter: none; } 100% { opacity: 1; } }
+                .nb.s .dv { background: rgba(0,170,255,.3); }
+                .nb.s .ind { background: rgba(0,130,255,.18); box-shadow: inset 0 0 0 1px rgba(0,190,255,.6), 0 0 18px rgba(0,160,255,.4); }
+                .nb.s ul a.on { text-shadow: 0 0 12px rgba(0,180,255,.75); }
 
-                .nav-path { display: inline-flex; align-items: center; max-width: 0; opacity: 0; overflow: hidden; margin-left: 0;
-                    font: 600 14px/1 monospace; letter-spacing: 0.3px; color: rgba(103,232,249,0.95);
-                    transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease, margin 0.4s ease; }
-                .nav-path.is-on { max-width: 14em; opacity: 1; margin-left: 0; }
-                .nav-path-txt { display: inline-block; animation: navType 0.5s steps(14) both; }
-                @keyframes navType { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-                .nav-caret { display: inline-block; width: 7px; height: 14px; margin-left: 2px; background: rgba(103,232,249,0.85); animation: navBlink 1s steps(1) infinite; }
-                @keyframes navBlink { 50% { opacity: 0; } }
+                .lg2 { display: inline-flex; align-items: center; gap: 8px; }
+                .lg2 > svg { width: 17px; height: 17px; flex: none; color: var(--lgic); transition: transform .6s cubic-bezier(.3,1.3,.5,1); }
+                .lg2:hover > svg { transform: rotate(25deg); }
+                .lg2 .sg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 3px; border-radius: 99px;
+                    background: var(--lgbg); box-shadow: inset 0 0 0 1px var(--lgbd); transition: background .4s, box-shadow .4s; }
+                .lg2 .th { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 99px;
+                    background: var(--lgth); box-shadow: var(--lgsh); transition: transform .38s cubic-bezier(.3,1.35,.5,1), background .4s; }
+                .lg2[data-l="en"] .th { transform: translateX(100%); }
+                .lg2 button { position: relative; z-index: 1; min-width: 42px; min-height: 34px; padding: 0 10px; border: 0; background: none; cursor: pointer;
+                    font: 700 12px "Poppins", sans-serif; letter-spacing: .1em; color: var(--lgoff); transition: color .25s; }
+                .lg2 button[aria-checked="true"] { color: var(--lgon); }
 
-                .nav-ind {
-                    position: absolute; left: 0; top: 50%; height: 32px; margin-top: -16px; width: 0; opacity: 0; border-radius: 999px;
-                    background: linear-gradient(90deg, rgba(52,211,153,0.14), rgba(34,211,238,0.14));
-                    border: 1px solid rgba(34,211,238,0.3); box-shadow: 0 0 16px rgba(34,211,238,0.15);
-                    transition: transform 0.45s cubic-bezier(0.34,1.3,0.64,1), width 0.45s cubic-bezier(0.34,1.3,0.64,1), opacity 0.3s ease;
-                    pointer-events: none;
-                }
-                .nav-link { position: relative; z-index: 1; display: inline-block; padding: 6px 13px; border-radius: 999px; cursor: pointer;
-                    color: rgba(255,255,255,0.85); transition: color 0.25s ease; }
-                .nav-link:hover { color: #67e8f9; }
-                .nav-link.is-on { color: #67e8f9; }
-                .nav-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; transform: scaleX(0); transform-origin: left;
-                    background: linear-gradient(90deg, #34d399, #22d3ee); box-shadow: 0 0 8px rgba(34,211,238,0.6); pointer-events: none; }
-
-                .lang-switch {
-                    position: relative; display: grid; grid-template-columns: 1fr 1fr;
-                    padding: 3px; border-radius: 999px;
-                    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-                }
-                .lang-pill {
-                    position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px;
-                    background: linear-gradient(90deg, rgba(52,211,153,0.9), rgba(34,211,238,0.9));
-                    box-shadow: 0 0 14px rgba(34,211,238,0.35);
-                    transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
-                }
-                .lang-switch button {
-                    position: relative; z-index: 1; border: 0; background: none; cursor: pointer;
-                    font: 700 11px/1 monospace; letter-spacing: 1px; padding: 6px 10px;
-                    color: rgba(255,255,255,0.55); transition: color 0.25s ease;
-                }
-                .lang-switch button.is-on { color: #03140b; }
-                .lang-switch button:not(.is-on):hover { color: #fff; }
-                .lang-compact button { padding: 5px 8px; font-size: 10px; }
-
-                .nav-bar {
-                    display: block;
-                    width: 22px; height: 2px;
-                    background: white;
-                    border-radius: 2px;
-                    transition: transform 0.3s ease, opacity 0.2s ease;
+                .burger { display: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer; place-items: center; align-content: center; gap: 5px; color: #fff; }
+                .nb.s .burger { color: #9ddcff; }
+                .burger i { display: block; width: 22px; height: 2px; border-radius: 2px; background: currentColor; transition: transform .3s, opacity .3s; }
+                @media (max-width: 1023px) {
+                    .nb .in { justify-content: space-between; padding: 6px 8px 6px 14px; }
+                    .nb { width: min(94%, 520px); }
+                    .nb .burger { display: grid; }
                 }
 
+                /* Itens do menu mobile: pílulas holográficas, mesmo desenho da barra */
+                .dr-row {
+                    position: relative; isolation: isolate; display: flex; align-items: center; gap: 14px;
+                    width: min(280px, 84vw); height: 52px; padding: 0 20px; border-radius: 999px;
+                    background-color: rgba(0,110,255,0.08);
+                    background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,180,255,0.05) 3px 4px);
+                    box-shadow: 0 0 0 1px rgba(0,149,255,0.4), 0 0 22px rgba(0,149,255,0.18), inset 0 0 20px rgba(0,100,255,0.1);
+                    transition: background-color .25s, box-shadow .25s;
+                }
+                .dr-row::before {
+                    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+                    border: 2px solid rgba(0,190,255,0.9); opacity: .45; transition: opacity .25s;
+                    -webkit-mask: linear-gradient(#000 0 0) top left / 16px 16px no-repeat, linear-gradient(#000 0 0) top right / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+                            mask: linear-gradient(#000 0 0) top left / 16px 16px no-repeat, linear-gradient(#000 0 0) top right / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom left / 16px 16px no-repeat, linear-gradient(#000 0 0) bottom right / 16px 16px no-repeat;
+                }
+                .dr-row:hover::before, .dr-row.on::before { opacity: 1; }
+                .dr-row.on { background-color: rgba(0,149,255,0.18); box-shadow: 0 0 0 1px rgba(0,190,255,0.75), 0 0 30px rgba(0,149,255,0.4), inset 0 0 22px rgba(0,100,255,0.16); }
+                .dr-n { font: 600 11px "Roboto Mono", ui-monospace, monospace; letter-spacing: .14em; color: rgba(0,190,255,0.75); }
+                .dr-l { flex: 1; font: 600 17px "Poppins", sans-serif; color: rgba(150,210,255,0.85); transition: color .25s, transform .25s; }
+                .dr-row:hover .dr-l { color: rgba(190,235,255,1); transform: translateX(3px); }
+                .dr-row.on .dr-l { color: #e6f6ff; text-shadow: 0 0 12px rgba(0,180,255,0.7); }
+                .dr-arr { width: 14px; height: 14px; flex: none; color: rgba(0,190,255,0.6); opacity: .5; transition: opacity .25s, transform .25s; }
+                .dr-row:hover .dr-arr, .dr-row.on .dr-arr { opacity: 1; transform: translateX(2px); }
                 /* Drawer link — barrinha lateral deslizando */
                 .drawer-link {
                     position: relative;
@@ -343,7 +336,8 @@ function Navbar() {
                     position: absolute;
                     left: 0; top: 0; bottom: 0;
                     width: 2px;
-                    background: linear-gradient(to bottom, #34d399, #22d3ee);
+                    background: linear-gradient(to bottom, rgba(0,190,255,0.9), rgba(120,220,255,0.9));
+                    box-shadow: 0 0 8px rgba(0,190,255,0.7);
                     transform: scaleY(0);
                     transform-origin: center;
                     transition: transform 0.25s ease;
@@ -357,7 +351,7 @@ function Navbar() {
                     content: "";
                     position: absolute;
                     inset: 0;
-                    background: linear-gradient(90deg, rgba(6,182,212,0.06), transparent);
+                    background: linear-gradient(90deg, rgba(0,149,255,0.14), transparent);
                     opacity: 0;
                     transition: opacity 0.25s ease;
                 }
@@ -366,11 +360,11 @@ function Navbar() {
                     opacity: 1 !important;
                 }
                 .drawer-link:hover .drawer-icon {
-                    color: rgba(34,211,238,0.8) !important;
+                    color: rgba(120,220,255,1) !important;
                     transition: color 0.2s ease;
                 }
                 .drawer-link:hover .drawer-label {
-                    color: white;
+                    color: rgba(170,228,255,1);
                     transform: translateX(3px);
                     display: inline-block;
                     transition: transform 0.2s ease, color 0.2s ease;

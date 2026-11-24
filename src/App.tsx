@@ -20,9 +20,7 @@ function App() {
             <StarBackground />
             <div className="relative z-10">
                 <Navbar />
-                <div className="bg-black">
-                    <Hero />
-                </div>
+                <Hero />
                 <About />
                 <Skills />
                 <Projects />
