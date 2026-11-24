@@ -95,18 +95,22 @@ function Viewer({ start, onClose }: { start: number; onClose: () => void }) {
     });
     const c = CERTS[CKEYS[k]];
     return (
-        <div className="fixed inset-0 z-[60] grid grid-rows-[auto_1fr_auto] bg-[rgba(2,6,14,.95)]" role="dialog" aria-modal="true" aria-label={t("Certificado", "Certificate")}>
+        <div className="fixed inset-0 z-[60] grid grid-rows-[auto_1fr_auto_auto] bg-[rgba(2,6,14,.95)]" role="dialog" aria-modal="true" aria-label={t("Certificado", "Certificate")}>
             <div className="flex items-center justify-between gap-3 px-4 pt-4">
                 <span className="font-mono text-xs tracking-widest text-cyan-200/70">{String(k + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}</span>
                 <button type="button" onClick={onClose} aria-label={t("Fechar", "Close")} className="grid h-11 w-11 place-items-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-100">✕</button>
             </div>
             <div className="relative grid min-h-0 items-center px-4 sm:px-20" onPointerDown={(e) => { swipeX.current = e.clientX; }} onPointerUp={(e) => { const dx = e.clientX - swipeX.current; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); }}>
-                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="absolute left-2 top-1/2 z-10 grid h-14 w-14 -translate-y-1/2 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)] sm:left-6">‹</button>
+                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="absolute left-6 top-1/2 z-10 hidden -translate-y-1/2 grid h-14 w-14 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)] sm:grid">‹</button>
                 <figure className="grid min-w-0 justify-items-center gap-3">
-                    <img src={`/certs/${CKEYS[k]}.jpg`} alt={c.t} className="max-h-[calc(100vh-210px)] max-w-full rounded-md shadow-[0_0_0_1px_rgba(0,190,255,.5),0_0_40px_rgba(0,149,255,.3)]" />
+                    <img src={`/certs/${CKEYS[k]}.jpg`} alt={c.t} className="max-h-[calc(100vh-300px)] max-w-full rounded-md sm:max-h-[calc(100vh-210px)] shadow-[0_0_0_1px_rgba(0,190,255,.5),0_0_40px_rgba(0,149,255,.3)]" />
                     <figcaption className="text-center text-sm font-semibold text-white">{c.t}<small className="mt-1 block font-mono text-xs text-sky-200">{c.i} · {c.d}</small></figcaption>
                 </figure>
-                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="absolute right-2 top-1/2 z-10 grid h-14 w-14 -translate-y-1/2 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)] sm:right-6">›</button>
+                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="absolute right-6 top-1/2 z-10 hidden -translate-y-1/2 grid h-14 w-14 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)] sm:grid">›</button>
+            </div>
+            <div className="flex justify-center gap-10 pt-2 sm:hidden">
+                <button type="button" onClick={() => go(-1)} aria-label={t("Anterior", "Previous")} className="grid h-14 w-14 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)]">‹</button>
+                <button type="button" onClick={() => go(1)} aria-label={t("Próximo", "Next")} className="grid h-14 w-14 place-items-center rounded-full border-2 border-cyan-300 bg-[#0b0a1f]/90 text-3xl leading-none text-white shadow-[0_0_18px_rgba(0,190,255,.55)]">›</button>
             </div>
             <div className="flex flex-wrap justify-center gap-1.5 px-4 pb-5 pt-3">
                 {CKEYS.map((ck, i) => (

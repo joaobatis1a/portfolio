@@ -16,6 +16,8 @@ function BackToTop() {
     /* Subida ao topo: dura o suficiente para aproveitar (1,4 s a 2,8 s, pelo tamanho da página) e
        as estrelas aceleram durante o percurso. Qualquer rolagem do usuário cancela. */
     const handleClick = () => {
+        // não sobe a página se houver uma janela aberta (ex.: visualizador de certificados)
+        if (document.querySelector('[aria-modal="true"]')) return;
         const start = window.scrollY;
         if (start <= 0) return;
         const dur = Math.min(2800, Math.max(1400, start * 0.7));
