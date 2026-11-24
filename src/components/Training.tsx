@@ -230,7 +230,9 @@ function Game() {
                     <button key={d} type="button" onClick={() => go((cur + d + YEARS.length) % YEARS.length)}
                         aria-label={d < 0 ? t("Mundo anterior", "Previous world") : t("Próximo mundo", "Next world")}
                         className="h-11 w-[52px] border-0 bg-[#312e81] text-xs text-white shadow-[inset_-4px_-4px_0_rgba(0,0,0,.35),inset_4px_4px_0_rgba(255,255,255,.2),0_4px_0_#000] active:translate-y-[3px]">
-                        {d < 0 ? "◀" : "▶"}
+                        <svg viewBox="0 0 16 16" fill="currentColor" className="mx-auto h-3.5 w-3.5" aria-hidden="true">
+                            <path d={d < 0 ? "M10 3L5 8l5 5z" : "M6 3l5 5-5 5z"} />
+                        </svg>
                     </button>
                 ))}
             </div>
@@ -242,7 +244,7 @@ function Game() {
                 </div>
             )}
             {lvUp && (
-                <div className="pointer-events-none absolute left-1/2 top-[38%] z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-[clamp(14px,3vw,22px)] text-yellow-300 [text-shadow:4px_4px_0_#b45309,0_0_20px_rgba(253,224,71,.6)] [animation:lvUp_1.4s_steps(8)_forwards]">
+                <div key={lvUp} className="pointer-events-none absolute left-1/2 top-[68px] z-30 max-w-[88%] border-4 border-yellow-300 bg-[#0b0a1f] px-3 py-2 text-center text-[10px] leading-relaxed text-yellow-300 shadow-[0_4px_0_#000] [animation:lvBox_1.6s_steps(6)_forwards]">
                     {lvUp}
                 </div>
             )}
@@ -305,7 +307,7 @@ export default function Training() {
             <Wall />
             <style>{`
                 @keyframes toastIn { from { transform: translateX(calc(100% + 40px)); } to { transform: none; } }
-                @keyframes lvUp { 0% { opacity: 0; transform: translate(-50%, -20%); } 20% { opacity: 1; transform: translate(-50%, -50%); } 75% { opacity: 1; transform: translate(-50%, -80%); } 100% { opacity: 0; transform: translate(-50%, -110%); } }
+                @keyframes lvBox { 0% { opacity: 0; transform: translate(-50%, 8px); } 12% { opacity: 1; transform: translate(-50%, 0); } 82% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -8px); } }
                 @keyframes bob { 50% { transform: translateY(-6px); } }
                 .wn { position: absolute; width: 86px; margin-left: -43px; display: grid; justify-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; color: #fff; font: inherit; }
                 .wn .plt { position: relative; width: 64px; height: 52px; display: grid; place-items: center; background: var(--c); box-shadow: inset -6px -6px 0 rgba(0,0,0,.28), inset 6px 6px 0 rgba(255,255,255,.25), 0 6px 0 #000; font-size: 15px; color: #0b0a1f; transition: transform .15s steps(2); }
@@ -318,11 +320,12 @@ export default function Training() {
                 .wmap svg.path path { fill: none; stroke: #6366f1; stroke-width: 4; stroke-dasharray: 4 10; stroke-linecap: square; animation: march 1s steps(7) infinite; }
                 @keyframes march { to { stroke-dashoffset: -14px; } }
                 @media (max-width: 640px) {
-                    .wmap { height: auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 46px; padding-top: 34px; margin: 16px 6px 0; }
-                    .wmap svg.path { display: none; }
-                    .wn { position: relative; left: auto !important; top: auto !important; margin: 0 auto; grid-column: span 2; width: auto; }
-                    .wn:nth-of-type(4) { grid-column: 2 / span 2; }
-                    .wn .plt { width: 56px; height: 46px; }
+                    .wmap { height: 230px; margin: 10px 4px 0; }
+                    .wn { width: 62px; margin-left: -31px; gap: 6px; }
+                    .wn .plt { width: 42px; height: 36px; font-size: 11px; }
+                    .wn .cur { top: -24px; }
+                    .wn .nm { font-size: 7px; }
+                    .wn .nm b { font-size: 9px; }
                 }
                 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
             `}</style>

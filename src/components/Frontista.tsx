@@ -224,7 +224,7 @@ function SocialLinks() {
                             <b>{l.name}</b>
                             <small>@frontista · {l.note}</small>
                         </span>
-                        <span className="ft-chan-go" aria-hidden="true">↗</span>
+                        <span className="ft-chan-go" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12L12 4M6 4h6v6" /></svg></span>
                     </a>
                 ))}
             </div>

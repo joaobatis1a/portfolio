@@ -20,9 +20,14 @@ function StarBackground() {
         const H = () => canvas.height;
 
         const resize = () => {
-            // Desenha em 75% da resolução: as estrelas são pontos, a diferença não aparece e a pintura fica bem mais leve
-            canvas.width = Math.round(window.innerWidth * SCALE);
-            canvas.height = Math.round(window.innerHeight * SCALE);
+            // Desenha em 75% da resolução: as estrelas são pontos, a diferença não aparece e a pintura fica bem mais leve.
+            // No celular a barra de endereço some e volta com a rolagem: isso dispara resize e apagaria o canvas (piscando).
+            // Só redimensiona se a largura mudou ou a altura mudou muito (rotação de tela).
+            const w = Math.round(window.innerWidth * SCALE);
+            const h = Math.round(window.innerHeight * SCALE);
+            if (w === canvas.width && Math.abs(h - canvas.height) < 120) return;
+            canvas.width = w;
+            canvas.height = h;
         };
         resize();
         window.addEventListener("resize", resize);
