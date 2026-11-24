@@ -258,9 +258,9 @@ function Skills() {
             </div>
 
             {/* Tabs */}
-            <div className="mb-10 grid w-full max-w-3xl grid-cols-2 gap-2 px-2 sm:flex sm:flex-col sm:items-center">
+            <div className="mb-10 flex w-full max-w-3xl flex-col items-center gap-2 px-2">
             {[CATEGORIES.slice(0, Math.ceil(CATEGORIES.length / 2)), CATEGORIES.slice(Math.ceil(CATEGORIES.length / 2))].map((row, r) => (
-                <div key={r} className="contents sm:flex sm:flex-wrap sm:justify-center sm:gap-2">
+                <div key={r} className="flex w-full justify-center gap-1.5 sm:w-auto sm:flex-wrap sm:gap-2">
                 {row.map((cat) => {
                     const i = CATEGORIES.indexOf(cat);
                     const isActive = current === i;
@@ -269,7 +269,7 @@ function Skills() {
                         <button
                             key={cat.title.en}
                             onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 8000); }}
-                            className={`holo-tab relative flex items-center justify-center w-full min-w-0 px-3 py-2.5 sm:w-auto sm:min-w-[148px] sm:px-4 text-center text-[11px] leading-tight font-semibold tracking-wider uppercase transition-all duration-300 ${isActive ? "is-active" : ""}`}
+                            className={`holo-tab relative flex min-h-[44px] min-w-0 flex-1 basis-0 items-center justify-center px-1 py-2 text-center text-[8.5px] leading-tight tracking-normal sm:min-w-[148px] sm:flex-none sm:basis-auto sm:px-4 sm:py-2.5 sm:text-[11px] font-semibold tracking-wider uppercase transition-all duration-300 ${isActive ? "is-active" : ""}`}
                             style={{
                                 background: isActive ? "rgba(0,149,255,0.16)" : undefined,
                                 color: isActive ? "rgba(140,220,255,1)" : "rgba(150,210,255,0.8)",

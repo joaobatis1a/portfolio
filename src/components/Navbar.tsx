@@ -174,7 +174,7 @@ function Navbar() {
 
                 <nav
                     className="flex flex-col items-center justify-center h-full gap-2.5"
-                    onClick={e => e.stopPropagation()}
+                    style={{ pointerEvents: "none" }}
                 >
                     {/* Logo */}
                     <div
@@ -210,7 +210,7 @@ function Navbar() {
                                 transform: open ? "translateX(0)" : "translateX(-20px)",
                                 transition: `opacity 0.3s ease ${0.06 + i * 0.05}s, transform 0.35s ease ${0.06 + i * 0.05}s`,
                             }}
-                            className={`dr-row cursor-pointer ${active === to ? "on" : ""}`}
+                            className={`dr-row cursor-pointer pointer-events-auto ${active === to ? "on" : ""}`}
                         >
                             <span className="dr-n">{String(i + 1).padStart(2, "0")}</span>
                             <span className="dr-l">{pick(label)}</span>

@@ -13,9 +13,26 @@ function BackToTop() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
+    /* Subida ao topo: dura o suficiente para aproveitar (1,4 s a 2,8 s, pelo tamanho da página) e
+       as estrelas aceleram durante o percurso. Qualquer rolagem do usuário cancela. */
     const handleClick = () => {
-        window.dispatchEvent(new Event("warp"));
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        const start = window.scrollY;
+        if (start <= 0) return;
+        const dur = Math.min(2800, Math.max(1400, start * 0.7));
+        const t0 = performance.now();
+        const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+        let cancelled = false;
+        const cancel = () => { cancelled = true; };
+        window.addEventListener("wheel", cancel, { once: true, passive: true });
+        window.addEventListener("touchstart", cancel, { once: true, passive: true });
+        window.dispatchEvent(new CustomEvent("warp-hold", { detail: true }));
+        const step = (now: number) => {
+            const k = Math.min(1, (now - t0) / dur);
+            if (!cancelled) window.scrollTo(0, start * (1 - ease(k)));
+            if (k < 1 && !cancelled) requestAnimationFrame(step);
+            else window.dispatchEvent(new CustomEvent("warp-hold", { detail: false }));
+        };
+        requestAnimationFrame(step);
     };
 
     return (
