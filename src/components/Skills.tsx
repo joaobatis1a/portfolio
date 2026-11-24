@@ -206,8 +206,26 @@ function HoloCard({ category, active, position }: {
 }
 
 
+function chunk<T>(arr: T[], size: number): T[][] {
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+}
+
+function useIsDesktop() {
+    const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches);
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 640px)");
+        const on = () => setIsDesktop(mq.matches);
+        mq.addEventListener("change", on);
+        return () => mq.removeEventListener("change", on);
+    }, []);
+    return isDesktop;
+}
+
 function Skills() {
     const { t, pick } = useLang();
+    const isDesktop = useIsDesktop();
     const [current, setCurrent] = useState(0);
     const [paused, setPaused] = useState(false);
     const [glitchTab, setGlitchTab] = useState<number | null>(null);
@@ -259,8 +277,8 @@ function Skills() {
 
             {/* Tabs */}
             <div className="mb-10 flex w-full max-w-3xl flex-col items-center gap-2 px-1">
-            {[CATEGORIES.slice(0, Math.ceil(CATEGORIES.length / 2)), CATEGORIES.slice(Math.ceil(CATEGORIES.length / 2))].map((row, r) => (
-                <div key={r} className="flex w-full justify-center gap-1 sm:w-auto sm:flex-wrap sm:gap-2">
+            {chunk(CATEGORIES, isDesktop ? 4 : 2).map((row, r) => (
+                <div key={r} className="flex flex-wrap justify-center gap-2">
                 {row.map((cat) => {
                     const i = CATEGORIES.indexOf(cat);
                     const isActive = current === i;
@@ -269,7 +287,7 @@ function Skills() {
                         <button
                             key={cat.title.en}
                             onClick={() => { goTo(i); setPaused(true); setTimeout(() => setPaused(false), 8000); }}
-                            className={`holo-tab relative flex min-h-[58px] min-w-0 flex-1 basis-0 items-center justify-center px-0.5 py-2 text-center text-[9px] leading-[1.25] tracking-normal sm:min-w-[148px] sm:flex-none sm:basis-auto sm:px-4 sm:py-2.5 sm:text-[11px] font-semibold tracking-wider uppercase transition-all duration-300 ${isActive ? "is-active" : ""}`}
+                            className={`holo-tab relative flex min-h-[46px] min-w-[136px] items-center justify-center px-3 py-2.5 text-center text-[10px] leading-tight tracking-wide sm:min-w-[148px] sm:px-4 sm:text-[11px] font-semibold tracking-wider uppercase transition-all duration-300 ${isActive ? "is-active" : ""}`}
                             style={{
                                 background: isActive ? "rgba(0,149,255,0.16)" : undefined,
                                 color: isActive ? "rgba(140,220,255,1)" : "rgba(150,210,255,0.8)",

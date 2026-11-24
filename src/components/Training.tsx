@@ -266,7 +266,7 @@ function Wall() {
     const [viewer, setViewer] = useState<number | null>(null);
     const rot = ["-3deg", "2deg", "-1.5deg", "3deg", "2.5deg", "-2.5deg", "1.5deg", "-3.5deg"];
     return (
-        <div className="mx-auto mt-16 w-full max-w-[1060px]">
+        <div data-cert-wall className="mx-auto mt-16 w-full max-w-[1060px]">
             <h3 className="mb-4 text-center font-mono text-xs uppercase tracking-[0.24em] text-sky-300 [text-shadow:0_0_12px_rgba(0,180,255,.6)]">{t("Certificados", "Certificates")}</h3>
             <div className="relative isolate overflow-hidden rounded-[18px] bg-[#010614] shadow-[0_0_0_1px_rgba(0,149,255,.5),0_0_40px_rgba(0,149,255,.22),inset_0_0_60px_rgba(0,100,255,.14)] [background-image:linear-gradient(rgba(0,170,255,.09)_1px,transparent_1px),linear-gradient(90deg,rgba(0,170,255,.09)_1px,transparent_1px),radial-gradient(80%_60%_at_50%_0%,rgba(0,120,255,.28),transparent_70%)] [background-size:44px_44px,44px_44px,auto]">
                 <div className="pointer-events-none absolute inset-0 z-[1] [background:repeating-linear-gradient(0deg,transparent_0_3px,rgba(0,180,255,.05)_3px_4px)]" />

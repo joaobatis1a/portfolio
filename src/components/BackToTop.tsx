@@ -7,7 +7,12 @@ function BackToTop() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        const onScroll = () => setVisible(window.scrollY > 480);
+        // esconde enquanto a parede de certificados está na tela: o botão fixo cobria os certificados
+        const onScroll = () => {
+            const wall = document.querySelector("[data-cert-wall]")?.getBoundingClientRect();
+            const overWall = !!wall && wall.top < window.innerHeight && wall.bottom > 0;
+            setVisible(window.scrollY > 480 && !overWall);
+        };
         onScroll();
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
