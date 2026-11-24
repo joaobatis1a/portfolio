@@ -83,28 +83,10 @@ function StarBackground() {
         };
         window.addEventListener("warp", onWarp);
 
-        // ── Segurar para acelerar: começa depois de ~220 ms parado (para não confundir com rolagem) ──
+        // ── Aceleração (warp contínuo) disparada só pelo botão de voltar ao topo ──
         let holding = false;
-        let holdTimer = 0;
-        let downX = 0, downY = 0;
-        const INTERACTIVE = "a, button, input, textarea, select, label, [role='dialog'], [data-nowarp]";
         const onHold = (e: Event) => { holding = !!(e as CustomEvent<boolean>).detail; };
-        const onPointerDown = (e: PointerEvent) => {
-            const el = e.target as HTMLElement | null;
-            if (el?.closest(INTERACTIVE)) return;
-            downX = e.clientX; downY = e.clientY;
-            clearTimeout(holdTimer);
-            holdTimer = window.setTimeout(() => { holding = true; }, 220);
-        };
-        const onPointerMove = (e: PointerEvent) => {
-            if (Math.hypot(e.clientX - downX, e.clientY - downY) > 10) { clearTimeout(holdTimer); holding = false; }
-        };
-        const onPointerUp = () => { clearTimeout(holdTimer); holding = false; };
         window.addEventListener("warp-hold", onHold);
-        window.addEventListener("pointerdown", onPointerDown);
-        window.addEventListener("pointermove", onPointerMove);
-        window.addEventListener("pointerup", onPointerUp);
-        window.addEventListener("pointercancel", onPointerUp);
 
         // ── Mouse parallax ──
         const onMouseMove = (e: MouseEvent) => {
@@ -200,11 +182,6 @@ function StarBackground() {
             window.removeEventListener("starfield-freeze", onFreeze);
             window.removeEventListener("mousemove", onMouseMove);
             window.removeEventListener("warp-hold", onHold);
-            window.removeEventListener("pointerdown", onPointerDown);
-            window.removeEventListener("pointermove", onPointerMove);
-            window.removeEventListener("pointerup", onPointerUp);
-            window.removeEventListener("pointercancel", onPointerUp);
-            clearTimeout(holdTimer);
         };
     }, []);
 
