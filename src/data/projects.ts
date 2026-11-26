@@ -265,7 +265,7 @@ export const UNLOCKED: UnlockedProjectData[] = [
     demo: "https://rafa-portfolio-eta.vercel.app/",
     trailer: null,
     award: null,
-    island: "solo", logo: "/logos/projects/rafa.svg",
+    island: "solo", logo: "/logos/projects/rafa.png",
     mx: 620, my: 300,
     color: palette(201, 183, 154, 245, 240, 230, "#c9b79a"),
   },

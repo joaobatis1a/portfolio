@@ -758,29 +758,47 @@ function DriblouEffect() {
   return <svg viewBox="0 0 220 140" preserveAspectRatio="xMidYMid slice" shapeRendering="crispEdges" style={SVG_STYLE} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s }} />;
 }
 
-// Rafa: planta baixa que se desenha (paredes, porta e mobiliário), na paleta areia e grafite do site
+// Rafa: maquete isométrica que monta os andares e varre o prédio, na paleta areia e grafite do site
 function RafaEffect() {
   const { t: tr } = useLang();
   const t = useClock();
   const S = "rgba(201,183,154,";
   const SL = "rgba(245,240,230,";
-  const cycle = 5;
+  const cycle = 6;
   const p = (t % cycle) / cycle;
-  const draw = (a: number, b: number) => Math.min(1, Math.max(0, (p - a) / (b - a)));
-  const walls = [[40, 30, 140, 30], [140, 30, 140, 100], [140, 100, 40, 100], [40, 100, 40, 30]];
-  const furniture = [[60, 48, 22, 14], [104, 48, 22, 14], [60, 78, 40, 12]];
+  const ease = (x: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+  const iso = (x: number, y: number, z: number): [number, number] => [
+    110 + (x - y) * 0.866 * 0.6,
+    82 + (x + y) * 0.5 * 0.6 - z * 0.6,
+  ];
+  const floors = [0, 1, 2].map((i) => ({ i, k: ease((p - 0.06 - i * 0.14) / 0.24) }));
+  const scanY = 30 + ((p * 1.6) % 1) * 84;
   return (
-    <svg style={SVG_STYLE} viewBox="0 0 220 140" shapeRendering="crispEdges">
-      {walls.map(([x1, y1, x2, y2], i) => {
-        const k = draw(i * 0.1, i * 0.1 + 0.18);
-        return <line key={i} x1={x1} y1={y1} x2={x1 + (x2 - x1) * k} y2={y1 + (y2 - y1) * k} stroke={`${SL}0.85)`} strokeWidth="2" />;
+    <svg style={SVG_STYLE} viewBox="0 0 220 140" shapeRendering="geometricPrecision">
+      {floors.map(({ i, k }) => {
+        if (k <= 0) return null;
+        const z = i * 30 + (1 - k) * 60;
+        const corner = (x: number, y: number, zz: number) => iso(x - 28, y - 28, zz).join(",");
+        const base = [corner(0, 0, z), corner(56, 0, z), corner(56, 56, z), corner(0, 56, z)].join(" ");
+        const top = z + 22;
+        return (
+          <g key={i} opacity={k}>
+            <polygon points={base} fill={`${S}${0.08 + 0.06 * i})`} stroke={`${S}0.7)`} strokeWidth="1" />
+            {[[0, 0], [56, 0], [56, 56], [0, 56]].map(([x, y], j) => {
+              const [a, b] = iso(x - 28, y - 28, z);
+              const [c, d] = iso(x - 28, y - 28, top);
+              return <line key={j} x1={a} y1={b} x2={c} y2={d} stroke={`${SL}0.75)`} strokeWidth="1" />;
+            })}
+            <polygon
+              points={[corner(0, 0, top), corner(56, 0, top), corner(56, 56, top), corner(0, 56, top)].join(" ")}
+              fill={`${SL}${0.05 + 0.05 * i})`} stroke={`${SL}0.85)`} strokeWidth="1"
+            />
+            <line x1={iso(0, 28 - 28, top)[0]} y1={iso(0, 28 - 28, top)[1]} x2={iso(56, 28 - 28, top)[0]} y2={iso(56, 28 - 28, top)[1]} stroke={`${S}0.4)`} strokeWidth="1" />
+          </g>
+        );
       })}
-      <path d={`M 90 100 A 14 14 0 0 1 104 86`} fill="none" stroke={`${S}0.7)`} strokeWidth="1" opacity={draw(0.45, 0.6)} />
-      {furniture.map(([x, y, w, h], i) => (
-        <rect key={i} x={x} y={y} width={w} height={h} fill={`${S}${0.18 + 0.5 * draw(0.6 + i * 0.1, 0.8 + i * 0.1)})`} />
-      ))}
-      <rect x={140 - 4} y={60 - 2} width="4" height="10" fill={`${S}0.5)`} />
-      <EffectLabel text={tr("PLANTA BAIXA", "FLOOR PLAN")} color={S} light={SL} />
+      <rect x="0" y={scanY} width="220" height="1" fill={`${SL}0.35)`} />
+      <EffectLabel text={tr("MAQUETE 3D", "3D MODEL")} color={S} light={SL} />
     </svg>
   );
 }
