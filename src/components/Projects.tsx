@@ -758,6 +758,33 @@ function DriblouEffect() {
   return <svg viewBox="0 0 220 140" preserveAspectRatio="xMidYMid slice" shapeRendering="crispEdges" style={SVG_STYLE} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s }} />;
 }
 
+// Rafa: planta baixa que se desenha (paredes, porta e mobiliário), na paleta areia e grafite do site
+function RafaEffect() {
+  const { t: tr } = useLang();
+  const t = useClock();
+  const S = "rgba(201,183,154,";
+  const SL = "rgba(245,240,230,";
+  const cycle = 5;
+  const p = (t % cycle) / cycle;
+  const draw = (a: number, b: number) => Math.min(1, Math.max(0, (p - a) / (b - a)));
+  const walls = [[40, 30, 140, 30], [140, 30, 140, 100], [140, 100, 40, 100], [40, 100, 40, 30]];
+  const furniture = [[60, 48, 22, 14], [104, 48, 22, 14], [60, 78, 40, 12]];
+  return (
+    <svg style={SVG_STYLE} viewBox="0 0 220 140" shapeRendering="crispEdges">
+      {walls.map(([x1, y1, x2, y2], i) => {
+        const k = draw(i * 0.1, i * 0.1 + 0.18);
+        return <line key={i} x1={x1} y1={y1} x2={x1 + (x2 - x1) * k} y2={y1 + (y2 - y1) * k} stroke={`${SL}0.85)`} strokeWidth="2" />;
+      })}
+      <path d={`M 90 100 A 14 14 0 0 1 104 86`} fill="none" stroke={`${S}0.7)`} strokeWidth="1" opacity={draw(0.45, 0.6)} />
+      {furniture.map(([x, y, w, h], i) => (
+        <rect key={i} x={x} y={y} width={w} height={h} fill={`${S}${0.18 + 0.5 * draw(0.6 + i * 0.1, 0.8 + i * 0.1)})`} />
+      ))}
+      <rect x={140 - 4} y={60 - 2} width="4" height="10" fill={`${S}0.5)`} />
+      <EffectLabel text={tr("PLANTA BAIXA", "FLOOR PLAN")} color={S} light={SL} />
+    </svg>
+  );
+}
+
 const CARD_EFFECTS: Record<string, React.FC> = {
   limpattack: LimpattackEffect,
   benevo: BenevoEffect,
@@ -770,6 +797,7 @@ const CARD_EFFECTS: Record<string, React.FC> = {
   vessa: VessaEffect,
   nina: NinaEffect,
   driblou: DriblouEffect,
+  rafa: RafaEffect,
 };
 
 /* Animação de um projeto como tile solto (usada no carrossel do Frontista) */
@@ -808,6 +836,7 @@ const THEME: Record<string, { c: string; c2: string; on: string; f: string; w: n
   benevo:      { c: "#3b82f6", c2: "#93c5fd", on: "#fff",    f: "'Shrikhand'", w: 400, ls: "0", fs: .78 },
   limpattack:  { c: "#fbbf24", c2: "#fb923c", on: "#1c1917", f: "'Press Start 2P'", w: 400, ls: "-.02em", fs: .4 },
   driblou:     { c: "#dc2626", c2: "#facc15", on: "#fff",    f: "'Big Shoulders Stencil','Big Shoulders'", w: 800, tt: "uppercase", ls: ".02em", fs: 1 },
+  rafa:        { c: "#c9b79a", c2: "#f5f0e6", on: "#1c1c1c",  f: "'Cormorant Garamond',serif", w: 600, ls: ".01em", fs: 1 },
 };
 
 const CATEGORY: Record<string, L10n> = {
@@ -822,6 +851,7 @@ const CATEGORY: Record<string, L10n> = {
   benevo:      { pt: "Gestão de doações", en: "Donation management" },
   limpattack:  { pt: "Jogo educativo", en: "Educational game" },
   driblou:     { pt: "Site de clube de Pro Clubs", en: "Pro Clubs club website" },
+  rafa:        { pt: "Arquitetura · site institucional", en: "Architecture · institutional site" },
 };
 
 const themeVars = (id: string): CSSProperties => {
@@ -1005,7 +1035,7 @@ function Projects() {
                 <p className="sd">{pick(p.shortDesc)}</p>
                 <ul className="chips">{p.stack.map(s => <li key={s}>{s}</li>)}</ul>
                 <div className="links">
-                  {p.demo && <a className="btn pri" href={p.demo} target="_blank" rel="noopener noreferrer">{t("Ver demo", "View demo")} {PX.out}</a>}
+                  {p.demo && <a className="btn pri" href={p.demo} target="_blank" rel="noopener noreferrer">{p.id === "limpattack" ? t("Ver landing", "View landing") : t("Ver demo", "View demo")} {PX.out}</a>}
                   {p.github && <a className="btn" href={p.github} target="_blank" rel="noopener noreferrer">GitHub {PX.out}</a>}
                   <button className="btn" type="button" onClick={() => { setMode("t"); crtRef.current?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); crtRef.current?.focus({ preventScroll: true }); }}>{PX.play}{t("Ver trailer", "Watch trailer")}</button>
                 </div>
