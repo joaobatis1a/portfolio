@@ -24,7 +24,7 @@ function TitleLine({ text, shown, away, start }: { text: string; shown: boolean;
 }
 
 /* Dobra espacial: o campo de estrelas global fica em primeiro plano, atrás só de um escurecimento suave sob o texto.
-   A aceleração (warp) é a mesma de sempre: dispara ao clicar em "Ver projetos" e nos links da navbar. */
+   A aceleração das estrelas só acontece ao clicar no botão de voltar ao topo. */
 function Hero() {
     const { t } = useLang();
     const [started, setStarted] = useState(false);
@@ -40,7 +40,6 @@ function Hero() {
         [t("João", "João"), t("Batista Neto", "Batista Neto")],
         [t("Desenvolvedor", "Front-end"), t("Front-end", "Developer")],
     ];
-    const fireWarp = () => window.dispatchEvent(new CustomEvent("warp"));
 
     return (
         <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
@@ -65,7 +64,7 @@ function Hero() {
 
                 <div className="hero-cta">
                     <Link
-                        to="projects" smooth offset={-70} duration={600} onClick={fireWarp}
+                        to="projects" smooth offset={-70} duration={600}
                         className="hero-btn hero-btn-pri cursor-pointer"
                     >
                         {t("Ver projetos", "See projects")}

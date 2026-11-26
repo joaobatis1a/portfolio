@@ -77,11 +77,6 @@ function StarBackground() {
         window.addEventListener("starfield-freeze", onFreeze);
 
         // ── Warp event ──
-        const onWarp = () => {
-            warpActive = true;
-            warpSpeed = 0;
-        };
-        window.addEventListener("warp", onWarp);
 
         // ── Aceleração (warp contínuo) disparada só pelo botão de voltar ao topo ──
         let holding = false;
@@ -178,7 +173,6 @@ function StarBackground() {
         return () => {
             cancelAnimationFrame(animId);
             window.removeEventListener("resize", resize);
-            window.removeEventListener("warp", onWarp);
             window.removeEventListener("starfield-freeze", onFreeze);
             window.removeEventListener("mousemove", onMouseMove);
             window.removeEventListener("warp-hold", onHold);

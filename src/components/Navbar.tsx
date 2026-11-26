@@ -105,7 +105,6 @@ function Navbar() {
         return () => { document.body.style.overflow = ""; };
     }, [open]);
 
-    const fireWarp = () => window.dispatchEvent(new CustomEvent("warp"));
 
     return (
         <>
@@ -123,7 +122,6 @@ function Navbar() {
                                         to={to} smooth offset={-70} duration={500}
                                         data-to={to}
                                         className={active === to ? "on" : ""}
-                                        onClick={fireWarp}
                                     >
                                         {pick(label)}
                                     </Link>
@@ -204,7 +202,7 @@ function Navbar() {
                         <Link
                             key={to}
                             to={to} smooth offset={-70} duration={500}
-                            onClick={() => { setOpen(false); fireWarp(); }}
+                            onClick={() => setOpen(false)}
                             style={{
                                 opacity: open ? 1 : 0,
                                 transform: open ? "translateX(0)" : "translateX(-20px)",
