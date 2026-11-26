@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#171715"/><path d="M9 24V8h8a4.5 4.5 0 0 1 0 9H9m8 0 6 7" fill="none" stroke="#D6CABB" stroke-width="1.8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 96" role="img" aria-label="Rafaela Ferreira Arquitetura">
+  <g fill="none" stroke="#c9b79a" stroke-width="2.4" stroke-linecap="square">
+    <path d="M6 10 H54 V86 H6 Z"/>
+    <path d="M6 86 H30 M30 86 V60 M54 10 L30 36"/>
+    <path d="M30 60 A 12 12 0 0 1 42 48" stroke-width="1.6"/>
+  </g>
+  <rect x="20" y="62" width="10" height="4" fill="#c9b79a"/>
+  <text x="72" y="44" font-family="'Cormorant Garamond', Georgia, serif" font-size="30" font-weight="600" fill="#f5f0e6" letter-spacing="0.5">Rafaela Ferreira</text>
+  <text x="73" y="68" font-family="Manrope, Arial, sans-serif" font-size="11" letter-spacing="3.2" fill="#c9b79a">ARQUITETURA COMERCIAL</text>
+</svg>

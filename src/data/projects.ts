@@ -233,7 +233,7 @@ export const UNLOCKED: UnlockedProjectData[] = [
     name: "Limpattack",
     period: { pt: "Fev 2025 – Jul 2025", en: "Feb 2025 – Jul 2025" },
     shortDesc: { pt: "Jogo educativo inspirado em Pokémon, para crianças de 6 a 10 anos. Foco em higiene e combate a bactérias.", en: "Pokémon-inspired educational game for kids aged 6 to 10, focused on hygiene and fighting germs." },
-    fullDesc: { pt: "Jogo educativo inspirado em Pokémon para crianças de 6 a 10 anos, com sprites, mapas interativos e mecânicas de RPG, que ensina hábitos de higiene e o combate às bactérias. Fui responsável pelas mecânicas de jogo e pela produção do trailer oficial, num time da UNIFAFIRE. Ficou em 1º lugar na banca da UNIFAFIRE e foi aplicado com crianças. Python e Pygame.", en: "Pokémon-inspired educational game for kids aged 6 to 10, with sprites, interactive maps and RPG mechanics, that teaches hygiene habits and fighting germs. I was responsible for the game mechanics and for producing the official trailer, on a UNIFAFIRE team. It took 1st place with the UNIFAFIRE panel and was used with children. Python and Pygame." },
+    fullDesc: { pt: "Jogo educativo inspirado em Pokémon para crianças de 6 a 10 anos, com sprites, mapas interativos e mecânicas de RPG, que ensina hábitos de higiene e o combate às bactérias. Fui responsável pelas mecânicas de jogo e pela produção do trailer oficial, num time da UNIFAFIRE. Ficou em 1º lugar na banca da UNIFAFIRE e foi aplicado com crianças. A landing reúne o trailer e leva ao download do jogo. Python e Pygame.", en: "Pokémon-inspired educational game for kids aged 6 to 10, with sprites, interactive maps and RPG mechanics, that teaches hygiene habits and fighting germs. I was responsible for the game mechanics and for producing the official trailer, on a UNIFAFIRE team. It took 1st place with the UNIFAFIRE panel and was used with children. The landing page brings together the trailer and leads to the game download. Python and Pygame." },
     role: { pt: "Mecânicas de jogo & trailer", en: "Game mechanics & trailer" },
     stack: ["Python", "Pygame"],
     github: "https://github.com/joaobatis1a/limpattack",
@@ -256,7 +256,7 @@ export const UNLOCKED: UnlockedProjectData[] = [
   {
     id: "rafa",
     name: "Rafaela Ferreira · Arquitetura",
-    period: { pt: "Projeto de cliente", en: "Client project" },
+    period: { pt: "nov. de 2026 – nov. de 2026", en: "Nov 2026 – Nov 2026" },
     shortDesc: { pt: "Site institucional de uma arquiteta de espaços comerciais, em uma página, com processo em maquete 3D.", en: "Institutional site for an architect of commercial spaces, on one page, with a process section in 3D." },
     fullDesc: { pt: "Site institucional em uma página para uma arquiteta especializada em espaços comerciais, com projetos em galeria, serviços em lista, o processo de trabalho com uma maquete 3D que se monta conforme a rolagem (no celular, uma prancha por etapa) e contato direto por WhatsApp e e-mail. Desenvolvido a partir do site atual da profissional.", en: "One-page institutional site for an architect specialized in commercial spaces, with a project gallery, a service list, the work process with a 3D model that assembles as you scroll (on mobile, one board per step) and direct contact by WhatsApp and email. Built from the professional's current site." },
     role: { pt: "Desenvolvedor front-end (solo)", en: "Front-end developer (solo)" },
