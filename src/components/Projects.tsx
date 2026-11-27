@@ -758,49 +758,74 @@ function DriblouEffect() {
   return <svg viewBox="0 0 220 140" preserveAspectRatio="xMidYMid slice" shapeRendering="crispEdges" style={SVG_STYLE} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s }} />;
 }
 
-// Rafa: maquete isométrica que monta os andares e varre o prédio, na paleta areia e grafite do site
+// Rafa: cômodo em isometria suave, com paredes que sobem e móveis que entram um a um, na paleta areia e grafite
+const RAFA_K = { sand: "201,183,154", ivory: "245,240,230", sage: "143,162,130", clay: "196,142,112", glow: "255,226,170" };
+
 function RafaEffect() {
-  const { t: tr } = useLang();
   const t = useClock();
-  const S = "rgba(201,183,154,";
-  const SL = "rgba(245,240,230,";
-  const cycle = 6;
+  const K = RAFA_K, S = K.sand, L = K.ivory;
+  const cycle = 9;
   const p = (t % cycle) / cycle;
-  const ease = (x: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
-  const iso = (x: number, y: number, z: number): [number, number] => [
-    110 + (x - y) * 0.866 * 0.6,
-    82 + (x + y) * 0.5 * 0.6 - z * 0.6,
-  ];
-  const floors = [0, 1, 2].map((i) => ({ i, k: ease((p - 0.06 - i * 0.14) / 0.24) }));
-  const scanY = 30 + ((p * 1.6) % 1) * 84;
-  return (
-    <svg style={SVG_STYLE} viewBox="0 0 220 140" shapeRendering="geometricPrecision">
-      {floors.map(({ i, k }) => {
-        if (k <= 0) return null;
-        const z = i * 30 + (1 - k) * 60;
-        const corner = (x: number, y: number, zz: number) => iso(x - 28, y - 28, zz).join(",");
-        const base = [corner(0, 0, z), corner(56, 0, z), corner(56, 56, z), corner(0, 56, z)].join(" ");
-        const top = z + 22;
-        return (
-          <g key={i} opacity={k}>
-            <polygon points={base} fill={`${S}${0.08 + 0.06 * i})`} stroke={`${S}0.7)`} strokeWidth="1" />
-            {[[0, 0], [56, 0], [56, 56], [0, 56]].map(([x, y], j) => {
-              const [a, b] = iso(x - 28, y - 28, z);
-              const [c, d] = iso(x - 28, y - 28, top);
-              return <line key={j} x1={a} y1={b} x2={c} y2={d} stroke={`${SL}0.75)`} strokeWidth="1" />;
-            })}
-            <polygon
-              points={[corner(0, 0, top), corner(56, 0, top), corner(56, 56, top), corner(0, 56, top)].join(" ")}
-              fill={`${SL}${0.05 + 0.05 * i})`} stroke={`${SL}0.85)`} strokeWidth="1"
-            />
-            <line x1={iso(0, 28 - 28, top)[0]} y1={iso(0, 28 - 28, top)[1]} x2={iso(56, 28 - 28, top)[0]} y2={iso(56, 28 - 28, top)[1]} stroke={`${S}0.4)`} strokeWidth="1" />
-          </g>
-        );
-      })}
-      <rect x="0" y={scanY} width="220" height="1" fill={`${SL}0.35)`} />
-      <EffectLabel text={tr("MAQUETE 3D", "3D MODEL")} color={S} light={SL} />
-    </svg>
-  );
+  const rgba = (c: string, a: number) => `rgba(${c},${a})`;
+  const f = (n: number) => n.toFixed(2);
+  const clamp = (x: number) => Math.min(1, Math.max(0, x));
+  const ease = (x: number) => 1 - Math.pow(1 - clamp(x), 3);
+  const back = (x: number) => { x = clamp(x); const a = 1.6; return 1 + (a + 1) * Math.pow(x - 1, 3) + a * Math.pow(x - 1, 2); };
+  const fade = 1 - ease((p - 0.92) / 0.08);
+  const fadeIn = (s: number, dur = 0.08) => ease((p - s) / dur) * fade;
+  const item = (s: number, inner: string, drop = 6, dur = 0.07) => {
+    const k = clamp((p - s) / dur);
+    const o = ease(k * 2) * fade;
+    if (o < 0.003) return "";
+    return `<g opacity="${o.toFixed(3)}" transform="translate(0 ${(-(1 - back(k)) * drop).toFixed(2)})">${inner}</g>`;
+  };
+  const plus = (x: number, y: number, r: number, col: string, w = 0.7) =>
+    `<path d="M${x} ${y - r}v${2 * r}M${x - r} ${y}h${2 * r}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round"/>`;
+
+  const sc = 0.7, X0 = 110, Y0 = 42;
+  type P3 = [number, number, number];
+  const iso = (x: number, y: number, z: number): [number, number] => [X0 + (x - y) * 0.866 * sc, Y0 + (x + y) * 0.5 * sc - z * sc];
+  const pt = (a: P3) => { const q = iso(a[0], a[1], a[2]); return `${f(q[0])},${f(q[1])}`; };
+  const poly = (pts: P3[], fill: string, stroke?: string, w = 0.6) =>
+    `<polygon points="${pts.map(pt).join(" ")}" fill="${fill}" stroke="${stroke || "none"}" stroke-width="${w}" stroke-linejoin="round"/>`;
+  const box = (x0: number, y0: number, z0: number, dx: number, dy: number, dz: number, col: string, a: number) => {
+    const x1 = x0 + dx, y1 = y0 + dy, z1 = z0 + dz, st = rgba(L, 0.55);
+    return poly([[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], rgba(col, a + 0.2), st) +
+      poly([[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], rgba(col, a), st) +
+      poly([[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], rgba(col, a - 0.1), st);
+  };
+  const line = (a: [number, number], b: [number, number], col: string, w: number) =>
+    `<path d="M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}" stroke="${col}" stroke-width="${w}" fill="none"/>`;
+
+  let s = `<defs><radialGradient id="rafaGlow"><stop offset="0" stop-color="rgb(${K.glow})" stop-opacity=".7"/><stop offset="1" stop-color="rgb(${K.glow})" stop-opacity="0"/></radialGradient></defs>`;
+  s += '<g transform="translate(110 58) scale(0.84) translate(-110 -52)">';
+  const wk = ease((p - 0.1) / 0.2), H = 38 * wk;
+  s += `<g opacity="${f(fade)}">` +
+    poly([[0, 0, 0], [60, 0, 0], [60, 60, 0], [0, 60, 0]], rgba(S, 0.14 * ease(p / 0.1)), rgba(L, 0.8), 0.9) +
+    poly([[0, 0, 0], [60, 0, 0], [60, 0, H], [0, 0, H]], rgba(K.sage, 0.14), rgba(L, 0.8), 0.9) +
+    poly([[0, 0, 0], [0, 60, 0], [0, 60, H], [0, 0, H]], rgba(S, 0.12), rgba(L, 0.8), 0.9) + "</g>";
+  s += item(0.3, poly([[12, 12, 0.2], [44, 12, 0.2], [44, 44, 0.2], [12, 44, 0.2]], rgba(K.clay, 0.3), rgba(K.clay, 0.6), 0.5), 3);
+  s += item(0.34, poly([[0, 14, 16], [0, 36, 16], [0, 36, 34], [0, 14, 34]], rgba(K.glow, 0.12), rgba(S, 0.9), 0.8) +
+    line(iso(0, 25, 16), iso(0, 25, 34), rgba(S, 0.5), 0.5) + line(iso(0, 14, 25), iso(0, 36, 25), rgba(S, 0.5), 0.5), 3);
+  const sh = Math.sin(t * 0.6) * 3;
+  s += poly([[0, 14, 0.15], [0, 36, 0.15], [20 + sh, 40, 0.15], [20 + sh, 18, 0.15]], `rgba(${K.glow},${f(fadeIn(0.5, 0.1) * 0.12)})`);
+  s += item(0.4, box(6, 1, 0, 30, 14, 7, S, 0.38) + box(6, 1, 7, 30, 4, 7, S, 0.38) + box(8, 5, 7, 8, 8, 2, K.clay, 0.7));
+  s += item(0.5, poly([[10, 0, 20], [24, 0, 20], [24, 0, 31], [10, 0, 31]], "none", rgba(S, 0.9), 0.8) +
+    poly([[30, 0, 22], [42, 0, 22], [42, 0, 30], [30, 0, 30]], "none", rgba(S, 0.9), 0.8), 3);
+  s += item(0.56, box(24, 26, 8, 14, 14, 1.4, L, 0.3) +
+    ([[24, 26], [37, 26], [24, 39], [37, 39]] as [number, number][]).map((c) => line(iso(c[0] + 0.5, c[1] + 0.5, 0), iso(c[0] + 0.5, c[1] + 0.5, 8), rgba(S, 0.8), 0.7)).join(""), 5);
+  const vz = iso(31, 33, 11), vb = iso(31, 33, 9.4);
+  s += item(0.62, `<circle cx="${f(vz[0])}" cy="${f(vz[1] - 1.5)}" r="1.6" fill="${rgba(K.clay, 0.9)}"/>` + line(vb, [vz[0], vz[1] - 1], rgba(K.sage, 0.9), 0.6), 4);
+  const lb = iso(3, 52, 0), lt = iso(3, 52, 28);
+  s += item(0.66, line(lb, lt, rgba(S, 0.85), 0.8) +
+    `<path d="M${f(lt[0] - 4)} ${f(lt[1])}H${f(lt[0] + 4)}L${f(lt[0] + 2.6)} ${f(lt[1] - 5)}H${f(lt[0] - 2.6)}Z" fill="${rgba(S, 0.5)}" stroke="${rgba(S, 0.9)}" stroke-width=".6" stroke-linejoin="round"/>`);
+  s += `<circle cx="${f(lt[0])}" cy="${f(lt[1])}" r="13" fill="url(#rafaGlow)" opacity="${f(fadeIn(0.7) * (0.85 + 0.15 * Math.sin(t * 3)))}"/>`;
+  const pc = iso(53, 51, 13);
+  s += item(0.72, box(50, 48, 0, 6, 6, 6, S, 0.5) +
+    `<circle cx="${f(pc[0])}" cy="${f(pc[1])}" r="6" fill="${rgba(K.sage, 0.6)}"/><circle cx="${f(pc[0] + 3.6)}" cy="${f(pc[1] - 3)}" r="3.6" fill="${rgba(K.sage, 0.45)}"/>`);
+  s += `<g opacity="${f(fadeIn(0.78))}">${plus(48, 24, 2.2, rgba(L, 0.75))}${plus(170, 30, 1.8, rgba(S, 0.9))}</g>`;
+  s += "</g>";
+  return <svg viewBox="0 0 220 140" shapeRendering="geometricPrecision" style={SVG_STYLE} aria-hidden="true" dangerouslySetInnerHTML={{ __html: s }} />;
 }
 
 const CARD_EFFECTS: Record<string, React.FC> = {
